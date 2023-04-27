@@ -1,4 +1,4 @@
-# ioter-ui-app-automation
+# automation
 
 ## Required Configuration files
 - Device type configuration file stored in automation\conf

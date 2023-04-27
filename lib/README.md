@@ -1,4 +1,4 @@
-# ioter-ui-app - lib
+# lib
 
 ## How to build
 
@@ -7,8 +7,8 @@ These installation instructions have been tested on Ubuntu 22.04 LTS.
 ```
 $ mkdir -p ~/ioter_src
 $ cd ~/ioter_src
-$ git clone https://github.ecodesamsung.com/THREAD/ioter-ui-app.git
-$ cd ioter-ui-app
+$ git clone https://github.com/Samsung/ioter.git
+$ cd ioter
 $ git submodule update --init
 
 # build fed : ./script/build_ot fed
