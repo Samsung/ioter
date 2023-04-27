@@ -12,7 +12,21 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - **Automation:** Repeated testing through scripts can validate device stability and connection.
 
 ## Overview
-![image](https://media.github.ecodesamsung.com/user/18273/files/0f8ae6e3-1d05-4708-ac75-7ba1dcef00f1)
+![ioter_overview](https://user-images.githubusercontent.com/131251075/234764651-0662208c-3cc6-40b3-9999-9beab3db718a.JPG)
+
+## Supporting Things (2023-04-27)
+
+- Light Bulb
+- Door Lock
+- Contact Sensor
+- Temperature Sensor
+- Humidity Sensor
+- Light Sensor
+- Window Covering
+- Occupancy Sensor
+- OnOff Plugin
+
+![ioter-things](https://user-images.githubusercontent.com/131251075/234766757-ec8cb1e9-4d6a-439e-bf78-cec875855e01.PNG)
 
 ## Prepare tools
 - Bluetooth enabled desktop or laptop
@@ -50,6 +64,13 @@ cd ioter
 cd ioter
 ./script/run
 ```
+
+## How to onboarding
+![ioter-onboarding](https://user-images.githubusercontent.com/131251075/234769085-ce688b94-3185-40bb-91fe-a300ae11635f.PNG)
+1. If you run the ioter with run script, the thing can be executed with the start button.
+2. The Power on button has the same function as the device power.
+3. When you click Power on, a QR code and a paring code are created. Use this to proceed with the onboarding procedure.
+4. When the connection is completed, Thing control is possible.
 
 ## Known issues
 Problem with specific linux kernel version (higher than 5.16 and lower than 6.1.2)
