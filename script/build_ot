@@ -1,0 +1,52 @@
+#!/bin/sh
+
+cd "$(dirname "$0")/.."
+
+CONFIG_SCRIPT="./script/_config"
+test -r ${CONFIG_SCRIPT} && . ${CONFIG_SCRIPT}
+
+TYPE_PARAM="$1"
+OPENTHREAD_DIR=${IOTER_DIR}"/third_party/openthread/ot-samsung"
+OUTPUT=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-cli.so"
+OPENTHREAD_VER="1.3"
+
+HELP_STR="Please, use build_ioter with following options.
+./script/build_ioter fed
+./script/build_ioter med
+./script/build_ioter sed"
+
+install_openthread()
+{
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread-cli.so.${OPENTHREAD_VER}-build-${TYPE_PARAM}"
+    echo "install libopenthread-cli.so to ${INSTALL_NAME}"
+    cp ${OUTPUT} ${INSTALL_NAME}
+}
+
+build_openthread()
+{
+    cd "${OPENTHREAD_DIR}"
+
+    if [ "fed" = "$TYPE_PARAM" ]; then
+        THREAD_TYPE="-DOT_FTD=ON"
+    elif [ "med" = "$TYPE_PARAM" ] || [ "sed" = "$TYPE_PARAM" ]; then
+        THREAD_TYPE="-DOT_MTD=ON"
+    else
+        echo "build_ot : invalid option ${TYPE_PARAM}"
+        echo "${HELP_STR}"
+        return
+    fi
+
+    ./script/cmake-build posix ${THREAD_TYPE} -DOT_CLI_LIB=ON
+    if [ $? -eq 0 ];then
+        echo "libopenthread-cli.so is generated"
+        echo "output : ${OUTPUT}"
+        install_openthread
+    fi
+}
+
+main()
+{
+    build_openthread
+}
+
+main

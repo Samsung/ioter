@@ -1,0 +1,13 @@
+#!/bin/sh
+
+export IOTER_DIR=$(pwd)
+export IOTER_BIN_DIR=${IOTER_DIR}"/bin"
+export IOTER_LIB_DIR=${IOTER_DIR}"/lib"
+export IOTER_TMP_DIR=${IOTER_DIR}"/tmp"
+export IOTER_RES_DIR=${IOTER_DIR}"/res"
+
+echo "IOTER_DIR     : ${IOTER_DIR}"
+echo "IOTER_BIN_DIR : ${IOTER_BIN_DIR}"
+echo "IOTER_LIB_DIR : ${IOTER_LIB_DIR}"
+echo "IOTER_TMP_DIR : ${IOTER_TMP_DIR}"
+echo "IOTER_RES_DIR : ${IOTER_RES_DIR}"

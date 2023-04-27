@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+cd "$(dirname "$0")/../../../"
+export IOTER_DIR=$(pwd)
+export IOTER_TMP_DIR=${IOTER_DIR}"/tmp"
+
+echo ${IOTER_TMP_DIR}
+
+rm -rf ${IOTER_TMP_DIR}/success.log
+if ls ${IOTER_TMP_DIR}/*.log 2>/dev/null; then
+	tail -n0 -f ${IOTER_TMP_DIR}/*.log  | grep --line-buffered 'Received payload\|Sending encrypted msg\|Rxd Ack' | tee ${IOTER_TMP_DIR}/success.log
+fi
+

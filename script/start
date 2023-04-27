@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+cd "$(dirname "$0")/.."
+
+CONFIG_SCRIPT="./script/_config"
+test -r ${CONFIG_SCRIPT} && . ${CONFIG_SCRIPT}
+
+RUN_PARAM="$1"
+TYPE_PARAM="$2"
+DEVICE_NUM="${DEVICE_NUM:-"0"}"
+DEVICE_ID="${DEVICE_ID:-"261"}"
+DEVICE_ID_STR="${DEVICE_ID_STR:-"lightbulb"}"
+
+# CONSOLE_OUTPUT="1" # For terminal output
+
+##############################################################################################
+
+bluetooth_restart() {
+    echo "bluetooth restart"
+    sudo systemctl restart bluetooth
+    sleep 1
+}
+
+get_param() {
+#    IFS=' ' read -r -a params <<< "${RUN_PARAM}"
+    params=(${RUN_PARAM// / })
+    for index in "${!params[@]}"
+    do
+        if [ "${params[index]}" = "--device-id" ]; then
+            DEVICE_ID=${params[index + 1]}
+        elif [ "${params[index]}" = "--device-num" ]; then
+            DEVICE_NUM=${params[index + 1]}
+        fi
+    done
+}
+
+get_device_str() {
+    if [ "${DEVICE_ID}" = "261" ]; then
+        DEVICE_ID_STR="lightbulb"
+    elif [ "${DEVICE_ID}" = "10" ]; then
+        DEVICE_ID_STR="doorlock"
+    elif [ "${DEVICE_ID}" = "21" ]; then
+        DEVICE_ID_STR="contactsensor"
+    elif [ "${DEVICE_ID}" = "770" ]; then
+        DEVICE_ID_STR="temperature"
+    elif [ "${DEVICE_ID}" = "775" ]; then
+        DEVICE_ID_STR="humidity"
+    elif [ "${DEVICE_ID}" = "262" ]; then
+        DEVICE_ID_STR="lightsensor"
+    elif [ "${DEVICE_ID}" = "263" ]; then
+        DEVICE_ID_STR="occupancy"
+    elif [ "${DEVICE_ID}" = "514" ]; then
+        DEVICE_ID_STR="windowcovering"
+    elif [ "${DEVICE_ID}" = "266" ]; then
+        DEVICE_ID_STR="onoffplugin"
+    fi
+}
+
+ioter_restart() {
+    echo "launch chip-all-clusters-app-${TYPE_PARAM} : (param) ${RUN_PARAM}"
+    TIMESTAMP=$(date +%y%m%d-%H%M)
+    echo "timestamp : ${TIMESTAMP}"
+    LOG_NAME="${TIMESTAMP}"-"${DEVICE_ID_STR}"-"${DEVICE_NUM}".log
+
+    if [ "${CONSOLE_OUTPUT}" = "1" ]; then
+        # terminal output && file output
+        sudo ${IOTER_BIN_DIR}/chip-all-clusters-app-${TYPE_PARAM} ${RUN_PARAM} 2>&1 |
+            tee ${IOTER_TMP_DIR}/"${LOG_NAME}"
+    else
+        # only file output
+        sudo ${IOTER_BIN_DIR}/chip-all-clusters-app-${TYPE_PARAM} ${RUN_PARAM} 2>&1 |
+            tee ${IOTER_TMP_DIR}/"${LOG_NAME}" 1>/dev/null
+    fi
+
+    exit 0
+}
+
+main() {
+    bluetooth_restart
+    ioter_restart
+}
+
+get_param "$@"
+get_device_str
+main

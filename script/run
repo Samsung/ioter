@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd "$(dirname "$0")/.."
+MAIN_FILE="src/main.py"
+sudo python3 ${MAIN_FILE}

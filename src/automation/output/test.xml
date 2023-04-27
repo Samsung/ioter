@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='us-ascii'?>
+<AutomationScript>
+ <loop count="2" interval="2">
+  <cmd devType="Humidity-0" cmdName="Level Control %" val="30" />
+  <sleep interval="2" />
+  <cmd devType="Humidity-0" cmdName="Level Control %" val="0" />
+  <sleep interval="1" />
+  <cmd devType="Humidity-0" cmdName="Level Control %" val="100" />
+ </loop>
+</AutomationScript>
