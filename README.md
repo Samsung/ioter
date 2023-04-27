@@ -51,15 +51,6 @@ cd ioter
 ./script/run
 ```
 
-## Current Limitations/TODOs
-
-## Library
--
-
-## How to make a exec file
-1. install pyinstaller
-2. 
-
 ## Known issues
 Problem with specific linux kernel version (higher than 5.16 and lower than 6.1.2)
 The message below appears in the syslog
