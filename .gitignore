@@ -1,0 +1,13 @@
+# VS Code Configs
+
+# Temporary Directories
+tmp/
+
+# Python bytecodes
+__pycache__
+
+# Python UI generation files
+ui_*.py
+
+# ioter-ui-app generation files
+
