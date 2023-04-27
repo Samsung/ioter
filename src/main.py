@@ -1,6 +1,5 @@
 #!/usr/bin/python
 from common.device_command import *
-from common.device_command import *
 from common.device_window import *
 from common.manage_device import *
 from common.manage_usb import UsbMonitor
