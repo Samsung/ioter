@@ -36,23 +36,6 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
     1. Nordic nrf52840 [OT RCP dongle guide](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/openthread_rcp_nrf_dongle.md)
 - Phone with SmartThings App installed and onboarded with Samsung SmartThings Station.
 
-## Pre-setting for ioter
-1. Prepare a desktop or laptop with Ubuntu 22.04.
-2. In Ubuntu, change the wlan network name to 'eth0'. Check and confirm wlan network name with 'ifconfig' command.
-```
-// ifconfig didn't install
-# sudo apt-get install net-tools
-# ifconfig
-```
-In ubuntu, if the network interface name does not start with eth0(enp1s0, etc.), this must be changed. Open the terminal window and enter and modify in same order as below
-```
-# sudo -i
-// enter admin password
-# gedit /etc/default/grub
-// Modify the line that says GRUB_CMDLINE_LINUX="" to GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"
-# update-grub
-# reboot
-```
 ## How to install and excute
 1. install
 ```
