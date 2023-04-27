@@ -145,12 +145,13 @@ class MainWindow(QMainWindow,
             comPort = self.deviceManager.remove_usb_device(path)
             if comPort in self.dialog:
                 self.dialog[comPort].get_window().force_closeEvent()
-                del self.dialog[comPort]
+                if self.automation is not None:
+                    self.removed_usb.emit(
+                        self.dialog[comPort].device_info.get_device_num())
+                del (self.dialog[comPort])
             if self.auto_onboarding is not None:
                 self.auto_onboarding.remove_device(comPort)
-            if self.automation is not None and comPort is not None:
-                self.removed_usb.emit(self.dialog[comPort].device_info.get_device_num())
-
+            # print(action + " " + path)
         comport_list = self.deviceManager.get_unused_devices()
         self.comboBoxCom.clear()
         if len(comport_list) == 0:
