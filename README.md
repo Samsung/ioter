@@ -1,6 +1,6 @@
 # ioter
 ## What is ioter
-Ioter is a tool that allows you to emulate all Matter supported IoT devices with Linux PC and Thread RCP dongle. This tool runs All-cluster-app of Matter on Linux PC to emulate multiple instances of Matter supported various IoT nodes. Each of these IoT nodes uses underlying Thread RCP based USB Dongle(Radio) for data transmission. By using Samsung¡¯s SmartThings Station(that acts as Border Router) and SmartThings Application along with emulated IoT nodes, we can configure a Smart Home.
+Ioter is a tool that allows you to emulate all Matter supported IoT devices with Linux PC and Thread RCP dongle. This tool runs All-cluster-app of Matter on Linux PC to emulate multiple instances of Matter supported various IoT nodes. Each of these IoT nodes uses underlying Thread RCP based USB Dongle(Radio) for data transmission. By using Samsungs SmartThings Station(that acts as Border Router) and SmartThings Application along with emulated IoT nodes, we can configure a Smart Home.
 
 Ioter acts as Mate/Helper to developers, testers and device manufacturers involved in smart home devices that are compliant with Matter and Thread specifications and it is very beneficial in terms of its below offerings: 
 
