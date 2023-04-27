@@ -89,6 +89,16 @@ class MainWindow(QMainWindow,
         self.test_window_timer.stop()
         self.popup_shown = False
 
+    def create_dialog(self, obj, cls_name):
+        if obj is None:
+            obj = cls_name(self)
+            obj.dialog_closed.connect(self.exit_dialog)
+            obj.force_close.connect(obj.force_closeEvent)
+            obj.show()
+        else:
+            print("Already Opened")
+        return obj
+
     def start_automation(self):
         device_list = self.deviceManager.get_used_devices()
         isonboarded = False
@@ -98,31 +108,13 @@ class MainWindow(QMainWindow,
                 break
 
         if isonboarded:
-            if self.automation is None:
-                self.automation = automationWindow(
-                    self.deviceManager, self.use_test_window)
-                self.automation.dialog_closed.connect(self.exit_dialog)
-                self.automation.send_used_list.connect(self.autotest_used_list)
-                self.automation_force_close.connect(
-                    self.automation.force_closeEvent)
-                self.removed_usb.connect(self.automation.removed_device)
-            else:
-                print('Already Opened')
-                automationWindow.errorbox('Automation is already running')
+            self.automation = self.create_dialog(self.automation, automationWindow)
         else:
             print('No Devices are Connected/Onboarded')
             automationWindow.errorbox('No Devices are Connected/Onboarded')
 
     def start_auto_onboarding(self):
-        if self.auto_onboarding is None:
-            self.auto_onboarding = auto_onboardingWindow(self)
-            self.auto_onboarding.dialog_closed.connect(self.exit_dialog)
-            self.auto_onboarding_force_close.connect(
-                self.auto_onboarding.force_closeEvent)
-            self.auto_onboarding.show()
-            print("Auto onboarding window show")
-        else:
-            print("Already Opened")
+        self.auto_onboarding = self.create_dialog(self.auto_onboarding, auto_onboardingWindow)
 
     def set_logo(self):
         self.labelMatterlogo.setPixmap(Utils.get_icon_img(
