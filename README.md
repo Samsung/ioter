@@ -42,12 +42,12 @@ In ubuntu, if the network interface name does not start with eth0(enp1s0, etc.),
 ## How to install and excute
 1. install
 ```
-cd ioter-ui-app
+cd ioter
 ./script/setup
 ```
 2. excute
 ```
-cd ioter-ui-app
+cd ioter
 ./script/run
 ```
 
