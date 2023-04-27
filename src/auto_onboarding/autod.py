@@ -4,8 +4,8 @@ from common.device_command import CommandUtil
 import os
 import time
 from PyQt5.QtWidgets import *
-# from PyQt5 import QtCore, QtGui, uic
 from PyQt5.QtCore import *
+from PyQt5.QtTest import *
 from com.dtmilano.android.viewclient import ViewClient
 # from com.dtmilano.android.adb.adbclient import AdbClient
 
@@ -39,36 +39,147 @@ ONBOARDING_SUCCESS = 1
 ONBOARDING_FAILURE = 0
 REMOVING_SUCCESS = 3
 REMOVING_FAILURE = 2
+REMOVED_PHONE = 4
 
-dev_prefix = "IoTer Device"
 debug = 0
 
 
+class simpleDlg(QDialog):
+    def __init__(self, title, content):
+        super(simpleDlg, self).__init__()
+        self.app = QErrorMessage()
+        self.app.showMessage(content)
+        self.app.setWindowModality(Qt.WindowModal)
+        self.app.setWindowTitle(title)
+        self.app.exec()
+
+
 class autoDevice(QThread):
-    update_onboarding_state = pyqtSignal(int)
+    update_onboarding_state = pyqtSignal(int, str, str)
 
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.device, self.serialno = ViewClient.connectToDeviceOrExit()
-        self.vc = ViewClient(self.device, self.serialno)
+        self.step = 0
+        self.device = None
+        self.serialno = None
+        self.vc = None
+        self.running = False
+        self.device_name = None
+        self.comport = None
+        self.device_num = None
+        self.is_request = dict()
+        # print("autoDevice")
 
     def run(self):
-        self.device_name = f"{CommandUtil.get_device_type_by_device_id(self.parent.device_info.device_id)}-{self.parent.device_info.device_num}"
+        self.running = True
+        self.step = 0
+        self.is_request.clear()
+        while self.running:
+            if self.step == 1:
+                if self.try_connect_phone():
+                    self.step = 2
+                    continue
+                self.step = 0
+            elif self.step == 2:
+                self.auto_onboarding_device()
+                self.step = 0
+            elif self.step == 3:
+                self.auto_remove_device()
+                self.step = 0
+            QTest.qWait(1000)
+
+    def get_number_of_adb_devices(self):
+        sh_process = os.popen("adb devices")
+        res = sh_process.read()
+        list = res.split("\n")
+        while "" in list:
+            list.remove("")
+        while "List of devices attached" in list:
+            list.remove("List of devices attached")
+        sh_process.close()
+        return len(list)
+
+    def check_connectable(self):
+        adb_num = self.get_number_of_adb_devices()
+        if adb_num > 0:
+            os.system("adb root")
+            return True
+        else:
+            return False
+
+    def check_auto_available(self):
+        if self.check_connectable():
+            return True
+        else:
+            err = simpleDlg(
+                "Error", "Can't work auto-onboarding because the phone is not connected")
+            err.setWindowModality(Qt.NonModal)
+            print("Can't work auto-onboarding because the phone is not connected")
+            return False
+
+    def is_running(self):
+        return self.running
+
+    def try_connect_phone(self):
+        result = False
+        if self.check_auto_available():
+            try:
+                (self.device, self.serialno) = ViewClient.connectToDeviceOrExit()
+                self.vc = ViewClient(self.device, self.serialno)
+                self.device.reconnect = True
+            except RuntimeError as e:
+                print("connect connect error", e)
+            else:
+                print("adb is connected")
+                result = True
+        return result
+
+    def is_connected(self):
+        if self.device is not None and self.vc is not None:
+            return True
+        else:
+            return False
+
+    def request_onboarding(self, comport, device_num, code, device_id):
+        if self.step != 0:
+            print(f'working on something else  step : {self.step}')
+            return False
+        if True in self.is_request.values():
+            print(f'working on something else is_request {self.is_request}')
+            return False
+        self.is_request[device_num] = True
+        self.comport = comport
+        self.device_num = device_num
+        self.device_id = device_id
+        self.pairing_code = code
+        if not self.is_connected():
+            self.step = 1
+        else:
+            self.step = 2
+        return True
+
+    def auto_onboarding_device(self):
+        self.device_name = f"{CommandUtil.get_device_type_by_device_id(self.device_id)}-{self.device_num}"
         self.count = 0
         if self.auto_onboarding():
             print("onboarding success!")
-            self.update_onboarding_state.emit(ONBOARDING_SUCCESS)
-            self.vc.sleep(1)
+            self.update_onboarding_state.emit(
+                ONBOARDING_SUCCESS, self.comport, self.device_num)
+            self.is_request[self.device_num] = False
         else:
             print("onboarding failed..")
-            self.update_onboarding_state.emit(ONBOARDING_FAILURE)
-            self.vc.sleep(1)
+            self.update_onboarding_state.emit(
+                ONBOARDING_FAILURE, self.comport, self.device_num)
+            del self.is_request[self.device_num]
 
     def auto_onboarding(self):
         start_time = time.time()
         stair = ONBOARDING_ADD_BUTTON
-        while True:
+        while self.running:
+            # print(f"auto_onboarding step {self.step} device_num {self.device_num}")
+            if True not in self.is_request.values():
+                return False
             obj = self.vc.findViewById(self.get_smartthings_view_id(stair))
             if obj and stair == ONBOARDING_ADDITIONAL_ADD_BUTTON:
                 if obj.getText() == self.get_smartthings_view_id(ADD_DEVICE_KOR) or\
@@ -100,7 +211,7 @@ class autoDevice(QThread):
                 if debug == 1:
                     print(
                         f"stair::ONBOARDING_MANUAL_PAIRING_CODE_TEXTBOX, obj={obj}")
-                obj.type(self.parent.plainTextEditPairingCode.toPlainText())
+                obj.type(self.pairing_code)
                 stair += 1
             elif obj and stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE:
                 if debug == 1:
@@ -117,9 +228,9 @@ class autoDevice(QThread):
                     if debug == 1:
                         print(
                             f"stair::ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE, keyboard down")
-                    time.sleep(2)
+                    QTest.qWait(2000)
                 obj.touch()
-                time.sleep(12)
+                QTest.qWait(12000)
                 stair += 1
             elif stair == ONBOARDING_DONE_BACK_TO_FIRST_SCREEN:
                 if debug == 1:
@@ -130,7 +241,7 @@ class autoDevice(QThread):
                     if debug == 1:
                         print(f"obj={obj}")
                     self.vc.device.press("BACK")
-                    time.sleep(3)
+                    QTest.qWait(3000)
                     if debug == 1:
                         print("press BACK")
                     return True
@@ -143,7 +254,7 @@ class autoDevice(QThread):
                 if debug == 1:
                     print(f"stair::{stair}, obj={obj}")
                 obj.touch()
-                time.sleep(1)
+                QTest.qWait(1000)
                 stair += 1
             elif not obj:
                 if stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE:
@@ -155,6 +266,8 @@ class autoDevice(QThread):
                         print(f"not found stair::{stair}'s obj")
                     self.vc.dump(window=-1)
 
+            if True not in self.is_request.values():
+                return False
             # screenshot when error occurs
             err = self.vc.findViewById(
                 self.get_smartthings_view_id(ERROR_CHECK_LAYOUT))
@@ -167,7 +280,7 @@ class autoDevice(QThread):
                     err2 = self.vc.findViewById(self.get_smartthings_view_id(
                         ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE))
                     err2.touch()
-                    time.sleep(1)
+                    QTest.qWait(1000)
                     self.vc.device.press("BACK")
                     if debug == 1:
                         print("press BACK")
@@ -179,7 +292,7 @@ class autoDevice(QThread):
                 print(
                     f"Too much time {ONBOARDING_TIMEOUT}s goes on for onboarding... it is failed!")
                 self.vc.device.press("BACK")
-                while True:
+                while self.running:
                     self.vc.dump(window=-1)
                     ti = self.vc.findViewById(
                         self.get_smartthings_view_id(ERROR_CHECK_LAYOUT))
@@ -189,28 +302,52 @@ class autoDevice(QThread):
                             print(ti)
                         ti.touch()
                         break
-                time.sleep(1)
+                QTest.qWait(1000)
                 self.vc.device.press("BACK")
-                time.sleep(1)
+                QTest.qWait(1000)
                 if debug == 1:
                     print("press BACK")
                 return False
 
+    def disconnect_device(self, device_num):
+        if device_num in self.is_request:
+            del self.is_request[device_num]
+            # self.step = 0
+
+    def request_remove(self, comport, device_num, device_id):
+        if self.step != 0:
+            print(f'working on something else  step : {self.is_request}')
+            return
+        if True in self.is_request.values():
+            print(f'working on something else is_request : {self.is_request}')
+            return
+        if not device_num in self.is_request:
+            return
+        self.is_request[device_num] = True
+        self.device_num = device_num
+        self.comport = comport
+        self.device_id = device_id
+        self.step = 3
+
     def auto_remove_device(self):
+        self.device_name = f"{CommandUtil.get_device_type_by_device_id(self.device_id)}-{self.device_num}"
         if self.remove_device():
             print("removing success!")
-            self.update_onboarding_state.emit(REMOVING_SUCCESS)
+            self.update_onboarding_state.emit(
+                REMOVING_SUCCESS, self.comport, self.device_num)
             self.vc.sleep(1)
         else:
             print("removing failed!")
-            self.update_onboarding_state.emit(REMOVING_FAILURE)
+            self.update_onboarding_state.emit(
+                REMOVING_FAILURE, self.comport, self.device_num)
             self.vc.sleep(1)
+        del self.is_request[self.device_num]
 
     def remove_device(self):
         print(f"{self.device_name} will be removed ...")
         start_time = time.time()
         stair = REMOVE_START
-        while True:
+        while self.running:
             if stair == REMOVE_START:
                 self.vc.dump(window=-1)
                 obj = self.vc.findViewWithText(self.device_name)
@@ -285,6 +422,17 @@ class autoDevice(QThread):
         }.get(key, 0)
         return type
 
+    def removed_phone(self):
+        del self.device
+        del self.vc
+        self.device = None
+        self.vc = None
+
     def stop(self):
+        self.removed_phone()
+        self.running = False
+        self.is_request.clear()
+        self.update_onboarding_state.emit(
+            REMOVED_PHONE, self.comport, self.device_num)
         self.quit()
         self.wait(1000)

@@ -48,10 +48,14 @@ class UsbManager():
         if len(self.usb_devices) == 0:
             print('No USB Serial devices detected.')
 
+    def connected_phone_device(self):
+        for usb_device in self.usb_devices:
+            if usb_device.is_phone:
+                return True
+        return False
+
     def is_usb_device(self, device, path=None):
         if 'ID_VENDOR' not in device.properties:
-            return False
-        if "SAMSUNG" in device.properties['ID_VENDOR']:  # except samsung phone
             return False
         if path is not None:
             if device.properties['DEVPATH'].find(path) == -1:
@@ -70,7 +74,10 @@ class UsbManager():
                 self.set_devnum(usb_device)
                 self.usb_devices.append(usb_device)
                 # usb_device.item_display()
-                if path is not None:
+                if "SAMSUNG" in usb_device.vendor_name:
+                    usb_device.set_phone()
+                    print(f'phone is {usb_device.comPort}')
+                elif path is not None:
                     return usb_device.comPort
         return None
 
@@ -125,6 +132,7 @@ class UsbDevice:
         self.devpath = self.devpath[:self.devpath.rfind('/')]
         self.serial = serial
         self.vendor_name = vendor_name
+        self.is_phone = False
         self.devnum = -1
         self.usbpath = ""
         # /sys/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1.3/uevent
@@ -152,6 +160,9 @@ class UsbDevice:
 
     def set_devnum(self, devnum):
         self.devnum = devnum
+
+    def set_phone(self):
+        self.is_phone = True
 
     def item_display(self):
         print('comPort = ' + self.comPort)

@@ -24,9 +24,9 @@ class CommonWindow(QMainWindow):
         self.ioter = ProcessController()
         self.force_quit = False
         self.pipeThread = 0
-        self.auto_on = 0
         self.pipe_event_handler = None
         self.autotest_event_handler = None
+        self.auto = self.device_info.get_auto()
 
         self.ioter.terminate_chip_all_clusters(self.device_info, True)
         self.init_ui_component(view_name, icon_name, device_info)
@@ -51,6 +51,7 @@ class CommonWindow(QMainWindow):
         self.setWindowTitle(title)
         self.init_icon(icon_name)
         self.init_power_button()
+        self.init_auto_checkbox()
         self.init_information_ui(device_info)
         self.stackedWidget.setCurrentIndex(0)
 
@@ -65,6 +66,10 @@ class CommonWindow(QMainWindow):
         self.pushButtonStatus.setCheckable(True)
         self.pushButtonStatus.setStyleSheet(
             Utils.get_ui_style_toggle_btn(False))
+
+    def init_auto_checkbox(self):
+        self.chkbox_auto.stateChanged.connect(
+            self.check_conditions_for_auto_onboarding)
 
     def init_power_button(self):
         self.pushButtonDevicePower.setMinimumSize(QSize(0, 34))
@@ -99,11 +104,15 @@ class CommonWindow(QMainWindow):
     def get_slider_single_step(self, min, max):
         return int((max - min) / 100)
 
-    def update_progress(self, step):
+    def update_progress(self, step, msg):
         self.progressBar.setValue(int(step))
+        if not self.device_info.get_commissioning_state():
+            self.textBrowserLog.append(msg)
         if step == 100:  # commissioning complete
             self.stackedWidget.setCurrentIndex(1)
             self.device_info.set_commissioning_state(True)
+            if self.pipe_event_handler is not None:
+                self.pipe_event_handler(msg)
         elif step == 1:
             self.device_info.set_commissioning_state(False)
             if self.chkbox_auto.isChecked():
@@ -121,7 +130,7 @@ class CommonWindow(QMainWindow):
             self.ioter.launch_chip_all_clusters(self.device_info)
             self.textBrowserLog.append("=== Matter Commissioning ===")
 
-            # self는 WindowClass의 인스턴스, Thread 클래스에서 parent로 전달
+            # self??WindowClass???�스?�스, Thread ?�래?�에??parent�??�달
             self.pipeThread = PipeThread(self.device_info.device_num)
             # custom signal from PipeThread to main thread
             self.pipeThread.msg_changed.connect(self.update_msg)
@@ -131,21 +140,20 @@ class CommonWindow(QMainWindow):
             self.textBrowserLog.append("=== Power off takes 10 sec ===")
             print("=== Power off takes 10 sec ===")
             QCoreApplication.processEvents()
-            self.ioter.terminate_chip_all_clusters(self.device_info, False)
+            if self.device_info.get_commissioning_state():
+                self.ioter.terminate_chip_all_clusters(self.device_info, False)
+            else:
+                self.ioter.terminate_chip_all_clusters(self.device_info, True)
             self.stackedWidget.setCurrentIndex(2)
             self.pushButtonDevicePower.setEnabled(True)
-            if self.chkbox_auto.isChecked() and self.device_info.get_commissioning_state():
+            if self.chkbox_auto.isChecked():
                 self.auto_remove()
 
     @pyqtSlot(str)
     def update_msg(self, str):  # received msg from ioterPipe.pipeThread
-        if str.find('step') >= 0 and not self.device_info.get_commissioning_state():
+        if str.find('step') >= 0:
             token = str.split(":")
-            self.update_progress(int(token[1]))
-            self.textBrowserLog.append(token[2])
-            if token[1] == '100' and self.pipe_event_handler is not None:
-                # step:100:Matter-Onboarding is completed
-                self.pipe_event_handler(str)
+            self.update_progress(int(token[1]), token[2])
         elif str.find('pair') >= 0:
             self.plainTextEditPairingCode.setPlainText(
                 Utils.get_setup_code(str))
@@ -159,12 +167,10 @@ class CommonWindow(QMainWindow):
             if isPowerOn and not self.force_quit:
                 self.textBrowserLog.append(str)
                 self.pushButtonDevicePower.toggle()
-#                time.sleep(2)
                 self.occur_abort.emit(self.device_info.com_port)
         else:
             if self.pipe_event_handler is not None:
                 self.pipe_event_handler(str)
-        # self.textBrowserLog.centerCursor()
 
     # must not rename closeEvent
     def closeEvent(self, event):
@@ -190,27 +196,26 @@ class CommonWindow(QMainWindow):
         print('quit deviceNumber: %s port:%s' %
               (self.device_info.device_num, self.device_info.com_port))
         self.dialog_closed.emit(self.device_info.com_port)
+        self.auto_remove()
         self.ioter.terminate_chip_all_clusters(self.device_info, True)
         if self.pipeThread:
             self.pipeThread.stop()
-        if self.auto_on:
-            self.auto_on.stop()
         self.force_quit = True
         self.close()
         self.parent.close()
 
     def auto_remove(self):
-        if self.auto_on:
-            self.auto_on.auto_remove_device()
-#        QTimer.singleShot(5, self.force_closeEvent())
+        if self.device_info.get_commissioning_state():
+            self.auto.request_remove(
+                self.device_info.com_port, self.device_info.device_num, self.device_info.device_id)
+        else:
+            self.auto.disconnect_device(self.device_info.device_num)
 
     def auto_go(self):
-        self.auto_on = autoDevice(self)
-        self.auto_on.update_onboarding_state.connect(
-            self.auto_onboarding_state)
-        self.auto_on.start()
-        title = "In Use in Auto Onboarding - " + self.title
-        self.setWindowTitle(title)
+        if not self.auto.request_onboarding(self.device_info.com_port, self.device_info.device_num, self.plainTextEditPairingCode.toPlainText(), self.device_info.device_id):
+            self.textBrowserLog.append("Can't work auto-onboarding")
+            self.chkbox_auto.toggle()
+            self.pushButtonDevicePower.toggle()
 
     def autotest_used(self, use):
         if self.autotest_event_handler is not None:
@@ -223,11 +228,26 @@ class CommonWindow(QMainWindow):
             self.setWindowTitle(self.title)
             self.pushButtonDevicePower.setEnabled(True)
 
-    def auto_onboarding_state(self, state):
+    @pyqtSlot(int, str, str)
+    def auto_onboarding_state(self, state, comPort, device_num):
         if state == ONBOARDING_FAILURE:
-            self.device_info.set_commissioning_state(False)
-        self.update_onboarding.emit(
-            state, self.device_info.com_port, self.device_info.device_num)
+            if self.device_info.device_num == device_num:
+                self.device_info.set_commissioning_state(False)
+                self.textBrowserLog.append("=== Onboarding failed ===")
+        elif state == REMOVED_PHONE:
+            if self.chkbox_auto.isChecked():
+                self.chkbox_auto.toggle()
+
+    def check_conditions_for_auto_onboarding(self):
+        if not self.chkbox_auto.isChecked():
+            self.setWindowTitle(self.title)
+        elif not self.device_info.deviceManager.usb_manager.connected_phone_device():
+            QMessageBox.critical(
+                self, "Error", "Can't work auto-onboarding because the phone is not connected")
+            self.chkbox_auto.toggle()
+        else:
+            title = "In Use in Auto Onboarding - " + self.title
+            self.setWindowTitle(title)
 
     def winSet(self, w, h):
         x, y = self.window_manager.add(w, h)
