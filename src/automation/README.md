@@ -5,7 +5,7 @@ In Ioter, Automation is a tool that helps developers in testing and validating t
 **Automation feature provide the following usefulness to developers and testers:**
 
 -   The developer can test multiple devices in a loop.
--   By clicking on "+¡°or ¡°-¡± button, developers can add or remove on-boarded device commands or sleep command.
+-   By clicking on "+" or "-" button, developers can add or remove on-boarded device commands or sleep command.
 -   The test progress bar will show the current script's running progress in percentage.
 -   Developer can save and load an automation script.
 -   Automation Scripts are saved in XML format.
@@ -17,7 +17,7 @@ In Ioter, Automation is a tool that helps developers in testing and validating t
 
 ## Overview
 
-**![automation](https://media.github.ecodesamsung.com/user/18588/files/d0207276-a7a3-4229-97e2-3e71adcd3463)**
+![automation](https://user-images.githubusercontent.com/3498353/235061614-268b3cca-10de-4cd7-b3f3-22cf12b4fdcf.png)
 
 **Reference:**
 
