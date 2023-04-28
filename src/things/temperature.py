@@ -65,8 +65,12 @@ class TempWindow(QDialog):
             self.sliderReleased)
         self.horizontalSliderTemp.valueChanged.connect(
             self.valueChanged)
+        self.horizontalSliderTemp.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
 
     def valueChanged(self):
+        if self.is_slider_pressed:
+            self.doubleSpinBoxInput.setValue(self.horizontalSliderTemp.value()/100)
+            return
         if not self.is_slider_pressed:
             level = self.horizontalSliderTemp.value()/100
             # print(f'valueChanged : old ({self.level}), new ({level})')

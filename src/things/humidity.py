@@ -64,8 +64,12 @@ class HumidWindow(QDialog):
             self.sliderReleased)
         self.horizontalSliderHumid.valueChanged.connect(
             self.valueChanged)
+        self.horizontalSliderHumid.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
 
     def valueChanged(self):
+        if self.is_slider_pressed:
+            self.doubleSpinBoxInput.setValue(self.horizontalSliderHumid.value()/100)
+            return
         if not self.is_slider_pressed:
             level = self.horizontalSliderHumid.value()/100
             # print(f'valueChanged : old ({self.level}), new ({level})')

@@ -65,6 +65,7 @@ class LightsensorWindow(QDialog):
             self.sliderReleased)
         self.horizontalSliderLightsensor.valueChanged.connect(
             self.valueChanged)
+        self.horizontalSliderLightsensor.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
         
     def set_state(self):
         if self.level >= 50000 :
@@ -78,6 +79,9 @@ class LightsensorWindow(QDialog):
             Utils.get_icon_path('lightsensor_low.png'), 70, 70))
 
     def valueChanged(self):
+        if self.is_slider_pressed:
+            self.spinBoxInput.setValue(self.horizontalSliderLightsensor.value())
+            return
         if not self.is_slider_pressed:
             level = self.horizontalSliderLightsensor.value()
             # print(f"valueChanged: old ({self.level}), new ({level})")

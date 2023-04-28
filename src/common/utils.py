@@ -72,20 +72,6 @@ class Utils():
         icon_img = icon_img.scaledToHeight(height)
         return icon_img
 
-    def get_ui_style_toggle_btn(toggle):
-        style_string = "background-color: %s;"\
-            "font-weight: bold;"\
-            "border-radius: 3px;"\
-            "border: 1px solid %s;"\
-            "color: %s"
-        if toggle:
-            style = style_string % (
-                "white", "rgb(186, 186, 186)", "rgb(58, 134, 255)")
-        else:
-            style = style_string % (
-                "rgb(58, 134, 255)", "rgb(58, 134, 255)", "white")
-        return style
-
     def isnumeric(s_data):
         arr = s_data.split(".", maxsplit=1)
         for item in arr:
@@ -129,6 +115,91 @@ class Utils():
             rand = Random(str(seed))
         return rand.randint(0x3E8, 0xFFF)
 
+    def get_ui_style_toggle_btn(toggle):
+        style_string = "background-color: %s;"\
+            "font-weight: bold;"\
+            "border-radius: 3px;"\
+            "border: 1px solid %s;"\
+            "color: %s"
+        if toggle:
+            style = style_string % (
+                "white", "rgb(186, 186, 186)", "rgb(58, 134, 255)")
+        else:
+            style = style_string % (
+                "rgb(58, 134, 255)", "rgb(58, 134, 255)", "white")
+        return style
+
+    def get_ui_style_slider(type):
+        slider_stylesheet = """
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #eee, stop:1 #ccc);
+    border: 1px solid #777;
+    width: 14px;
+    margin-top: -3px;
+    margin-bottom: -3px;
+    border-radius: 7px;
+}
+QSlider::handle:horizontal:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #fff, stop:1 #ddd);
+    border: 1px solid #444;
+}
+"""
+        if type == "COMMON":
+            addition = """
+QSlider::groove:horizontal {
+    background-color: rgba(58, 134, 255, 255);
+    border: 1px solid #bbb;
+    height: 10px;
+    border-radius: 4px;
+}
+QSlider::sub-page:horizontal {
+    background-color: rgba(58, 134, 255, 255);
+    border: 1px solid #bbb;
+    height: 10px;
+    border-radius: 4px;
+}
+QSlider::add-page:horizontal {
+    background-color: rgba(192, 191, 188, 255);
+    border: 1px solid #bbb;
+    height: 10px;
+    border-radius: 4px;
+}
+"""
+        elif type == "DIMMING":
+            addition = """
+QSlider::groove:horizontal {
+    border: 1px solid #bbb;
+    background-color: qlineargradient(
+        spread:pad, x1:0, y1:0.5, x2:1, y2:0.5, 
+        stop:0 rgba(26, 95, 180, 255), 
+        stop:0.485149 rgba(153, 193, 241, 255), 
+        stop:0.787129 rgba(246, 245, 244, 255), 
+        stop:1 rgba(255, 255, 255, 255));
+    height: 10px;
+    border-radius: 4px;
+}
+"""
+        elif type == "COLORTEMP":
+            addition = """
+QSlider::groove:horizontal {
+    border: 1px solid #bbb;
+    background-color: qlineargradient(
+        spread:pad, x1:0, y1:0, x2:1, y2:0, 
+        stop:0 rgba(255, 138, 18, 255), 
+        stop:0.166 rgba(255, 196, 137, 255), 
+        stop:0.333 rgba(255, 228, 206, 255), 
+        stop:0.5 rgba(255, 249, 253, 255), 
+        stop:0.666 rgba(227, 233, 255, 255), 
+        stop:0.833 rgba(207, 218, 255, 255), 
+        stop:1 rgba(196, 209, 255, 255));
+    height: 10px;
+    border-radius: 4px;
+}
+"""
+        slider_stylesheet += addition
+        return slider_stylesheet
 
 def singleton(cls_):
     class class_w(cls_):
