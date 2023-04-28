@@ -4,6 +4,7 @@ from common.device_window import *
 from common.manage_device import *
 from common.manage_usb import UsbMonitor
 from common.utils import Utils
+from common.config import Config
 from automation.automationmain import automationWindow
 from auto_onboarding.auto_onboardingmain import auto_onboardingWindow
 from winman import window_manager
@@ -60,10 +61,10 @@ class MainWindow(QMainWindow,
         self.initPositionTimer()
         self.savePos()
 
-        self.popup_shown = False
+        Config.load()
         self.test_window_click_count = 0
         self.labelMatterlogo.mousePressEvent = self.on_label_matterlogo_clicked
-        self.actionTestWindow.setVisible(False)
+        self.actionTestWindow.setVisible(Config.test_window_shown)
         self.test_window_timer = QTimer()
         self.test_window_timer.setInterval(10000)
         self.test_window_timer.timeout.connect(self.reset_test_window_count)
@@ -76,10 +77,9 @@ class MainWindow(QMainWindow,
         if self.test_window_click_count == 10:
             self.actionTestWindow.setVisible(True)
             print("Test Window OPEN in upper option bar")
-            
-            if not self.popup_shown:
-                self.popup_shown = True
-                QMessageBox.about(self,'Test Window','Test Window mode is now available.')
+            Config.test_window_shown = True
+            Config.save()
+            QMessageBox.about(self,'Test Window','Test Window mode is now available.')
         
         if not self.test_window_timer.isActive():
             self.test_window_timer.start()
