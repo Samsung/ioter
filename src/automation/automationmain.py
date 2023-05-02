@@ -548,18 +548,21 @@ class automationWindow(QtWidgets.QMainWindow):
         return
 
 ############ close event from main window ##############
-    def force_closeEvent(self):
-        print('quit automation test')
-        self.force_quit = True
-        if self.autotestThread:
-            self.autotestThread.stop()
-        if self.logtrack:
-            self.logtrack.terminate_log_track_script()
-        self.close()
+    def force_closeEvent(self, device):
+        if (device & ForceClose.AUTOMATION) and not self.force_quit:
+            print('quit automation test')
+            self.force_quit = True
+            if self.autotestThread:
+                self.autotestThread.stop()
+            if self.logtrack:
+                self.logtrack.terminate_log_track_script()
+            self.close()
 
 ############ device remove event from main window ##############
     @QtCore.pyqtSlot(str)
     def removed_device(self, device_num):
+        if self.force_quit:
+            return
         print('removed_device : ' + device_num)
         id = None
         error = False

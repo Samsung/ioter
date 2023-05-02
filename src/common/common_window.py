@@ -1,5 +1,5 @@
 from common.utils import Utils
-from common.device_command import CommandUtil
+from common.device_command import *
 from common.manage_device import *
 from common.process_controller import *
 from common.ioterPipe import PipeThread
@@ -130,7 +130,6 @@ class CommonWindow(QMainWindow):
             self.ioter.launch_chip_all_clusters(self.device_info)
             self.textBrowserLog.append("=== Matter Commissioning ===")
 
-            # self??WindowClass???�스?�스, Thread ?�래?�에??parent�??�달
             self.pipeThread = PipeThread(self.device_info.device_num)
             # custom signal from PipeThread to main thread
             self.pipeThread.msg_changed.connect(self.update_msg)
@@ -192,17 +191,18 @@ class CommonWindow(QMainWindow):
         if event.key() == Qt.Key_Escape:
             self.closeEvent(QCloseEvent())
 
-    def force_closeEvent(self):
-        print('quit deviceNumber: %s port:%s' %
-              (self.device_info.device_num, self.device_info.com_port))
-        self.dialog_closed.emit(self.device_info.com_port)
-        self.auto_remove()
-        self.ioter.terminate_chip_all_clusters(self.device_info, True)
-        if self.pipeThread:
-            self.pipeThread.stop()
-        self.force_quit = True
-        self.close()
-        self.parent.close()
+    def force_closeEvent(self, device=ForceClose.DEVICES):
+        if (device & ForceClose.DEVICES) and not self.force_quit:
+            print('quit deviceNumber: %s port:%s' %
+                (self.device_info.device_num, self.device_info.com_port))
+            self.dialog_closed.emit(self.device_info.com_port)
+            self.auto.disconnect_device(self.device_info.device_num)
+            self.ioter.terminate_chip_all_clusters(self.device_info, True)
+            if self.pipeThread:
+                self.pipeThread.stop()
+            self.force_quit = True
+            self.close()
+            self.parent.close()
 
     def auto_remove(self):
         if self.device_info.get_commissioning_state():
@@ -230,11 +230,13 @@ class CommonWindow(QMainWindow):
 
     @pyqtSlot(int, str, str)
     def auto_onboarding_state(self, state, comPort, device_num):
-        if state == ONBOARDING_FAILURE:
+        if self.force_quit:
+            return
+        if state == STOnboardingResult.ONBOARDING_FAILURE:
             if self.device_info.device_num == device_num:
                 self.device_info.set_commissioning_state(False)
                 self.textBrowserLog.append("=== Onboarding failed ===")
-        elif state == REMOVED_PHONE:
+        elif state == STOnboardingResult.REMOVED_PHONE:
             if self.chkbox_auto.isChecked():
                 self.chkbox_auto.toggle()
 

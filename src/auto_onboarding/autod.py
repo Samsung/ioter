@@ -3,6 +3,7 @@ from common.device_command import CommandUtil
 
 import os
 import time
+from enum import Enum
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtTest import *
@@ -35,11 +36,22 @@ ADD_DEVICE_KOR = 92
 ADD_DEVICE_ENG = 93
 REMOVE_BUTTON_KOR = 94
 REMOVE_BUTTON_ENG = 95
-ONBOARDING_SUCCESS = 1
-ONBOARDING_FAILURE = 0
-REMOVING_SUCCESS = 3
-REMOVING_FAILURE = 2
-REMOVED_PHONE = 4
+
+
+class STOnboardingResult():
+    ONBOARDING_FAILURE = 0
+    ONBOARDING_SUCCESS = 1
+    REMOVING_FAILURE = 2
+    REMOVING_SUCCESS = 3
+    REMOVED_PHONE = 4
+
+
+class AutoDeviceState():
+    IDLE = 0
+    CONNECTING_PHONE = 1
+    ONBOARDING = 2
+    REMOVING = 3
+
 
 debug = 0
 
@@ -60,7 +72,6 @@ class autoDevice(QThread):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.step = 0
         self.device = None
         self.serialno = None
         self.vc = None
@@ -73,20 +84,20 @@ class autoDevice(QThread):
 
     def run(self):
         self.running = True
-        self.step = 0
+        self.step = AutoDeviceState.IDLE
         self.is_request.clear()
         while self.running:
-            if self.step == 1:
+            if self.step == AutoDeviceState.CONNECTING_PHONE:
                 if self.try_connect_phone():
-                    self.step = 2
+                    self.step = AutoDeviceState.ONBOARDING
                     continue
-                self.step = 0
-            elif self.step == 2:
+                self.step = AutoDeviceState.IDLE
+            elif self.step == AutoDeviceState.ONBOARDING:
                 self.auto_onboarding_device()
-                self.step = 0
-            elif self.step == 3:
+                self.step = AutoDeviceState.IDLE
+            elif self.step == AutoDeviceState.REMOVING:
                 self.auto_remove_device()
-                self.step = 0
+                self.step = AutoDeviceState.IDLE
             QTest.qWait(1000)
 
     def get_number_of_adb_devices(self):
@@ -136,13 +147,13 @@ class autoDevice(QThread):
         return result
 
     def is_connected(self):
-        if self.device is not None and self.vc is not None:
+        if self.device and self.vc:
             return True
         else:
             return False
 
     def request_onboarding(self, comport, device_num, code, device_id):
-        if self.step != 0:
+        if self.step != AutoDeviceState.IDLE:
             print(f'working on something else  step : {self.step}')
             return False
         if True in self.is_request.values():
@@ -154,9 +165,9 @@ class autoDevice(QThread):
         self.device_id = device_id
         self.pairing_code = code
         if not self.is_connected():
-            self.step = 1
+            self.step = AutoDeviceState.CONNECTING_PHONE
         else:
-            self.step = 2
+            self.step = AutoDeviceState.ONBOARDING
         return True
 
     def auto_onboarding_device(self):
@@ -165,13 +176,14 @@ class autoDevice(QThread):
         if self.auto_onboarding():
             print("onboarding success!")
             self.update_onboarding_state.emit(
-                ONBOARDING_SUCCESS, self.comport, self.device_num)
+                STOnboardingResult.ONBOARDING_SUCCESS, self.comport, self.device_num)
             self.is_request[self.device_num] = False
         else:
             print("onboarding failed..")
             self.update_onboarding_state.emit(
-                ONBOARDING_FAILURE, self.comport, self.device_num)
-            del self.is_request[self.device_num]
+                STOnboardingResult.ONBOARDING_FAILURE, self.comport, self.device_num)
+            if self.device_num in self.is_request:
+                del self.is_request[self.device_num]
 
     def auto_onboarding(self):
         start_time = time.time()
@@ -180,18 +192,17 @@ class autoDevice(QThread):
             # print(f"auto_onboarding step {self.step} device_num {self.device_num}")
             if True not in self.is_request.values():
                 return False
-            obj = self.vc.findViewById(self.get_smartthings_view_id(stair))
+            obj = self.get_obj(str(stair))
             if obj and stair == ONBOARDING_ADDITIONAL_ADD_BUTTON:
-                if obj.getText() == self.get_smartthings_view_id(ADD_DEVICE_KOR) or\
-                        obj.getText() == self.get_smartthings_view_id(ADD_DEVICE_ENG):
+                if obj.getText() in [self.get_smartthings_view_id(ADD_DEVICE_KOR),
+                                     self.get_smartthings_view_id(ADD_DEVICE_ENG)]:
                     if debug == 1:
                         print(
                             f"stair::ONBOARDING_ADDITIONAL_ADD_BUTTON, obj={obj}")
                     obj.touch()
                     stair += 1
             elif not obj and stair == ONBOARDING_ADDITIONAL_ADD_BUTTON:
-                self.vc.dump(window=-1)
-                obj = self.vc.findViewById(self.get_smartthings_view_id(stair))
+                obj = self.get_obj(str(stair), True)
                 if obj:
                     if debug == 1:
                         print(
@@ -199,8 +210,8 @@ class autoDevice(QThread):
                     obj.touch()
                     stair += 1
                 else:
-                    obj = self.vc.findViewById(self.get_smartthings_view_id(
-                        ONBOARDING_MANUAL_PAIRING_CODE_BOTTON))
+                    obj = self.get_obj(
+                        str(ONBOARDING_MANUAL_PAIRING_CODE_BOTTON))
                     if obj:
                         if debug == 1:
                             print(
@@ -235,8 +246,7 @@ class autoDevice(QThread):
             elif stair == ONBOARDING_DONE_BACK_TO_FIRST_SCREEN:
                 if debug == 1:
                     print("stair::ONBOARDING_DONE_BACK_TO_FIRST_SCREEN")
-                self.vc.dump(window=-1)
-                obj = self.vc.findViewWithText(self.device_name)
+                obj = self.get_obj("text:" + self.device_name, True)
                 if obj or self.count >= 3:
                     if debug == 1:
                         print(f"obj={obj}")
@@ -269,16 +279,15 @@ class autoDevice(QThread):
             if True not in self.is_request.values():
                 return False
             # screenshot when error occurs
-            err = self.vc.findViewById(
-                self.get_smartthings_view_id(ERROR_CHECK_LAYOUT))
+            err = self.get_obj(str(ERROR_CHECK_LAYOUT))
             if err:
-                if err.getText() == self.get_smartthings_view_id(ERROR_OCCUR_KOR) or\
-                   err.getText() == self.get_smartthings_view_id(ERROR_OCCUR_ENG):
+                if err.getText() in [self.get_smartthings_view_id(ERROR_OCCUR_KOR),
+                                     self.get_smartthings_view_id(ERROR_OCCUR_ENG)]:
                     if debug == 1:
                         print(err)
                     self.screenshot()
-                    err2 = self.vc.findViewById(self.get_smartthings_view_id(
-                        ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE))
+                    err2 = self.get_obj(
+                        str(ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE))
                     err2.touch()
                     QTest.qWait(1000)
                     self.vc.device.press("BACK")
@@ -293,9 +302,7 @@ class autoDevice(QThread):
                     f"Too much time {ONBOARDING_TIMEOUT}s goes on for onboarding... it is failed!")
                 self.vc.device.press("BACK")
                 while self.running:
-                    self.vc.dump(window=-1)
-                    ti = self.vc.findViewById(
-                        self.get_smartthings_view_id(ERROR_CHECK_LAYOUT))
+                    ti = self.get_obj(str(ERROR_CHECK_LAYOUT), True)
                     if ti:
                         self.screenshot()
                         if debug == 1:
@@ -315,7 +322,7 @@ class autoDevice(QThread):
             # self.step = 0
 
     def request_remove(self, comport, device_num, device_id):
-        if self.step != 0:
+        if self.step != AutoDeviceState.IDLE:
             print(f'working on something else  step : {self.is_request}')
             return
         if True in self.is_request.values():
@@ -327,21 +334,22 @@ class autoDevice(QThread):
         self.device_num = device_num
         self.comport = comport
         self.device_id = device_id
-        self.step = 3
+        self.step = AutoDeviceState.REMOVING
 
     def auto_remove_device(self):
         self.device_name = f"{CommandUtil.get_device_type_by_device_id(self.device_id)}-{self.device_num}"
         if self.remove_device():
             print("removing success!")
             self.update_onboarding_state.emit(
-                REMOVING_SUCCESS, self.comport, self.device_num)
+                STOnboardingResult.REMOVING_SUCCESS, self.comport, self.device_num)
             self.vc.sleep(1)
         else:
             print("removing failed!")
             self.update_onboarding_state.emit(
-                REMOVING_FAILURE, self.comport, self.device_num)
+                STOnboardingResult.REMOVING_FAILURE, self.comport, self.device_num)
             self.vc.sleep(1)
-        del self.is_request[self.device_num]
+        if self.device_num in self.is_request:
+            del self.is_request[self.device_num]
 
     def remove_device(self):
         print(f"{self.device_name} will be removed ...")
@@ -349,8 +357,7 @@ class autoDevice(QThread):
         stair = REMOVE_START
         while self.running:
             if stair == REMOVE_START:
-                self.vc.dump(window=-1)
-                obj = self.vc.findViewWithText(self.device_name)
+                obj = self.get_obj("text:" + self.device_name, True)
                 if obj:
                     if debug == 1:
                         print(obj)
@@ -366,14 +373,10 @@ class autoDevice(QThread):
             elif stair >= REMOVE_BUTTON and stair <= REMOVE_DONE:
                 self.vc.dump(window=-1)
                 if stair == REMOVE_BUTTON:
-                    obj = self.vc.findViewWithText(
-                        self.get_smartthings_view_id(REMOVE_BUTTON_KOR))
-                    if not obj:
-                        obj = self.vc.findViewWithText(
-                            self.get_smartthings_view_id(REMOVE_BUTTON_ENG))
+                    obj = self.get_obj("text:" + str(REMOVE_BUTTON_KOR)
+                                       ) or self.get_obj("text:" + str(REMOVE_BUTTON_ENG))
                 else:
-                    obj = self.vc.findViewById(
-                        self.get_smartthings_view_id(stair))
+                    obj = self.get_obj(str(stair))
                 if obj:
                     if debug == 1:
                         print(obj)
@@ -398,6 +401,20 @@ class autoDevice(QThread):
             f"{screenshot_path}error_{self.device_name}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.png", "PNG")
         print("error screenshot done")
 
+    def get_obj(self, key, request_dump=False):
+        if not self.vc:
+            return None
+        if request_dump:
+            self.vc.dump(window=-1)
+        if key.startswith("text:"):
+            text = key[len("text:"):]
+            if text.isdecimal():
+                return self.vc.findViewWithText(self.get_smartthings_view_id(int(text)))
+            else:
+                return self.vc.findViewWithText(text)
+        else:
+            return self.vc.findViewById(self.get_smartthings_view_id(int(key)))
+
     def get_smartthings_view_id(self, key):
         type = {
             ONBOARDING_ADD_BUTTON: "com.samsung.android.oneconnect:id/add_menu_button",
@@ -419,7 +436,7 @@ class autoDevice(QThread):
             ERROR_OCCUR_ENG: "Something went wrong",\
             ADD_DEVICE_KOR: "기기 추가",\
             ADD_DEVICE_ENG: "Add device"
-        }.get(key, 0)
+        }.get(key, key)
         return type
 
     def removed_phone(self):
@@ -433,6 +450,6 @@ class autoDevice(QThread):
         self.running = False
         self.is_request.clear()
         self.update_onboarding_state.emit(
-            REMOVED_PHONE, self.comport, self.device_num)
+            STOnboardingResult.REMOVED_PHONE, self.comport, self.device_num)
         self.quit()
         self.wait(1000)
