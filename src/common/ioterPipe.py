@@ -32,7 +32,7 @@ class PipeThread(QThread):
             for msg in line:
                 if msg != '':
                     now = datetime.now()
-                    print("[%s] %s" % (str(now), msg))
+                    print("[%s][%s] %s" % (str(now), self.deviceNum, msg))
                     self.msg_changed.emit(msg)  # send to main thread
 
     def stop(self):

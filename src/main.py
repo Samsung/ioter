@@ -6,6 +6,7 @@ from common.manage_usb import UsbMonitor
 from common.utils import Utils
 from common.config import Config
 from automation.automationmain import automationWindow
+from auto_onboarding.autod import *
 from auto_onboarding.auto_onboardingmain import auto_onboardingWindow
 from winman import window_manager
 
@@ -21,9 +22,8 @@ sys.path.append('automation')
 
 class MainWindow(QMainWindow,
                  uic.loadUiType(Utils.get_view_path('main.ui'))[0]):
-    dialog_force_close = pyqtSignal()
-    automation_force_close = pyqtSignal()
-    auto_onboarding_force_close = pyqtSignal()
+    force_close = pyqtSignal(int)
+    send_msg_about_onboarding = pyqtSignal(int, str, str)
     removed_usb = pyqtSignal(str)
 
     def __init__(self, window_manager):
@@ -51,6 +51,11 @@ class MainWindow(QMainWindow,
         self.usbMonitor.usb_changed.connect(self.display_comport)
         self.usbMonitor.start()
 
+        self.auto = autoDevice(self)
+        self.auto.update_onboarding_state.connect(self.auto_onboarding_state)
+        if self.deviceManager.usb_manager.connected_phone_device():
+            self.auto.start()
+
         self.use_test_window = False
         discriminator = Utils.generate_random_discriminator()
         self.spinBoxDiscriminator.setValue(discriminator)
@@ -73,14 +78,14 @@ class MainWindow(QMainWindow,
         if self.actionTestWindow.isVisible():
             return
 
-        self.test_window_click_count += 1        
+        self.test_window_click_count += 1
         if self.test_window_click_count == 10:
             self.actionTestWindow.setVisible(True)
             print("Test Window OPEN in upper option bar")
             Config.test_window_shown = True
             Config.save()
             QMessageBox.about(self,'Test Window','Test Window mode is now available.')
-        
+
         if not self.test_window_timer.isActive():
             self.test_window_timer.start()
 
@@ -93,7 +98,7 @@ class MainWindow(QMainWindow,
         if obj is None:
             obj = cls_name(self)
             obj.dialog_closed.connect(self.exit_dialog)
-            obj.force_close.connect(obj.force_closeEvent)
+            self.force_close.connect(obj.force_closeEvent)
             obj.show()
         else:
             print("Already Opened")
@@ -109,12 +114,20 @@ class MainWindow(QMainWindow,
 
         if isonboarded:
             self.automation = self.create_dialog(self.automation, automationWindow)
+            self.automation.send_used_list.connect(self.autotest_used_list)
+            self.removed_usb.connect(self.automation.removed_device)
         else:
             print('No Devices are Connected/Onboarded')
             automationWindow.errorbox('No Devices are Connected/Onboarded')
 
+    @pyqtSlot(int, str, str)
+    def auto_onboarding_state(self, state, comPort, device_num):
+        print(f'state {state} comport {comPort} device_num {device_num}')
+        self.send_msg_about_onboarding.emit(state, comPort, device_num)
+
     def start_auto_onboarding(self):
         self.auto_onboarding = self.create_dialog(self.auto_onboarding, auto_onboardingWindow)
+        self.send_msg_about_onboarding.connect(self.auto_onboarding.update_status)
 
     def set_logo(self):
         self.labelMatterlogo.setPixmap(Utils.get_icon_img(
@@ -137,21 +150,25 @@ class MainWindow(QMainWindow,
     def display_comport(self, action=None, path=None):
         if action == 'add':
             comPort = self.deviceManager.add_usb_device(path)
-            if comPort is not None and self.auto_onboarding is not None:
+            if comPort and self.auto_onboarding:
                 self.auto_onboarding.add_device(
                     comPort, self.deviceManager.get_device_vendor(comPort))
-            # print(action + " " + path)
+            if self.deviceManager.usb_manager.connected_phone_device():
+                if not self.auto.is_running():
+                    self.auto.start()
         elif action == 'remove':
             comPort = self.deviceManager.remove_usb_device(path)
             if comPort in self.dialog:
                 self.dialog[comPort].get_window().force_closeEvent()
-                if self.automation is not None:
+                if self.automation:
                     self.removed_usb.emit(
                         self.dialog[comPort].device_info.get_device_num())
                 del (self.dialog[comPort])
-            if self.auto_onboarding is not None:
+            if self.auto_onboarding:
                 self.auto_onboarding.remove_device(comPort)
-            # print(action + " " + path)
+            if not self.deviceManager.usb_manager.connected_phone_device():
+                if self.auto.is_running():
+                    self.auto.stop()
         comport_list = self.deviceManager.get_unused_devices()
         self.comboBoxCom.clear()
         if len(comport_list) == 0:
@@ -225,7 +242,7 @@ class MainWindow(QMainWindow,
             self.use_test_window = False
 
         device_info = DeviceInfo(
-            deviceNum, discriminator, threadType, comPort, debugLevel, ioterName, CommandUtil.get_device_id_by_device_type(device_type))
+            deviceNum, discriminator, threadType, comPort, debugLevel, ioterName, self.deviceManager, CommandUtil.get_device_id_by_device_type(device_type), self.auto)
         self.dialog[comPort] = get_device_window_by_device_type(
             device_type, device_info, self.use_test_window, self.window_manager)
         if (self.dialog[comPort] is None):
@@ -234,8 +251,10 @@ class MainWindow(QMainWindow,
         self.dialog[comPort].get_window(
         ).dialog_closed.connect(self.exit_dialog)
         self.dialog[comPort].get_window().occur_abort.connect(self.reset_usb)
-        self.dialog_force_close.connect(
+        self.force_close.connect(
             self.dialog[comPort].get_window().force_closeEvent)
+        self.send_msg_about_onboarding.connect(
+            self.dialog[comPort].get_window().auto_onboarding_state)
         if self.deviceManager.set_used_device(comPort, device_info) is None:
             print("set_used_device is fail")
         self.display_comport()
@@ -246,40 +265,22 @@ class MainWindow(QMainWindow,
     def exit_dialog(self, comPort):
         print('exit_dialog : ' + comPort)
         if comPort == "Automation":
-            if self.automation is not None:
-                self.automation.dialog_closed.disconnect(self.exit_dialog)
-                self.automation.send_used_list.disconnect(
-                    self.autotest_used_list)
-                self.automation_force_close.disconnect(
-                    self.automation.force_closeEvent)
-                self.removed_usb.disconnect(self.automation.removed_device)
+            if self.automation:
                 del self.automation
                 self.automation = None
         elif comPort == "auto_onboarding":
-            if self.auto_onboarding is not None:
-                self.auto_onboarding.dialog_closed.disconnect(self.exit_dialog)
-                self.auto_onboarding_force_close.disconnect(
-                    self.auto_onboarding.force_closeEvent)
+            if self.auto_onboarding:
                 del self.auto_onboarding
                 self.auto_onboarding = None
         elif comPort == "auto_onboarding_all":
-            if self.auto_onboarding is not None:
-                self.auto_onboarding.dialog_closed.disconnect(self.exit_dialog)
-                self.auto_onboarding_force_close.disconnect(
-                    self.auto_onboarding.force_closeEvent)
+            if self.auto_onboarding:
                 del self.auto_onboarding
                 self.auto_onboarding = None
-                self.dialog_force_close.emit()
+                self.force_close.emit(ForceClose.DEVICES)
         elif self.deviceManager.set_unused_device(comPort):
-            self.dialog[comPort].get_window(
-            ).dialog_closed.disconnect(self.exit_dialog)
-            self.dialog[comPort].get_window(
-            ).occur_abort.disconnect(self.reset_usb)
-            self.dialog_force_close.disconnect(
-                self.dialog[comPort].get_window().force_closeEvent)
             del (self.dialog[comPort])
             self.display_comport()
-            if self.auto_onboarding is not None:
+            if self.auto_onboarding:
                 self.auto_onboarding.add_device(
                     comPort, self.deviceManager.get_device_vendor(comPort))
         else:
@@ -306,12 +307,9 @@ class MainWindow(QMainWindow,
                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if re == QMessageBox.Yes:
             self.usbMonitor.stop()
-            if len(self.dialog):
-                self.dialog_force_close.emit()
-            if self.auto_onboarding is not None:
-                self.auto_onboarding_force_close.emit()
-            if self.automation is not None:
-                self.automation_force_close.emit()
+            self.force_close.emit(ForceClose.ALL)
+            self.auto.update_onboarding_state.disconnect(self.auto_onboarding_state)
+            self.auto.stop()
             event.accept()
         else:
             event.ignore()
@@ -338,7 +336,7 @@ class MainWindow(QMainWindow,
         self.timer.start(self.polling_time_ms)
 
     def checkPosition(self):
-        if self.timer is not None and not self.timer.isActive():
+        if self.timer and not self.timer.isActive():
             return
         if self.frameGeometry() == self.cur_pos:
             self.timer.stop()

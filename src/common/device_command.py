@@ -63,6 +63,13 @@ WINDOWCOVERING_MAX_VAL = 100
 WINDOWCOVERING_UNIT = "%"
 
 
+class ForceClose():
+    ALL = int('0b1110', 2)
+    AUTOMATION = int('0b1000', 2)
+    AUTO_ONBOARDING = int('0b0100', 2)
+    DEVICES = int('0b0010', 2)
+
+
 class Command():
     def _return_light_bulb_command():
         command1 = {

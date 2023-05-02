@@ -16,7 +16,8 @@ class DeviceManager():
         self.device_info_dict = dict()
         self.usb_manager = UsbManager(max_device_number)
         for usb_device in self.usb_manager.get_list():
-            self.all_device_dict[usb_device.comPort] = -1
+            if not usb_device.is_phone:
+                self.all_device_dict[usb_device.comPort] = -1
 
     def set_used_device(self, comPort, device_info):
         if comPort in self.all_device_dict:
@@ -102,7 +103,7 @@ class DeviceInfo():
         ONOFFPLUGIN_DEVICE_ID: 4106,
     }
 
-    def __init__(self, device_num, discriminator, thread_type, com_port, debug_level, ioter_name, device_id=0):
+    def __init__(self, device_num, discriminator, thread_type, com_port, debug_level, ioter_name, deviceManager, device_id=0, auto=None):
         self.device_num = device_num
         self.discriminator = discriminator
         self.thread_type = thread_type
@@ -113,6 +114,8 @@ class DeviceInfo():
         self.thread_setting_file = 'undefined'
         self.commissioning_complete = False
         self.set_vid_pid(self.device_id)
+        self.deviceManager = deviceManager
+        self.auto = auto
 
     def set_vid_pid(self, device_id):
         self.vid = self.VID
@@ -151,3 +154,6 @@ class DeviceInfo():
 
     def set_thread_setting_file(self, thread_setting_file):
         self.thread_setting_file = thread_setting_file
+
+    def get_auto(self):
+        return self.auto
