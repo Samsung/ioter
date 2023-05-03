@@ -11,7 +11,8 @@ SLIDER_COLOR = "2"
 EVENT_TOGGLE = 1
 EVENT_DIMMING = 2
 EVENT_COLOR = 3
-
+EVENT_SPINBOX_DIMMING = 4
+EVENT_SPINBOX_COLOR = 5
 
 class LightWindow(QDialog):
 
@@ -22,7 +23,9 @@ class LightWindow(QDialog):
     log_text = {
         EVENT_TOGGLE: 'Light',
         EVENT_DIMMING: 'Dimming',
-        EVENT_COLOR: 'Color'
+        EVENT_COLOR: 'Color',
+        EVENT_SPINBOX_DIMMING: 'Dimming',
+        EVENT_SPINBOX_COLOR: 'Color'
     }
     toggle_icon = {
         True: 'lightbulb_on.png',
@@ -52,8 +55,8 @@ class LightWindow(QDialog):
         # variables
         self.is_slider_pressed = False
         self.state = False
-        self.dimming_level = LIGHTBULB_DIM_MIN_VAL
-        self.color_level = LIGHTBULB_COLOR_TEMP_MIN_VAL
+        self.dimming_level = LIGHTBULB_DIM_DEFAULT
+        self.color_level = LIGHTBULB_COLOR_TEMP_DEFAULT
         self.toggle_update_from_remote = False
         # device specific handler
         self.common_window.init_toggle_button()
@@ -68,90 +71,59 @@ class LightWindow(QDialog):
         # device specific ui component
         self.horizontalSliderDimming = common_window.horizontalSliderDimming
         self.pushButtonStatus = common_window.pushButtonStatus
-        self.labelDimmingPercent = common_window.labelDimmingPercent
+        self.spinboxDimming = common_window.spinboxDimming
         self.textBrowserLog = common_window.textBrowserLog
         self.horizontalSliderColorTemp = common_window.horizontalSliderColorTemp
-        self.labelColorTemp = common_window.labelColorTemp
+        self.spinboxColorTemp = common_window.spinboxColorTemp
         self.labelStatePicture = common_window.labelDevicePicture
         self.stackedWidget = common_window.stackedWidget
 
     def init_dim_slider(self):
         self.horizontalSliderDimming.setRange(
             LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL)
+        self.spinboxDimming.setRange(
+            LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL)
         self.horizontalSliderDimming.setSingleStep(
             self.common_window.get_slider_single_step(LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL))
+        self.spinboxDimming.setSingleStep(
+            self.common_window.get_slider_single_step(LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL))
         self.horizontalSliderDimming.setValue(self.dimming_level)
+        self.spinboxDimming.setValue(self.dimming_level)
         self.horizontalSliderDimming.sliderReleased.connect(
             lambda: self.sliderReleased(SLIDER_DIM))
         self.horizontalSliderDimming.valueChanged.connect(
             lambda: self.valueChanged(SLIDER_DIM))
         self.horizontalSliderDimming.sliderPressed.connect(
             self.sliderPressed)
-        onboarding_style_sheet = """
-            QSlider::groove:horizontal {
-            border: 1px solid #bbb;
-            background: white;
-            height: 7.5px;
-            border-radius: 4px;
-            }
-            QSlider::handle:horizontal {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #eee, stop:1 #ccc);
-            border: 1px solid #777;
-            width: 13px;
-            margin-top: -4px;
-            margin-bottom: -4px;
-            border-radius: 4px;
-            }
-            QSlider::handle:horizontal:hover {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #fff, stop:1 #ddd);
-            border: 1px solid #444;
-            border-radius: 4px;
-            }
-        """
-        self.horizontalSliderDimming.setStyleSheet(onboarding_style_sheet)
+        self.horizontalSliderDimming.setStyleSheet(Utils.get_ui_style_slider("DIMMING"))
+        self.spinboxDimming.installEventFilter(self)
 
     def init_colortemp_slider(self):
         self.horizontalSliderColorTemp.setRange(
             LIGHTBULB_COLOR_TEMP_MIN_VAL, LIGHTBULB_COLOR_TEMP_MAX_VAL)
+        self.spinboxColorTemp.setRange(
+            LIGHTBULB_COLOR_TEMP_MIN_VAL, LIGHTBULB_COLOR_TEMP_MAX_VAL)
         self.horizontalSliderColorTemp.setSingleStep(
             self.common_window.get_slider_single_step(LIGHTBULB_COLOR_TEMP_MIN_VAL, LIGHTBULB_COLOR_TEMP_MAX_VAL))
+        self.spinboxColorTemp.setSingleStep(
+            self.common_window.get_slider_single_step(LIGHTBULB_COLOR_TEMP_MIN_VAL, LIGHTBULB_COLOR_TEMP_MAX_VAL))
         self.horizontalSliderColorTemp.setValue(self.color_level)
+        self.spinboxColorTemp.setValue(self.color_level)
         self.horizontalSliderColorTemp.sliderReleased.connect(
             lambda: self.sliderReleased(SLIDER_COLOR))
         self.horizontalSliderColorTemp.valueChanged.connect(
             lambda: self.valueChanged(SLIDER_COLOR))
         self.horizontalSliderColorTemp.sliderPressed.connect(
             self.sliderPressed)
-        onboarding_style_sheet = """
-            QSlider::groove:horizontal {
-            border: 1px solid #bbb;
-            background: white;
-            height: 7.5px;
-            border-radius: 4px;
-            }
-            
-            QSlider::handle:horizontal {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #eee, stop:1 #ccc);
-            border: 1px solid #777;
-            width: 13px;
-            margin-top: -4px;
-            margin-bottom: -4px;
-            border-radius: 4px;
-            }
-            QSlider::handle:horizontal:hover {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #fff, stop:1 #ddd);
-            border: 1px solid #444;
-            border-radius: 4px;
-            }
-        """
-        self.horizontalSliderColorTemp.setStyleSheet(onboarding_style_sheet)
+        self.horizontalSliderColorTemp.setStyleSheet(Utils.get_ui_style_slider("COLORTEMP"))
+        self.spinboxColorTemp.installEventFilter(self)
 
     def valueChanged(self, slider_id="0"):
-        if self.is_slider_pressed:
+        if self.is_slider_pressed and slider_id == SLIDER_DIM:
+            self.spinboxDimming.setValue(self.horizontalSliderDimming.value())
+            return
+        elif self.is_slider_pressed and slider_id == SLIDER_COLOR:
+            self.spinboxColorTemp.setValue(self.horizontalSliderColorTemp.value())
             return
         if slider_id == SLIDER_DIM:
             level = self.horizontalSliderDimming.value()
@@ -191,102 +163,12 @@ class LightWindow(QDialog):
         self.pushButtonStatus.setStyleSheet(
             Utils.get_ui_style_toggle_btn(self.state))
         self.pushButtonStatus.setText(self.toogle_text.get(self.state))
-        # dimming slider
+        # Dimming
         self.horizontalSliderDimming.setValue(self.dimming_level)
-                # rgb(58, 134, 255)
-        onboarding_style_sheet = """
-            QSlider::groove:horizontal {
-            border: 1px solid #bbb;
-            background: white;
-            height: 7.5px;
-            border-radius: 4px;
-            }
-            QSlider::sub-page:horizontal {
-            background: #3a86ff;
-            border: 1px solid #777;
-            height: 10px;
-            border-radius: 4px;
-            }
-            QSlider::add-page:horizontal {
-            background: #fff;
-            border: 1px solid #777;
-            height: 10px;
-            border-radius: 4px;
-            }
-            QSlider::handle:horizontal {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #eee, stop:1 #ccc);
-            border: 1px solid #777;
-            width: 13px;
-            margin-top: -4px;
-            margin-bottom: -4px;
-            border-radius: 4px;
-            }
-            QSlider::handle:horizontal:hover {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #fff, stop:1 #ddd);
-            border: 1px solid #444;
-            border-radius: 4px;
-            }
-        """
-        self.horizontalSliderDimming.setStyleSheet(onboarding_style_sheet)
-        self.labelDimmingPercent.setText(
-            f'{self.dimming_level}{LIGHTBULB_DIM_UNIT}')
-        # colortemp slider
-        # rgb(58, 134, 255)
-        onboarding_style_sheet = """
-            QSlider::groove:horizontal {
-            border: 1px solid #bbb;
-            background: white;
-            height: 7.5px;
-            border-radius: 4px;
-            }
-            QSlider::sub-page:horizontal {
-            background: qlineargradient(x1: 0, y1: 1, x2: 1, y2: 1,
-                stop: 0 #a5c6fa, stop: 1 #3a86ff);
-            border: 1px solid #777;
-            height: 10px;
-            border-radius: 4px;
-            }
-            QSlider::add-page:horizontal {
-            background: #fff;
-            border: 1px solid #777;
-            height: 10px;
-            border-radius: 4px;
-            }
-            QSlider::handle:horizontal {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #eee, stop:1 #ccc);
-            border: 1px solid #777;
-            width: 13px;
-            margin-top: -4px;
-            margin-bottom: -4px;
-            border-radius: 4px;
-            }
-            QSlider::handle:horizontal:hover {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #fff, stop:1 #ddd);
-            border: 1px solid #444;
-            border-radius: 4px;
-            }
-            QSlider::sub-page:horizontal:disabled {
-            background: #bbb;
-            border-color: #999;
-            }
-            QSlider::add-page:horizontal:disabled {
-            background: #eee;
-            border-color: #999;
-            }
-            QSlider::handle:horizontal:disabled {
-            background: #eee;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            }
-        """
-        self.horizontalSliderColorTemp.setStyleSheet(onboarding_style_sheet)
+        self.spinboxDimming.setValue(self.dimming_level)
+        # ColorTemp
         self.horizontalSliderColorTemp.setValue(self.color_level)
-        self.labelColorTemp.setText(
-            f'{self.color_level}{LIGHTBULB_COLOR_TEMP_UNIT}')
+        self.spinboxColorTemp.setValue(self.color_level)
         # icon
         self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path(self.toggle_icon.get(self.state)), 70, 70))
@@ -298,12 +180,12 @@ class LightWindow(QDialog):
             LightCommand.onOff(self.device_info.device_num, self.state)
             self.textBrowserLog.append(
                 f'[Send] {self.toogle_text.get(self.state)}')
-        elif event_type is EVENT_DIMMING:
+        elif event_type is EVENT_DIMMING or event_type is EVENT_SPINBOX_DIMMING:
             LightCommand.dimming(
                 self.device_info.device_num, self.dimming_level)
             self.textBrowserLog.append(
                 f'[Send] {self.dimming_level}{LIGHTBULB_DIM_UNIT}')
-        elif event_type is EVENT_COLOR:
+        elif event_type is EVENT_COLOR or event_type is EVENT_SPINBOX_COLOR:
             LightCommand.colortemp(
                 self.device_info.device_num, self.color_level)
             self.textBrowserLog.append(
@@ -333,7 +215,6 @@ class LightWindow(QDialog):
                 self.textBrowserLog.append(
                     f'[Recv] {self.log_text.get(event_type)} {round(value/LIGHTBULB_DIM_ST_CONVERT*100)}{LIGHTBULB_DIM_UNIT}')
             self.dimming_level = round(value/LIGHTBULB_DIM_ST_CONVERT*100) if value else self.horizontalSliderDimming.value()
-
         elif event_type is EVENT_COLOR:
             if value is not None and value != self.color_level:
                 self.textBrowserLog.append(
@@ -341,6 +222,17 @@ class LightWindow(QDialog):
             # We have to convert color level
             self.color_level = int(
                 round(1000000/value, 0)) if value else self.horizontalSliderColorTemp.value()
+        elif event_type is EVENT_SPINBOX_DIMMING:
+            if value is not None and value != self.dimming_level:
+                self.textBrowserLog.append(
+                    f'[Recv] {self.log_text.get(event_type)} {round(value/LIGHTBULB_DIM_ST_CONVERT*100)}{LIGHTBULB_DIM_UNIT}')
+            self.dimming_level = self.spinboxDimming.value()
+        elif event_type is EVENT_SPINBOX_COLOR:
+            if value is not None and value != self.color_level:
+                self.textBrowserLog.append(
+                    f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) }{LIGHTBULB_COLOR_TEMP_UNIT}')
+            self.color_level = self.spinboxColorTemp.value()
+
         else:
             return
 
@@ -366,6 +258,13 @@ class LightWindow(QDialog):
         if event_type:
             value = event.split(":")[1]
             self.update_light(event_type, int(value), False)
+
+    def eventFilter(self, obj, event):
+        if (obj is self.spinboxDimming or obj is self.spinboxColorTemp) and event.type() == QEvent.KeyPress:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                self.update_light(EVENT_SPINBOX_DIMMING if obj is self.spinboxDimming else EVENT_SPINBOX_COLOR)
+                return True
+        return super().eventFilter(obj, event)
 
     def autotest_event_handler(self, used_device):
         self.horizontalSliderColorTemp.setEnabled(not used_device)

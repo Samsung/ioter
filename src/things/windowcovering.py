@@ -125,6 +125,7 @@ class WindowcoveringWindow(QDialog):
         self.horizontalSliderWindow.valueChanged.connect(
             self.value_changed)
         self.labelSliderPercent.setText(f'{WC_INIT_LEVEL}{WINDOWCOVERING_UNIT}')
+        self.horizontalSliderWindow.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
 
     def to_target(self):
         self.horizontalSliderWindow.setValue(self.targetlevel)
