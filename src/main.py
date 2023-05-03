@@ -65,6 +65,7 @@ class MainWindow(QMainWindow,
         self.polling_time_ms = 50
         self.initPositionTimer()
         self.savePos()
+        self.checkDir()
 
         Config.load()
         self.test_window_click_count = 0
@@ -358,6 +359,12 @@ class MainWindow(QMainWindow,
         if event.key() == Qt.Key_F12:
             self.window_manager.showGuide()
             self.window_manager.dumpRectangles()
+
+    def checkDir(self):
+        if not os.path.isdir(Utils.get_tmp_path()):
+            os.mkdir(Utils.get_tmp_path())
+        if not os.path.isdir(Utils.get_screenshot_path()):
+            os.mkdir(Utils.get_screenshot_path())
 
 
 if __name__ == '__main__':
