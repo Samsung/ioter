@@ -12,6 +12,7 @@ class auto_device(object):
         self.parent = parent
         self.comport = comport
         self.objectName = "device"
+        self.device_name = ""
         self.layoutWidget = QtWidgets.QWidget(parent.scrollAreaWidgetContents)
         self.layoutWidget.setGeometry(QtCore.QRect(
             0, parent.axis_y, parent.width-20, 29))

@@ -270,11 +270,11 @@ class autoDevice(QThread):
                 if stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE:
                     if debug == 1:
                         print("waiting download plugin in SmartThings...")
-                    self.vc.dump(window=-1, sleep=5)
+                    self.view_dump(5)
                 else:
                     if debug == 1:
                         print(f"not found stair::{stair}'s obj")
-                    self.vc.dump(window=-1)
+                    self.view_dump()
 
             if True not in self.is_request.values():
                 return False
@@ -371,7 +371,7 @@ class autoDevice(QThread):
                         return False
                     continue
             elif stair >= REMOVE_BUTTON and stair <= REMOVE_DONE:
-                self.vc.dump(window=-1)
+                self.view_dump()
                 if stair == REMOVE_BUTTON:
                     obj = self.get_obj("text:" + str(REMOVE_BUTTON_KOR)
                                        ) or self.get_obj("text:" + str(REMOVE_BUTTON_ENG))
@@ -396,7 +396,7 @@ class autoDevice(QThread):
         screenshot_path = Utils.get_screenshot_path()
         if not os.path.isdir(screenshot_path):
             os.mkdir(screenshot_path)
-        self.vc.dump(window=-1)
+        self.view_dump()
         self.device.takeSnapshot(reconnect=True).save(
             f"{screenshot_path}error_{self.device_name}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.png", "PNG")
         print("error screenshot done")
@@ -405,7 +405,7 @@ class autoDevice(QThread):
         if not self.vc:
             return None
         if request_dump:
-            self.vc.dump(window=-1)
+            self.view_dump()
         if key.startswith("text:"):
             text = key[len("text:"):]
             if text.isdecimal():
@@ -414,6 +414,12 @@ class autoDevice(QThread):
                 return self.vc.findViewWithText(text)
         else:
             return self.vc.findViewById(self.get_smartthings_view_id(int(key)))
+
+    def view_dump(self, delay=1):
+        try:
+            self.vc.dump(window=-1, sleep=delay)
+        except:
+            pass
 
     def get_smartthings_view_id(self, key):
         type = {
