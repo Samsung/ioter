@@ -326,7 +326,7 @@ class auto_onboardingWindow(QMainWindow):
         comPort = self.objs[i].comport  # usb_device_label.text().split('/')[0]
         debugLevel = self.objs[i].combo_debug_level.currentText()
         device_type = self.objs[i].combo_device_type.currentText()
-        self.device_name.insert(i, f'{device_type}-{deviceNum}')
+        self.objs[i].device_name = f'{device_type}-{deviceNum}'
 
         print(f'load_device_window comPort {comPort}')
         if self.parent.create_device_window(deviceNum, discriminator, threadType, comPort, debugLevel, device_type):
@@ -336,7 +336,7 @@ class auto_onboardingWindow(QMainWindow):
     def multi_device_process(self, index, value, comport, device_num):
         # onboarding
         if value == STOnboardingResult.ONBOARDING_SUCCESS:  # success
-            self.objs[index].status.setText(f'{self.device_name[index]}')
+            self.objs[index].status.setText(self.objs[index].device_name)
         elif value == STOnboardingResult.ONBOARDING_FAILURE:  # failed
             if comport in self.parent.dialog:
                 self.parent.dialog[comport].get_window().force_closeEvent()
@@ -345,7 +345,7 @@ class auto_onboardingWindow(QMainWindow):
         elif value == STOnboardingResult.REMOVING_SUCCESS:  # success
             self.objs[index].status.setText("ready")
         elif value == STOnboardingResult.REMOVING_FAILURE:  # failed
-            self.objs[index].status.setText(f'{self.device_name[index]}')
+            self.objs[index].status.setText(self.objs[index].device_name)
         QCoreApplication.processEvents()
         time.sleep(1)
         if len(self.order) > 0 and value < 2:  # keep proceed multi onboarding
@@ -361,7 +361,7 @@ class auto_onboardingWindow(QMainWindow):
     def single_repeat_process(self, index, value, comport, device_num):
         # onboarding
         if value == STOnboardingResult.ONBOARDING_SUCCESS:  # success
-            self.objs[index].status.setText(f'{self.device_name[index]}')
+            self.objs[index].status.setText(self.objs[index].device_name)
             self.report.success += 1
             # time.sleep(3)
             QCoreApplication.processEvents()
@@ -399,7 +399,7 @@ class auto_onboardingWindow(QMainWindow):
             QCoreApplication.processEvents()
             self.device_powerOnOff(comport, POWER_ON)
         elif value == STOnboardingResult.REMOVING_FAILURE:  # failed
-            self.objs[index].status.setText(f'{self.device_name[index]}')
+            self.objs[index].status.setText(self.objs[index].device_name)
             self.report.retry_remove += 1
             if (self.report.retry_remove >= 3):  # ignore removing failure and proceed next step
                 self.report.retry_remove = 0
