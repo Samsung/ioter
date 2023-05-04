@@ -79,7 +79,6 @@ class auto_onboardingWindow(QMainWindow):
         self.report = report()
         self.test_category = MULTI_DEVICE
         self.force_quit = False
-        self.device_name = []
         uic.loadUi(Utils.get_view_path("auto_onboardingWindow.ui"), self)
         self.setWindowTitle("Auto onboarding")
         self.chkbox_all.stateChanged.connect(self.toggle_chkbox_all)
@@ -218,6 +217,8 @@ class auto_onboardingWindow(QMainWindow):
         self.objs[index].setupUi(self, comport, vendor)
         self.objs[index].index = index
         self.objs[index].discriminator.setValue(3840+index)
+        self.parent.default_set_thread_type(self.objs[index].combo_thread_type)
+        self.parent.default_set_thread_debug_level(self.objs[index].combo_debug_level)
         self.update()
         self.objs[index].layoutWidget.show()
         self.adjust_geometry()

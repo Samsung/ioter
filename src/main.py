@@ -37,6 +37,7 @@ class MainWindow(QMainWindow,
         self.set_logo()
         self.removedDeviceNumber = -1
         self.pushButtonStart.clicked.connect(self.start_click)
+        self.actionDeveloper.toggled.connect(self.check_developer)
         self.actionAutomation.triggered.connect(self.start_automation)
         self.actionAutomation.setShortcut("Ctrl+A")
         self.actionAuto_onboarding.triggered.connect(
@@ -67,33 +68,50 @@ class MainWindow(QMainWindow,
         self.savePos()
         self.checkDir()
 
-        Config.load()
+        self.default_config = Config()
+        self.default_config_apply()
         self.test_window_click_count = 0
         self.labelMatterlogo.mousePressEvent = self.on_label_matterlogo_clicked
-        self.actionTestWindow.setVisible(Config.test_window_shown)
-        self.test_window_timer = QTimer()
-        self.test_window_timer.setInterval(10000)
-        self.test_window_timer.timeout.connect(self.reset_test_window_count)
+
+    def default_config_apply(self):
+        conf = self.default_config
+        self.test_window_shown = conf.test_window_shown if conf.test_window_shown else False
+        self.actionTestWindow.setVisible(conf.test_window_shown)
+        self.auto.debug = conf.auto_onboarding_debug_mode if conf.auto_onboarding_debug_mode else False
+        self.default_thread_debug_level = conf.thread_debug_level if conf.thread_debug_level >= 1 and conf.thread_debug_level <= 5 else 4
+        self.default_set_thread_debug_level(self.comboBoxDebug)
+        self.default_developer_mode = conf.developer_mode if conf.developer_mode else False
+        self.actionDeveloper.setChecked(self.default_developer_mode)
+        self.default_thread_type = conf.default_thread_type if conf.default_thread_type in ['fed','med','sed'] else 'fed'
+        self.default_set_thread_type(self.comboBoxThread)
+
+    def default_set_thread_debug_level(self, comboBoxObj):
+        if comboBoxObj.findText(f'{self.default_thread_debug_level}') != -1:
+            comboBoxObj.setCurrentText(f'{self.default_thread_debug_level}')
+
+    def default_set_thread_type(self, comboBoxObj):
+        for i in range(comboBoxObj.count()):
+            if comboBoxObj.itemText(i).find(self.default_thread_type) != -1:
+                comboBoxObj.setCurrentText(comboBoxObj.itemText(i))
+
+    def check_developer(self):
+        self.default_config.developer_mode = self.actionDeveloper.isChecked()
 
     def on_label_matterlogo_clicked(self, event):
-        if self.actionTestWindow.isVisible():
-            return
-
         self.test_window_click_count += 1
-        if self.test_window_click_count == 10:
-            self.actionTestWindow.setVisible(True)
-            print("Test Window OPEN in upper option bar")
-            Config.test_window_shown = True
-            Config.save()
-            QMessageBox.about(self,'Test Window','Test Window mode is now available.')
-
-        if not self.test_window_timer.isActive():
-            self.test_window_timer.start()
-
-    def reset_test_window_count(self):
-        self.test_window_click_count = 0
-        self.test_window_timer.stop()
-        self.popup_shown = False
+        if self.test_window_click_count >= 10:
+            if self.default_config.test_window_shown == False:
+                self.actionTestWindow.setVisible(True)
+                print("Test Window OPEN in upper option bar")
+                self.default_config.test_window_shown = True
+                QMessageBox.about(self,'Test Window','Test Window mode is now available.')
+                self.test_window_click_count = 0
+            else:
+                self.actionTestWindow.setVisible(False)
+                print("Test Window CLOSE in upper option bar")
+                self.default_config.test_window_shown = False
+                QMessageBox.about(self,'Test Window','Test Window mode is closed.')
+                self.test_window_click_count = 0
 
     def create_dialog(self, obj, cls_name):
         if obj is None:
@@ -314,6 +332,7 @@ class MainWindow(QMainWindow,
             event.accept()
         else:
             event.ignore()
+        self.default_config.save()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
