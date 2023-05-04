@@ -53,9 +53,6 @@ class AutoDeviceState():
     REMOVING = 3
 
 
-debug = 0
-
-
 class simpleDlg(QDialog):
     def __init__(self, title, content):
         super(simpleDlg, self).__init__()
@@ -80,6 +77,7 @@ class autoDevice(QThread):
         self.comport = None
         self.device_num = None
         self.is_request = dict()
+        self.debug = False
         # print("autoDevice")
 
     def run(self):
@@ -196,7 +194,7 @@ class autoDevice(QThread):
             if obj and stair == ONBOARDING_ADDITIONAL_ADD_BUTTON:
                 if obj.getText() in [self.get_smartthings_view_id(ADD_DEVICE_KOR),
                                      self.get_smartthings_view_id(ADD_DEVICE_ENG)]:
-                    if debug == 1:
+                    if self.debug == True:
                         print(
                             f"stair::ONBOARDING_ADDITIONAL_ADD_BUTTON, obj={obj}")
                     obj.touch()
@@ -204,7 +202,7 @@ class autoDevice(QThread):
             elif not obj and stair == ONBOARDING_ADDITIONAL_ADD_BUTTON:
                 obj = self.get_obj(str(stair), True)
                 if obj:
-                    if debug == 1:
+                    if self.debug == True:
                         print(
                             f"stair::ONBOARDING_ADDITIONAL_ADD_BUTTON, obj={obj}")
                     obj.touch()
@@ -213,30 +211,30 @@ class autoDevice(QThread):
                     obj = self.get_obj(
                         str(ONBOARDING_MANUAL_PAIRING_CODE_BOTTON))
                     if obj:
-                        if debug == 1:
+                        if self.debug == True:
                             print(
                                 f"stair::ONBOARDING_MANUAL_PAIRING_CODE_BOTTON, obj={obj}")
                         obj.touch()
                         stair += 2
             elif obj and stair == ONBOARDING_MANUAL_PAIRING_CODE_TEXTBOX:
-                if debug == 1:
+                if self.debug == True:
                     print(
                         f"stair::ONBOARDING_MANUAL_PAIRING_CODE_TEXTBOX, obj={obj}")
                 obj.type(self.pairing_code)
                 stair += 1
             elif obj and stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE:
-                if debug == 1:
+                if self.debug == True:
                     print(
                         f"stair::ONBOARDING_MATTER_DEVICE_NAME_CHANGE, obj={obj}")
                 obj.setText(self.device_name)
                 stair += 1
             elif obj and stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE:
-                if debug == 1:
+                if self.debug == True:
                     print(
                         f"stair::ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE, obj={obj}")
                 if self.device.isKeyboardShown():
                     self.device.press("BACK")
-                    if debug == 1:
+                    if self.debug == True:
                         print(
                             f"stair::ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE, keyboard down")
                     QTest.qWait(2000)
@@ -244,35 +242,35 @@ class autoDevice(QThread):
                 QTest.qWait(12000)
                 stair += 1
             elif stair == ONBOARDING_DONE_BACK_TO_FIRST_SCREEN:
-                if debug == 1:
+                if self.debug == True:
                     print("stair::ONBOARDING_DONE_BACK_TO_FIRST_SCREEN")
                 obj = self.get_obj("text:" + self.device_name, True)
                 if obj or self.count >= 3:
-                    if debug == 1:
+                    if self.debug == True:
                         print(f"obj={obj}")
                     self.vc.device.press("BACK")
                     QTest.qWait(3000)
-                    if debug == 1:
+                    if self.debug == True:
                         print("press BACK")
                     return True
                 else:
-                    if debug == 1:
+                    if self.debug == True:
                         print(
                             f"stair::ONBOARDING_DONE_BACK_TO_FIRST_SCREEN {self.device_name} not found")
                     self.count += 1
             elif obj:
-                if debug == 1:
+                if self.debug == True:
                     print(f"stair::{stair}, obj={obj}")
                 obj.touch()
                 QTest.qWait(1000)
                 stair += 1
             elif not obj:
                 if stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE:
-                    if debug == 1:
+                    if self.debug == True:
                         print("waiting download plugin in SmartThings...")
                     self.view_dump(5)
                 else:
-                    if debug == 1:
+                    if self.debug == True:
                         print(f"not found stair::{stair}'s obj")
                     self.view_dump()
 
@@ -283,7 +281,7 @@ class autoDevice(QThread):
             if err:
                 if err.getText() in [self.get_smartthings_view_id(ERROR_OCCUR_KOR),
                                      self.get_smartthings_view_id(ERROR_OCCUR_ENG)]:
-                    if debug == 1:
+                    if self.debug == True:
                         print(err)
                     self.screenshot()
                     err2 = self.get_obj(
@@ -291,7 +289,7 @@ class autoDevice(QThread):
                     err2.touch()
                     QTest.qWait(1000)
                     self.vc.device.press("BACK")
-                    if debug == 1:
+                    if self.debug == True:
                         print("press BACK")
                     return False
 
@@ -305,14 +303,14 @@ class autoDevice(QThread):
                     ti = self.get_obj(str(ERROR_CHECK_LAYOUT), True)
                     if ti:
                         self.screenshot()
-                        if debug == 1:
+                        if self.debug == True:
                             print(ti)
                         ti.touch()
                         break
                 QTest.qWait(1000)
                 self.vc.device.press("BACK")
                 QTest.qWait(1000)
-                if debug == 1:
+                if self.debug == True:
                     print("press BACK")
                 return False
 
@@ -359,7 +357,7 @@ class autoDevice(QThread):
             if stair == REMOVE_START:
                 obj = self.get_obj("text:" + self.device_name, True)
                 if obj:
-                    if debug == 1:
+                    if self.debug == True:
                         print(obj)
                     (x, y) = obj.getCenter()
                     self.device.drag((x, y), (x, y), 2000, 1)
@@ -378,7 +376,7 @@ class autoDevice(QThread):
                 else:
                     obj = self.get_obj(str(stair))
                 if obj:
-                    if debug == 1:
+                    if self.debug == True:
                         print(obj)
                     obj.touch()
                     stair = stair + 1

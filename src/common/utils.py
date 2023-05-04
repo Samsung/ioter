@@ -50,6 +50,12 @@ class Utils():
     def get_ioter_path():
         return os.path.join(Utils.get_base_path(), "bin/")
 
+    def get_source_path():
+        return os.path.join(Utils.get_base_path(), "src/")
+
+    def get_config_path():
+        return os.path.join(Utils.get_source_path(), "config.json")
+
     def get_setup_code(code):
         setup_code = code.split(":")
         return setup_code[1]

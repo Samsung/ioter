@@ -1,22 +1,37 @@
 from common.utils import Utils
-
 import json
 
 class Config:
-    CONFIG_FILE = Utils.get_tmp_path() + 'config.json'
-    test_window_shown = False
+    def __init__(cls):
+        super(Config, cls).__init__()
+        cls.load()
 
-    @classmethod
+    def init_config_data(cls):
+        cls.option_menu_shown = False
+        cls.thread_debug_level = 4
+        cls.default_thread_type = 'fed'
+        cls.auto_onboarding_debug_mode = False
+
     def load(cls):
         try:
-            with open(cls.CONFIG_FILE, 'r') as f:
+            with open(Utils.get_config_path(), 'r') as f:
                 config_data = json.load(f)
-            cls.test_window_shown = config_data.get('test_window_shown', cls.test_window_shown)
+            cls.option_menu_shown = config_data['option_menu_shown']
+            cls.thread_debug_level = config_data['thread_debug_level']
+            cls.default_thread_type = config_data['default_thread_type']
+            cls.auto_onboarding_debug_mode = config_data['auto_onboarding_debug_mode']
         except Exception:
-            pass
+            cls.init_config_data()
 
-    @classmethod
     def save(cls):
-        config_data = {'test_window_shown': cls.test_window_shown}
-        with open(cls.CONFIG_FILE, 'w') as f:
-            json.dump(config_data, f)
+        config_data = {
+            'option_menu_shown': cls.option_menu_shown,
+            'thread_debug_level': cls.thread_debug_level,
+            'default_thread_type': cls.default_thread_type,
+            'auto_onboarding_debug_mode': cls.auto_onboarding_debug_mode
+        }
+        try:
+            with open(Utils.get_config_path(), 'w') as f:
+                json.dump(config_data, f, indent=4)
+        except Exception:
+            print("failed to save config data")

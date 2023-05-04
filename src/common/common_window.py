@@ -46,7 +46,7 @@ class CommonWindow(QMainWindow):
         self.ui = uic.loadUi(Utils.get_view_path(view_name), self)
         title = f'{CommandUtil.get_device_type_by_device_id(device_info.device_id)}-{device_info.device_num}'
         if device_info.ioter_name is not None:
-            title = title[:-1] + " Binary : " + device_info.ioter_name + "]"
+            title = title[:-1] + " Binary : " + device_info.ioter_name
         self.title = title
         self.setWindowTitle(title)
         self.init_icon(icon_name)
