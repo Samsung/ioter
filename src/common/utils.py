@@ -2,6 +2,7 @@ import os
 import sys
 import psutil
 import qrcode
+import subprocess
 from pathlib import Path
 from PyQt5.QtGui import *
 from random import Random
@@ -200,6 +201,15 @@ class Utils():
                 """
         slider_stylesheet += addition
         return slider_stylesheet
+
+    def get_version(self):
+        ver = "UNKNOWN"
+        try:
+            ver = subprocess.check_output(['git', 'describe', '--tags']).decode()
+        except:
+            pass
+        return ver
+
 
 def singleton(cls_):
     class class_w(cls_):
