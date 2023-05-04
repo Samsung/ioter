@@ -5,9 +5,11 @@ from common.manage_device import *
 from common.manage_usb import UsbMonitor
 from common.utils import Utils
 from common.config import Config
+from common.help_window import *
 from automation.automationmain import automationWindow
 from auto_onboarding.autod import *
 from auto_onboarding.auto_onboardingmain import auto_onboardingWindow
+from typing import Final
 from winman import window_manager
 
 import sys
@@ -19,6 +21,7 @@ from PyQt5.QtGui import *
 
 sys.path.append('automation')
 
+IOTER_NAME: Final = 'ioter'
 
 class MainWindow(QMainWindow,
                  uic.loadUiType(Utils.get_view_path('main.ui'))[0]):
@@ -33,7 +36,7 @@ class MainWindow(QMainWindow,
         self.dialog = dict()
         self.automation = None
         self.auto_onboarding = None
-        self.setWindowTitle("IoTer")
+        self.setWindowTitle(IOTER_NAME)
         self.set_logo()
         self.removedDeviceNumber = -1
         self.pushButtonStart.clicked.connect(self.start_click)
@@ -42,6 +45,7 @@ class MainWindow(QMainWindow,
         self.actionAuto_onboarding.triggered.connect(
             self.start_auto_onboarding)
         self.actionAuto_onboarding.setShortcut("Ctrl+Z")
+        self.actionAbout.triggered.connect(self.start_help)
         self.deviceManager = DeviceManager()
         self.display_comport()
         self.display_threadType()
@@ -129,6 +133,10 @@ class MainWindow(QMainWindow,
     def start_auto_onboarding(self):
         self.auto_onboarding = self.create_dialog(self.auto_onboarding, auto_onboardingWindow)
         self.send_msg_about_onboarding.connect(self.auto_onboarding.update_status)
+
+    def start_help(self):
+        self.help = HelpWindow(self, IOTER_NAME)
+        self.help.show()
 
     def set_logo(self):
         self.labelMatterlogo.setPixmap(Utils.get_icon_img(

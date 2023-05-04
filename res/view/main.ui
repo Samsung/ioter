@@ -354,8 +354,15 @@ icon</string>
     <addaction name="actionDeveloper"/>
     <addaction name="actionTestWindow"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuTools"/>
    <addaction name="menuOption"/>
+   <addaction name="menuHelp"/>
   </widget>
   <action name="actionAutomation">
    <property name="icon">
@@ -390,6 +397,11 @@ icon</string>
    </property>
    <property name="text">
     <string>Auto onboarding</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>
