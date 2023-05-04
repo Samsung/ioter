@@ -67,33 +67,45 @@ class MainWindow(QMainWindow,
         self.savePos()
         self.checkDir()
 
-        Config.load()
-        self.test_window_click_count = 0
+        self.default_config = Config()
+        self.default_config_apply()
+        self.option_menu_click_count = 0
         self.labelMatterlogo.mousePressEvent = self.on_label_matterlogo_clicked
-        self.actionTestWindow.setVisible(Config.test_window_shown)
-        self.test_window_timer = QTimer()
-        self.test_window_timer.setInterval(10000)
-        self.test_window_timer.timeout.connect(self.reset_test_window_count)
+
+    def default_config_apply(self):
+        conf = self.default_config
+        self.option_menu_shown = conf.option_menu_shown if conf.option_menu_shown else False
+        self.menuOption.menuAction().setVisible(conf.option_menu_shown)
+        self.auto.debug = conf.auto_onboarding_debug_mode if conf.auto_onboarding_debug_mode else False
+        self.default_thread_debug_level = conf.thread_debug_level if conf.thread_debug_level >= 1 and conf.thread_debug_level <= 5 else 4
+        self.default_set_thread_debug_level(self.comboBoxDebug)
+        self.default_thread_type = conf.default_thread_type if conf.default_thread_type in ['fed','med','sed'] else 'fed'
+        self.default_set_thread_type(self.comboBoxThread)
+
+    def default_set_thread_debug_level(self, comboBoxObj):
+        if comboBoxObj.findText(f'{self.default_thread_debug_level}') != -1:
+            comboBoxObj.setCurrentText(f'{self.default_thread_debug_level}')
+
+    def default_set_thread_type(self, comboBoxObj):
+        for i in range(comboBoxObj.count()):
+            if comboBoxObj.itemText(i).find(self.default_thread_type) != -1:
+                comboBoxObj.setCurrentText(comboBoxObj.itemText(i))
 
     def on_label_matterlogo_clicked(self, event):
-        if self.actionTestWindow.isVisible():
-            return
-
-        self.test_window_click_count += 1
-        if self.test_window_click_count == 10:
-            self.actionTestWindow.setVisible(True)
-            print("Test Window OPEN in upper option bar")
-            Config.test_window_shown = True
-            Config.save()
-            QMessageBox.about(self,'Test Window','Test Window mode is now available.')
-
-        if not self.test_window_timer.isActive():
-            self.test_window_timer.start()
-
-    def reset_test_window_count(self):
-        self.test_window_click_count = 0
-        self.test_window_timer.stop()
-        self.popup_shown = False
+        self.option_menu_click_count += 1
+        if self.option_menu_click_count >= 10:
+            if self.default_config.option_menu_shown == False:
+                self.menuOption.menuAction().setVisible(True)
+                print("Option menu OPEN in menubar")
+                self.default_config.option_menu_shown = True
+                QMessageBox.about(self,'Option menu','Option menu is now available.')
+                self.option_menu_click_count = 0
+            else:
+                self.menuOption.menuAction().setVisible(False)
+                print("Option menu CLOSE in menubar")
+                self.default_config.option_menu_shown = False
+                QMessageBox.about(self,'Option menu','Option menu is closed.')
+                self.option_menu_click_count = 0
 
     def create_dialog(self, obj, cls_name):
         if obj is None:
@@ -314,6 +326,7 @@ class MainWindow(QMainWindow,
             event.accept()
         else:
             event.ignore()
+        self.default_config.save()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
