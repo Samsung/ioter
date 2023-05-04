@@ -202,7 +202,7 @@ class Utils():
         slider_stylesheet += addition
         return slider_stylesheet
 
-    def get_version(self):
+    def get_version():
         ver = "UNKNOWN"
         try:
             ver = subprocess.check_output(['git', 'describe', '--tags']).decode()
