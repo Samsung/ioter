@@ -22,8 +22,6 @@ python3_install()
 main()
 {
     python3_install
-    mkdir -p ${IOTER_RES_DIR}/screenshot
-    mkdir -p ${IOTER_TMP_DIR}
 }
 
 main
