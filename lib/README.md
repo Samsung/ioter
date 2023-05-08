@@ -1,4 +1,6 @@
-# lib
+# Build OpenThread Shared Library 
+The "build_ot" command builds an openthread library (i.e libopenthread-cli.so) and installs it as libopenthread-cli.so.${OPENTHREAD_VER}-{THREAD_DEVICE_TYPE} in ./lib.
+
 
 ## How to build
 
@@ -16,5 +18,8 @@ $ git submodule update --init
 # build sed : ./script/build_ot sed
 $ ./script/build_ot fed/med/sed
 ```
+### Thread Device Types
+* fed - Full Thread End Device
+* med - Minimal Thread End Device
+* sed - Sleepy Thread End device
 
-The "build_ot" command builds an openthread library (i.e libopenthread-cli.so) and installs it as libopenthread-cli.so.${OPENTHREAD_VER}-build in ./lib.

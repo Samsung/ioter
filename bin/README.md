@@ -1,4 +1,7 @@
-# bin
+# Build Chip-all-clusters-app for Matter
+
+The "build_ioter" command builds a chip-all-clusters-app executable and installs it in ./bin. This executable emulates Matter End node applications like LightBulb,Door Lock,etc. on top of thread usb dongle.
+
 
 ## How to build
 
@@ -16,5 +19,7 @@ $ git submodule update --init
 # build sed : ./script/build_ioter sed
 $ ./script/build_ioter fed/med/sed
 ```
-
-The "build_ioter" command builds a chip-all-clusters-app executable and installs it in ./bin.
+### Thread Device Types
+* fed - Full Thread End Device
+* med - Minimal Thread End Device
+* sed - Sleepy Thread End device
