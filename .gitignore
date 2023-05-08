@@ -8,6 +8,6 @@ __pycache__
 
 # Python UI generation files
 ui_*.py
+res/view/*_ui.py
 
 # ioter generation files
-

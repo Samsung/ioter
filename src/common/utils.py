@@ -41,9 +41,6 @@ class Utils():
     def get_script_path():
         return os.path.join(Utils.get_base_path(), "script/")
 
-    def get_automation_path():
-        return os.path.join(Utils.get_base_path(), "src/automation/")
-
     def get_thread_lib_path():
         return os.path.join(Utils.get_base_path(), "lib/")
 
@@ -52,6 +49,9 @@ class Utils():
 
     def get_source_path():
         return os.path.join(Utils.get_base_path(), "src/")
+
+    def get_automation_path():
+        return os.path.join(Utils.get_source_path(), "automation/")
 
     def get_config_path():
         return os.path.join(Utils.get_source_path(), "config.json")
