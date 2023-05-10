@@ -16,7 +16,7 @@ EVENT_SPINBOX_COLOR = 5
 
 class LightWindow(QDialog):
 
-    toogle_text = {
+    toggle_text = {
         True: 'Turn on',
         False: 'Turn off',
     }
@@ -66,6 +66,7 @@ class LightWindow(QDialog):
             self.autotest_event_handler)
         self.init_dim_slider()
         self.init_colortemp_slider()
+        self.update_ui()
 
     def get_ui_component_from_common_window(self, common_window):
         # device specific ui component
@@ -162,7 +163,7 @@ class LightWindow(QDialog):
         # toggle
         self.pushButtonStatus.setStyleSheet(
             Utils.get_ui_style_toggle_btn(self.state))
-        self.pushButtonStatus.setText(self.toogle_text.get(self.state))
+        self.pushButtonStatus.setText(self.toggle_text.get(not self.state))
         # Dimming
         self.horizontalSliderDimming.setValue(self.dimming_level)
         self.spinboxDimming.setValue(self.dimming_level)
@@ -179,7 +180,7 @@ class LightWindow(QDialog):
         if event_type is EVENT_TOGGLE:
             LightCommand.onOff(self.device_info.device_num, self.state)
             self.textBrowserLog.append(
-                f'[Send] {self.toogle_text.get(self.state)}')
+                f'[Send] {self.toggle_text.get(self.state)}')
         elif event_type is EVENT_DIMMING or event_type is EVENT_SPINBOX_DIMMING:
             LightCommand.dimming(
                 self.device_info.device_num, self.dimming_level)
@@ -191,23 +192,12 @@ class LightWindow(QDialog):
             self.textBrowserLog.append(
                 f'[Send] {self.color_level}{LIGHTBULB_COLOR_TEMP_UNIT}')
 
-    def is_invalid_command(self, event_type):
-        """
-        When light bulb is off,
-        color control must not be allowed
-        """
-        return (not self.state) and (event_type is EVENT_COLOR)
-
     def update_light(self, event_type, value=None, need_command=True):
-        if self.is_invalid_command(event_type):
-            print("This is invalid command")
-            return
-
         # set value
         if event_type is EVENT_TOGGLE:
             if value is not None and bool(value) != self.state:
                 self.textBrowserLog.append(
-                    f'[Recv] {self.log_text.get(event_type)} {self.toogle_text.get(bool(value))}')
+                    f'[Recv] {self.log_text.get(event_type)} {self.toggle_text.get(bool(value))}')
                 self.toggle_update_from_remote = True
                 self.pushButtonStatus.toggle()
         elif event_type is EVENT_DIMMING:
@@ -218,7 +208,8 @@ class LightWindow(QDialog):
         elif event_type is EVENT_COLOR:
             if value is not None and value != self.color_level:
                 self.textBrowserLog.append(
-                    f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) }{LIGHTBULB_COLOR_TEMP_UNIT}')
+                    #f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) }{LIGHTBULB_COLOR_TEMP_UNIT}')
+                    f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) if value else self.color_level}{LIGHTBULB_COLOR_TEMP_UNIT}')
             # We have to convert color level
             self.color_level = int(
                 round(1000000/value, 0)) if value else self.horizontalSliderColorTemp.value()
@@ -230,7 +221,7 @@ class LightWindow(QDialog):
         elif event_type is EVENT_SPINBOX_COLOR:
             if value is not None and value != self.color_level:
                 self.textBrowserLog.append(
-                    f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) }{LIGHTBULB_COLOR_TEMP_UNIT}')
+                    f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) if value else self.color_level}{LIGHTBULB_COLOR_TEMP_UNIT}')
             self.color_level = self.spinboxColorTemp.value()
 
         else:

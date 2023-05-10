@@ -12,8 +12,8 @@ UNLOCKED = 2
 class DoorlockWindow(QDialog):
 
     toogle_text = {
-        True: 'UNLOCK',
-        False: 'LOCK',
+        True: 'Unlock',
+        False: 'Lock',
     }
     toggle_icon = {
         True: 'doorlock_on.png',
@@ -36,7 +36,7 @@ class DoorlockWindow(QDialog):
 
     def pre_setup_window(self, window_class, window_manager):
         self.common_window = window_class(
-            'doorlock.ui', 'doorlock_off.png', self.device_info, self, window_manager)
+            'doorlock.ui', 'doorlock_on.png', self.device_info, self, window_manager)
         self.get_ui_component_from_common_window(self.common_window)
 
     def post_setup_window(self):
@@ -49,6 +49,7 @@ class DoorlockWindow(QDialog):
         self.common_window.add_pipe_event_handler(self.event_handler)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
+        self.update_ui()
 
     def get_ui_component_from_common_window(self, common_window):
         # device specific ui component
@@ -71,7 +72,7 @@ class DoorlockWindow(QDialog):
 
     def update_ui(self):
         self.pushButtonStatus.setStyleSheet(
-            Utils.get_ui_style_toggle_btn(self.state))
+            Utils.get_ui_style_toggle_btn(not self.state))
         self.pushButtonStatus.setText(self.toogle_text.get(self.state))
         self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path(self.toggle_icon.get(self.state)), 70, 70))
@@ -79,7 +80,7 @@ class DoorlockWindow(QDialog):
     def send_doorlock_command(self, state):
         DoorlockCommand.lockUnlock(self.device_info.device_num, state)
         self.textBrowserLog.append(
-            f'[Send] {self.toogle_text.get(self.state)}')
+            f'[Send] {self.toogle_text.get(not self.state)}')
 
     def is_need_toggle(self, lock_state):
         if lock_state is LOCKED and not self.state:
@@ -92,7 +93,7 @@ class DoorlockWindow(QDialog):
     def update_doorlock(self, lock_state):
         if self.is_need_toggle(lock_state):
             self.textBrowserLog.append(
-                f'[Recv] {self.toogle_text.get(not self.state)}')
+                f'[Recv] {self.toogle_text.get(self.state)}')
             self.toggle_update_from_remote = True
             self.pushButtonStatus.toggle()
 

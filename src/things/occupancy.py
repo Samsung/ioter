@@ -7,17 +7,13 @@ from PyQt5.QtCore import *
 
 class OccupancyWindow(QDialog):
 
-    toogle_text = {
-        True: 'Occupied',
-        False: 'Unoccupied',
+    toggle_text = {
+        True: 'Occupy',
+        False: 'Vacate',
     }
     toggle_icon = {
         True: 'occupancy_on.png',
         False: 'occupancy_off.png',
-    }
-    log_text = {
-        True: 'Occupied',
-        False: 'UnOccupied',
     }
 
     def __init__(self, device_info, window_class, window_manager):
@@ -49,6 +45,7 @@ class OccupancyWindow(QDialog):
         self.common_window.add_pipe_event_handler(self.event_handler)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
+        self.update_ui()
 
     def get_ui_component_from_common_window(self, common_window):
         # device specific ui component
@@ -71,18 +68,18 @@ class OccupancyWindow(QDialog):
     def update_ui(self):
         self.pushButtonStatus.setStyleSheet(
             Utils.get_ui_style_toggle_btn(self.state))
-        self.pushButtonStatus.setText(self.toogle_text.get(self.state))
+        self.pushButtonStatus.setText(self.toggle_text.get(not self.state))
         self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path(self.toggle_icon.get(self.state)), 70, 70))
 
     def send_occupancy_command(self, state):
         OccupancyCommand.occupiedUnoccupied(self.device_info.device_num, state)
         self.textBrowserLog.append(
-            f'[Send] {self.log_text.get(self.state)}')
+            f'[Send] {self.toggle_text.get(self.state)}')
 
     def update_occupancy(self, state):
         if state != self.state:
-            self.textBrowserLog.append(f'[Recv] {self.log_text.get(state)}')
+            self.textBrowserLog.append(f'[Recv] {self.toggle_text.get(state)}')
             self.toggle_update_from_remote = True
             self.pushButtonStatus.toggle()
 

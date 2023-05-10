@@ -18,7 +18,7 @@ On Off Plugin       | 266(0x10A)    | 'on', 'off'
 -----------------------------------------------------------------------------------
 '''
 LIGHTBULB_DEVICE_TYPE = 'Light Bulb'
-LIGHTBULB_DEVICE_ID = '261'
+LIGHTBULB_DEVICE_ID = '268'
 LIGHTBULB_DIM_MIN_VAL = 0
 LIGHTBULB_DIM_MAX_VAL = 100
 LIGHTBULB_DIM_DEFAULT = 100
