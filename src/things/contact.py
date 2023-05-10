@@ -7,9 +7,9 @@ from PyQt5.QtCore import *
 
 class ContactWindow(QDialog):
 
-    toogle_text = {
-        True: 'CLOSE',
-        False: 'OPEN',
+    toggle_text = {
+        True: 'Close',
+        False: 'Open',
     }
     toggle_icon = {
         True: 'contactsensor_on.png',
@@ -45,6 +45,7 @@ class ContactWindow(QDialog):
         self.common_window.add_pipe_event_handler(self.event_handler)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
+        self.update_ui()
 
     def get_ui_component_from_common_window(self, common_window):
         # device specific ui component
@@ -68,18 +69,18 @@ class ContactWindow(QDialog):
     def update_ui(self):
         self.pushButtonStatus.setStyleSheet(
             Utils.get_ui_style_toggle_btn(self.state))
-        self.pushButtonStatus.setText(self.toogle_text.get(self.state))
+        self.pushButtonStatus.setText(self.toggle_text.get(not self.state))
         self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path(self.toggle_icon.get(self.state)), 70, 70))
 
     def send_contact_command(self, state):
         ContactSensorCommand.closeOpen(self.device_info.device_num, state)
         self.textBrowserLog.append(
-            f'[Send] {self.toogle_text.get(self.state)}')
+            f'[Send] {self.toggle_text.get(self.state)}')
 
     def update_contact(self, state):
         if state != self.state:
-            self.textBrowserLog.append(f'[Recv] {self.toogle_text.get(state)}')
+            self.textBrowserLog.append(f'[Recv] {self.toggle_text.get(state)}')
             self.toggle_update_from_remote = True
             self.pushButtonStatus.toggle()
 
