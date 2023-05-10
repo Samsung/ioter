@@ -33,7 +33,8 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - Ubuntu 22.04 (Previous version has Bluetooth version problem)
 - USB hub with power input (USB3.0 recommended)
 - Thread RCP usb dongle. We verified with this:
-    1. **Nordic nrf52840** [OT RCP dongle guide](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/openthread_rcp_nrf_dongle.md)
+    1. **Nordic nrf52840** [OT RCP dongle guide](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/openthread_rcp_nrf_dongle.md)   
+    ![nrf52840](https://github.com/Samsung/ioter/assets/131251075/0eb85c39-efc9-4946-a374-f663c0912f7d)
 - Phone with SmartThings App installed and onboarded with Samsung SmartThings Station.
 
 ## How to install and excute
