@@ -26,7 +26,9 @@ build_chip_all_clusters_app()
     cd "${CONNECTEDHOMEIP_DIR}"
     . scripts/activate.sh
 
-    ./scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-all-clusters-asan-clang-${TYPE_PARAM} build"
+    #./scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-all-clusters-asan-clang-${TYPE_PARAM} build"
+    ./scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target darwin-arm64-all-clusters-no-ble-asan build"
+    
     if [ $? -eq 0 ];then
         echo "chip-all-clusters-app is generated"
         echo "output : ${OUTPUT}"

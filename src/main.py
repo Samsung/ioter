@@ -57,8 +57,8 @@ class MainWindow(QMainWindow,
 
         self.auto = autoDevice(self)
         self.auto.update_onboarding_state.connect(self.auto_onboarding_state)
-        if self.deviceManager.usb_manager.connected_phone_device():
-            self.auto.start()
+        #if self.deviceManager.usb_manager.connected_phone_device():
+        #    self.auto.start()
 
         self.use_test_window = False
         discriminator = Utils.generate_random_discriminator()
@@ -174,9 +174,9 @@ class MainWindow(QMainWindow,
             if comPort and self.auto_onboarding:
                 self.auto_onboarding.add_device(
                     comPort, self.deviceManager.get_device_vendor(comPort))
-            if self.deviceManager.usb_manager.connected_phone_device():
-                if not self.auto.is_running():
-                    self.auto.start()
+#            if self.deviceManager.usb_manager.connected_phone_device():
+#                if not self.auto.is_running():
+#                    self.auto.start()
         elif action == 'remove':
             comPort = self.deviceManager.remove_usb_device(path)
             if comPort in self.dialog:
@@ -187,9 +187,9 @@ class MainWindow(QMainWindow,
                 del (self.dialog[comPort])
             if self.auto_onboarding:
                 self.auto_onboarding.remove_device(comPort)
-            if not self.deviceManager.usb_manager.connected_phone_device():
-                if self.auto.is_running():
-                    self.auto.stop()
+#            if not self.deviceManager.usb_manager.connected_phone_device():
+#                if self.auto.is_running():
+#                    self.auto.stop()
         comport_list = self.deviceManager.get_unused_devices()
         self.comboBoxCom.clear()
         if len(comport_list) == 0:

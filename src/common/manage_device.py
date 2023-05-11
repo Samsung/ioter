@@ -16,8 +16,7 @@ class DeviceManager():
         self.device_info_dict = dict()
         self.usb_manager = UsbManager(max_device_number)
         for usb_device in self.usb_manager.get_list():
-            if not usb_device.is_phone:
-                self.all_device_dict[usb_device.comPort] = -1
+            self.all_device_dict[usb_device.comPort] = -1
 
     def set_used_device(self, comPort, device_info):
         if comPort in self.all_device_dict:
@@ -59,7 +58,7 @@ class DeviceManager():
         comPort = self.usb_manager.add_device(path)
         if (comPort is not None) and (comPort not in self.all_device_dict):
             self.all_device_dict[comPort] = -1
-#            print('add device list')
+            print('add device list')
             return comPort
         return None
 
@@ -68,7 +67,7 @@ class DeviceManager():
         if (comPort is not None) and (comPort in self.all_device_dict):
             self.set_unused_device(comPort)
             del (self.all_device_dict[comPort])
-#            print('remove device list')
+            print('remove device list')
         return comPort
 
     def get_device_number(self):
