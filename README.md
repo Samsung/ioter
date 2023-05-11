@@ -36,7 +36,7 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
     1. **Nordic nrf52840** [OT RCP dongle guide](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/openthread_rcp_nrf_dongle.md)   
     ![nordic_nrf52840_dongle](https://github.com/Samsung/ioter/assets/131251075/fe4f9fc3-077f-4cf1-8de3-56a64af69efa)
 
-- Phone with SmartThings App installed and onboarded with Samsung SmartThings Station.
+- Phone with SmartThings App installed and onboarded with Samsung SmartThings Station or SmartThings hub
 
 ## How to install and excute
 1. install
