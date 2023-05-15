@@ -4,15 +4,13 @@ import signal
 from psutil import *
 from subprocess import *
 
-global run_param_chip_all_clusters_format
-run_param_chip_all_clusters_format = \
+class ProcessController():
+    RUN_PARAM_CHIP_ALL_CLUSTERS_FORMAT = \
     "--device-id %s --discriminator %s --thread "\
     "--thread-version %s --com-port %s "\
-    "--thread-debug %s --device-num %s " \
+    "--thread-debug %s --device-num %s "\
     "--vendor-id %s --product-id %s "
 
-
-class ProcessController():
     def __init__(self):
         self.pid = -1
 
@@ -25,10 +23,12 @@ class ProcessController():
         self.pid = pid
 
     def launch_chip_all_clusters(self, device_info):
-        run_param = run_param_chip_all_clusters_format % (device_info.device_id, device_info.discriminator,
-                                                          device_info.thread_type, device_info.com_port,
-                                                          device_info.debug_level, device_info.device_num,
-                                                          device_info.vid, device_info.pid)
+        run_param = ProcessController.RUN_PARAM_CHIP_ALL_CLUSTERS_FORMAT % (
+            device_info.device_id, device_info.discriminator,
+            device_info.thread_type, device_info.com_port,
+            device_info.debug_level, device_info.device_num,
+            device_info.vid, device_info.pid)
+
         if device_info.get_ioter_name() is not None:
             device_type = device_info.get_ioter_name()
         elif "fed" in device_info.thread_type.casefold():
@@ -48,7 +48,7 @@ class ProcessController():
     def terminate_chip_all_clusters(self, device_info, terminated=True):
         if self.pid != -1:
             self.terminate_process_tree()
-        if (terminated):
+        if terminated:
             Utils.remove_matter_files(device_info.device_num)
             Utils.remove_thread_setting_file(device_info.thread_setting_file)
 
