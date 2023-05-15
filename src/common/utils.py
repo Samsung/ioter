@@ -61,7 +61,7 @@ class Utils():
         return setup_code[1]
 
     def get_thread_lib_prefix():
-        return "libopenthread-cli.so."
+        return "libopenthread.so."
 
     def get_ioter_prefix():
         return "chip-all-clusters-app-"

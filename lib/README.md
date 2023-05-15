@@ -1,5 +1,5 @@
 # Build OpenThread Shared Library 
-The "build_ot" command builds an openthread library (i.e libopenthread-cli.so) and installs it as libopenthread-cli.so.${OPENTHREAD_VER}-{THREAD_DEVICE_TYPE} in ./lib.
+The "build_ot" command builds several openthread libraries and installs them as libopenthread-{THREAD_DEVICE_TYPE}-shared.so.{OPENTHREAD_VER} in ./lib.
 
 
 ## How to build
@@ -13,10 +13,7 @@ $ git clone https://github.com/Samsung/ioter.git
 $ cd ioter
 $ git submodule update --init
 
-# build fed : ./script/build_ot fed
-# build med : ./script/build_ot med
-# build sed : ./script/build_ot sed
-$ ./script/build_ot fed/med/sed
+$ ./script/build_ot
 ```
 ### Thread Device Types
 * fed - Full Thread End Device
