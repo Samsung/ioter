@@ -58,7 +58,7 @@ cd ioter
 4. When the connection is completed, Thing control is possible.
 
 ## Known issues
-Problem with specific linux kernel version (higher than 5.16 and lower than 6.1.2)
+### 1. Problem with specific linux kernel version (higher than 5.16 and lower than 6.1.2)
 The message below appears in the syslog
 kernel: wpan0 (unregistered): mctp_unregister: BUG mctp_ptr set for unknown type 65535
 
@@ -82,3 +82,5 @@ $ sudo nano /etc/default/grub
    GRUB_DEFAULT="1>2"
 $ sudo update-grub
 ```
+### 2. With Ubuntu 20.04.2 LTS(Focal Fossa) , there is a BLE connection issue while onboarding End Node. To use ioter please upgrade Ubuntu 22.04 LTS or later.
+https://github.com/project-chip/connectedhomeip/issues/6347 
