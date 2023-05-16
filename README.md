@@ -50,12 +50,20 @@ cd ioter
 ./script/run
 ```
 
-## How to onboarding
-![ioter-onboarding](https://user-images.githubusercontent.com/131251075/234769085-ce688b94-3185-40bb-91fe-a300ae11635f.PNG)
-1. If you run the ioter with run script, the thing can be executed with the start button.
-2. The Power on button has the same function as the device power.
-3. When you click Power on, a QR code and a paring code are created. Use this to proceed with the onboarding procedure.
-4. When the connection is completed, Thing control is possible.
+## How to onboarding (with SmartThings App)
+![onbooadingGuide 1](https://github.com/Samsung/ioter/assets/131251075/200fd452-549a-4db8-ad7d-bfbd1fef5ebf)
+1. If you run the ioter with run script, the main window will appear, and if you press the start button, the device control window will appear.
+2. The power on button is the same as the power operation of the actual device.
+3. In the SmartThings App, click the add device button in the upper right corner.   
+
+![onbooadingGuide 2](https://github.com/Samsung/ioter/assets/131251075/ce292cc1-cc6e-48da-9827-1f673f66e545)
+
+4. And with scan qr code, device onboarding can be started. (It can also be started with pairing code and scan nearby device.)
+5. When you click Power on (step 2), a QR code and a paring code are created. Use this to proceed with the onboarding procedure.   
+
+![onbooadingGuide 3](https://github.com/Samsung/ioter/assets/131251075/fccf8da9-020b-4b69-9e00-089488af1523)
+
+6. When onboarding is completed, device control is possible.
 
 ## Known issues
 ### 1. Problem with specific linux kernel version (higher than 5.16 and lower than 6.1.2)
