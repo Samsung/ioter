@@ -6,3 +6,7 @@
 	path = third_party/openthread/ot-samsung
 	url = https://github.com/junyong-sim/openthread
 	branch = feature/contribution-ioter-c1
+[submodule "third_party/connectedhomeip"]
+	path = third_party/connectedhomeip
+	url = https://github.com/junyong-sim/connectedhomeip
+	branch = feature/ioter
