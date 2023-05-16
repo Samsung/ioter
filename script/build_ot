@@ -5,41 +5,49 @@ cd "$(dirname "$0")/.."
 CONFIG_SCRIPT="./script/_config"
 test -r ${CONFIG_SCRIPT} && . ${CONFIG_SCRIPT}
 
-TYPE_PARAM="$1"
+PARAM="$1"
 OPENTHREAD_DIR=${IOTER_DIR}"/third_party/openthread/ot-samsung"
-OUTPUT=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-cli.so"
+FTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-ftd-shared.so"
+MTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-mtd-shared.so"
 OPENTHREAD_VER="1.3"
+LOCAL_BUILD="-build"
 
-HELP_STR="Please, use build_ioter with following options.
-./script/build_ioter fed
-./script/build_ioter med
-./script/build_ioter sed"
+_install_fed()
+{
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-fed${LOCAL_BUILD}"
+    cp ${FTD_LIB} ${INSTALL_NAME}
+}
+
+_install_med()
+{
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-med${LOCAL_BUILD}"
+    cp ${MTD_LIB} ${INSTALL_NAME}
+}
+
+_install_sed()
+{
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-sed${LOCAL_BUILD}"
+    cp ${MTD_LIB} ${INSTALL_NAME}
+}
 
 install_openthread()
 {
-    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread-cli.so.${OPENTHREAD_VER}-build-${TYPE_PARAM}"
-    echo "install libopenthread-cli.so to ${INSTALL_NAME}"
-    cp ${OUTPUT} ${INSTALL_NAME}
+    if [ "-r" = "$PARAM" ]; then
+        LOCAL_BUILD=""
+    fi
+    _install_fed
+    _install_med
+    _install_sed
 }
 
 build_openthread()
 {
     cd "${OPENTHREAD_DIR}"
-
-    if [ "fed" = "$TYPE_PARAM" ]; then
-        THREAD_TYPE="-DOT_FTD=ON"
-    elif [ "med" = "$TYPE_PARAM" ] || [ "sed" = "$TYPE_PARAM" ]; then
-        THREAD_TYPE="-DOT_MTD=ON"
-    else
-        echo "build_ot : invalid option ${TYPE_PARAM}"
-        echo "${HELP_STR}"
-        return
-    fi
-
-    ./script/cmake-build posix ${THREAD_TYPE} -DOT_CLI_LIB=ON
+    rm -rf build/
+    ./script/cmake-build posix -DOT_LIB_SHARED=ON -DOT_PLATFORM_NETIF=ON
     if [ $? -eq 0 ];then
-        echo "libopenthread-cli.so is generated"
-        echo "output : ${OUTPUT}"
+        echo "shared libraries are generated"
+        echo "output : ${FTD_LIB}, ${MTD_LIB}"
         install_openthread
     fi
 }

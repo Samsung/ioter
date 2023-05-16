@@ -5,4 +5,4 @@
 [submodule "third_party/openthread/ot-samsung"]
 	path = third_party/openthread/ot-samsung
 	url = https://github.com/junyong-sim/openthread
-	branch = feature/ioter-feature
+	branch = feature/contribution-ioter-c1
