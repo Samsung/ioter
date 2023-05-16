@@ -354,8 +354,8 @@ class MainWindow(QMainWindow,
             fg = self.cur_pos
         self.window_manager.remove(fg.x(), fg.y(), fg.width(), fg.height())
 
-    def moveEvent(self, event):
-        self.timer.start(self.polling_time_ms)
+    #def moveEvent(self, event):
+    #    self.timer.start(self.polling_time_ms)
 
     def checkPosition(self):
         if self.timer and not self.timer.isActive():

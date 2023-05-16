@@ -42,10 +42,16 @@ class Utils():
         return os.path.join(Utils.get_base_path(), "script/")
 
     def get_thread_lib_path():
-        return os.path.join(Utils.get_base_path(), "lib/")
+        if sys.platform == 'linux':
+            return os.path.join(Utils.get_base_path(), "lib/linux/")
+        elif sys.platform == 'darwin':
+            return os.path.join(Utils.get_base_path(), "lib/darwin/")
 
     def get_ioter_path():
-        return os.path.join(Utils.get_base_path(), "bin/")
+        if sys.platform == 'linux':
+            return os.path.join(Utils.get_base_path(), "lib/linux/")
+        elif sys.platform == 'darwin':
+            return os.path.join(Utils.get_base_path(), "lib/darwin/")
 
     def get_source_path():
         return os.path.join(Utils.get_base_path(), "src/")
@@ -61,10 +67,24 @@ class Utils():
         return setup_code[1]
 
     def get_thread_lib_prefix():
-        return "libopenthread.so."
+        if sys.platform == 'linux':
+            #lib name : libopenthread.so.1.3-sed
+            return "libopenthread.so."
+        elif sys.platform == 'darwin':
+            #lib name : libopenthread-ftd-shared.dylib
+            return "libopenthread-"
+
+    def os_thread_type_list():
+        list = os.listdir(Utils.get_thread_lib_path())
+        filtered_list = [thread for thread in list if thread.startswith(
+            Utils.get_thread_lib_prefix())]
+        return filtered_list
 
     def get_ioter_prefix():
-        return "chip-all-clusters-app-"
+        if sys.platform == 'linux':
+            return "chip-all-clusters-app-"
+        elif sys.platform == 'darwin':
+            return "chip-all-clusters-app-"
 
     def get_qrcode_img(qr_data, width, height):
         qr_path = os.path.join(Utils.get_tmp_path(), "qrcode.png")

@@ -1,7 +1,15 @@
 #!/bin/sh
 
 export IOTER_DIR=$(pwd)
-export IOTER_BIN_DIR=${IOTER_DIR}"/bin"
+
+if [[ "$OSTYPE" = "darwin"* ]]; then
+export IOTER_BIN_DIR=${IOTER_DIR}"/bin/darwin"
+export IOTER_LIB_DIR=${IOTER_DIR}"/lib/darwin"
+elif [[ "$OSTYPE" = "linux"* ]]; then
+export IOTER_BIN_DIR=${IOTER_DIR}"/bin/linux"
+export IOTER_LIB_DIR=${IOTER_DIR}"/lib/linux"
+fi
+
 export IOTER_LIB_DIR=${IOTER_DIR}"/lib"
 export IOTER_TMP_DIR=${IOTER_DIR}"/tmp"
 export IOTER_RES_DIR=${IOTER_DIR}"/res"

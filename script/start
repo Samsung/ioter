@@ -17,7 +17,9 @@ DEVICE_ID_STR="${DEVICE_ID_STR:-"lightbulb"}"
 
 bluetooth_restart() {
     echo "bluetooth restart"
-    sudo service bluetooth restart
+    # sudo service bluetooth restart
+    sudo launchctl stop bluetooth
+    sudo launchctl start bluetooth
     sleep 1
 }
 
