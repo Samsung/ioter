@@ -43,6 +43,7 @@ class OccupancyWindow(QDialog):
         self.common_window.init_toggle_button()
         self.common_window.add_toggle_button_handler(self.toggle_handler)
         self.common_window.add_pipe_event_handler(self.event_handler)
+        self.common_window.add_initial_value_handler(self.send_occupancy_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.update_ui()
@@ -63,7 +64,7 @@ class OccupancyWindow(QDialog):
         if self.toggle_update_from_remote:
             self.toggle_update_from_remote = False
         else:
-            self.send_occupancy_command(self.state)
+            self.send_occupancy_command()
 
     def update_ui(self):
         self.pushButtonStatus.setStyleSheet(
@@ -72,8 +73,8 @@ class OccupancyWindow(QDialog):
         self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path(self.toggle_icon.get(self.state)), 70, 70))
 
-    def send_occupancy_command(self, state):
-        OccupancyCommand.occupiedUnoccupied(self.device_info.device_num, state)
+    def send_occupancy_command(self):
+        OccupancyCommand.occupiedUnoccupied(self.device_info.device_num, self.state)
         self.textBrowserLog.append(
             f'[Send] {self.toggle_text.get(self.state)}')
 

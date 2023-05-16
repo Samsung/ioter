@@ -32,6 +32,7 @@ class TempWindow(QDialog):
         self.is_slider_pressed = False
         # device specific handler
         self.common_window.add_pipe_event_handler(self.event_handler)
+        self.common_window.add_initial_value_handler(self.update_temparature_sensor)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.init_input_button()

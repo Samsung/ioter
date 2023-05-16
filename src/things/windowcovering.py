@@ -38,6 +38,7 @@ class WindowcoveringWindow(QDialog):
         self.target_update_from_remote = False
         # device specific handler
         self.common_window.add_pipe_event_handler(self.event_handler)
+        self.common_window.add_initial_value_handler(self.send_current_value)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.set_state()
@@ -219,10 +220,6 @@ class WindowcoveringWindow(QDialog):
                     f'[Recv target] {self.targetlevel}{WINDOWCOVERING_UNIT}')
                 self.timer.stop()
                 self.to_target()
-        if 'Matter-Onboarding is completed' in event:
-            self.textBrowserLog.append(
-                f'[Set to default position] {self.currentlevel}{WINDOWCOVERING_UNIT}')
-            self.send_current_value()
 
     def autotest_event_handler(self, used_device):
         self.openButton.setEnabled(not used_device)
