@@ -59,7 +59,7 @@ cd ioter
 ![onbooadingGuide 2](https://github.com/Samsung/ioter/assets/131251075/ce292cc1-cc6e-48da-9827-1f673f66e545)
 
 4. And with scan qr code, device onboarding can be started. (It can also be started with pairing code and scan nearby device.)
-5. When you click Power on (step 3), a QR code and a paring code are created. Use this to proceed with the onboarding procedure.   
+5. When you click Power on (step 2), a QR code and a paring code are created. Use this to proceed with the onboarding procedure.   
 
 ![onbooadingGuide 3](https://github.com/Samsung/ioter/assets/131251075/fccf8da9-020b-4b69-9e00-089488af1523)
 
