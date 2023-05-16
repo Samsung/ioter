@@ -5,38 +5,36 @@ cd "$(dirname "$0")/.."
 CONFIG_SCRIPT="./script/_config"
 test -r ${CONFIG_SCRIPT} && . ${CONFIG_SCRIPT}
 
+PARAM="$1"
 OPENTHREAD_DIR=${IOTER_DIR}"/third_party/openthread/ot-samsung"
 FTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-ftd-shared.so"
 MTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-mtd-shared.so"
 OPENTHREAD_VER="1.3"
-
+LOCAL_BUILD="-build"
 
 _install_fed()
 {
-    # INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-fed-build"
-    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-fed"
-    echo "install ${INSTALL_NAME}"
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-fed${LOCAL_BUILD}"
     cp ${FTD_LIB} ${INSTALL_NAME}
 }
 
 _install_med()
 {
-    # INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-med-build"
-    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-med"
-    echo "install ${INSTALL_NAME}"
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-med${LOCAL_BUILD}"
     cp ${MTD_LIB} ${INSTALL_NAME}
 }
 
 _install_sed()
 {
-    # INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-sed-build"
-    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-sed"
-    echo "install ${INSTALL_NAME}"
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-sed${LOCAL_BUILD}"
     cp ${MTD_LIB} ${INSTALL_NAME}
 }
 
 install_openthread()
 {
+    if [ "-r" = "$PARAM" ]; then
+        LOCAL_BUILD=""
+    fi
     _install_fed
     _install_med
     _install_sed
