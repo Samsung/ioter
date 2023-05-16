@@ -50,7 +50,7 @@ cd ioter
 ./script/run
 ```
 
-## How to onboarding (with SmnartThings App)
+## How to onboarding (with SmartThings App)
 ![onbooadingGuide 1](https://github.com/Samsung/ioter/assets/131251075/200fd452-549a-4db8-ad7d-bfbd1fef5ebf)
 1. If you run the ioter with run script, the main window will appear, and if you press the start button, the device control window will appear.
 2. The power on button is the same as the power operation of the actual device.
