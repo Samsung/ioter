@@ -62,6 +62,7 @@ class LightWindow(QDialog):
         self.common_window.init_toggle_button()
         self.common_window.add_toggle_button_handler(self.toggle_handler)
         self.common_window.add_pipe_event_handler(self.event_handler)
+        self.common_window.add_initial_value_handler(self.send_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.init_dim_slider()
@@ -176,7 +177,7 @@ class LightWindow(QDialog):
         QApplication.processEvents()
         self.stackedWidget.update()
 
-    def send_command(self, event_type):
+    def send_command(self, event_type = EVENT_TOGGLE):
         if event_type is EVENT_TOGGLE:
             LightCommand.onOff(self.device_info.device_num, self.state)
             self.textBrowserLog.append(
@@ -223,7 +224,6 @@ class LightWindow(QDialog):
                 self.textBrowserLog.append(
                     f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) if value else self.color_level}{LIGHTBULB_COLOR_TEMP_UNIT}')
             self.color_level = self.spinboxColorTemp.value()
-
         else:
             return
 

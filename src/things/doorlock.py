@@ -47,6 +47,7 @@ class DoorlockWindow(QDialog):
         self.common_window.init_toggle_button()
         self.common_window.add_toggle_button_handler(self.toggle_handler)
         self.common_window.add_pipe_event_handler(self.event_handler)
+        self.common_window.add_initial_value_handler(self.send_doorlock_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.update_ui()
@@ -68,7 +69,7 @@ class DoorlockWindow(QDialog):
         if self.toggle_update_from_remote:
             self.toggle_update_from_remote = False
         else:
-            self.send_doorlock_command(self.state)
+            self.send_doorlock_command()
 
     def update_ui(self):
         self.pushButtonStatus.setStyleSheet(
@@ -77,8 +78,8 @@ class DoorlockWindow(QDialog):
         self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path(self.toggle_icon.get(self.state)), 70, 70))
 
-    def send_doorlock_command(self, state):
-        DoorlockCommand.lockUnlock(self.device_info.device_num, state)
+    def send_doorlock_command(self):
+        DoorlockCommand.lockUnlock(self.device_info.device_num, self.state)
         self.textBrowserLog.append(
             f'[Send] {self.toogle_text.get(not self.state)}')
 

@@ -25,6 +25,7 @@ class CommonWindow(QMainWindow):
         self.force_quit = False
         self.pipeThread = 0
         self.pipe_event_handler = None
+        self.initial_value_handler = None
         self.autotest_event_handler = None
         self.auto = self.device_info.get_auto()
 
@@ -98,6 +99,9 @@ class CommonWindow(QMainWindow):
     def add_pipe_event_handler(self, handler):
         self.pipe_event_handler = handler
 
+    def add_initial_value_handler(self, handler):
+        self.initial_value_handler = handler
+
     def add_autotest_event_handler(self, handler):
         self.autotest_event_handler = handler
 
@@ -111,8 +115,8 @@ class CommonWindow(QMainWindow):
         if step == 100:  # commissioning complete
             self.stackedWidget.setCurrentIndex(1)
             self.device_info.set_commissioning_state(True)
-            if self.pipe_event_handler is not None:
-                self.pipe_event_handler(msg)
+            if self.initial_value_handler:
+                self.initial_value_handler()
         elif step == 1:
             self.device_info.set_commissioning_state(False)
             if self.chkbox_auto.isChecked():
