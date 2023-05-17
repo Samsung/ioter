@@ -7,7 +7,8 @@ test -r ${CONFIG_SCRIPT} && . ${CONFIG_SCRIPT}
 
 TYPE_PARAM="$1"
 CONNECTEDHOMEIP_DIR=${IOTER_DIR}"/third_party/ioter-stable"
-OUTPUT=${CONNECTEDHOMEIP_DIR}"/out/linux-x64-all-clusters-asan-clang-${TYPE_PARAM}/chip-all-clusters-app"
+# OUTPUT=${CONNECTEDHOMEIP_DIR}"/out/linux-x64-all-clusters-asan-clang-${TYPE_PARAM}/chip-all-clusters-app"
+OUTPUT=${CONNECTEDHOMEIP_DIR}"/out/darwin-arm64-all-clusters-asan/chip-all-clusters-app"
 
 HELP_STR="Please, use build_ioter with following options.
 ./script/build_ioter fed
@@ -16,7 +17,8 @@ HELP_STR="Please, use build_ioter with following options.
 
 install_chip_all_clusters_app()
 {
-    INSTALL_NAME=${IOTER_BIN_DIR}"/chip-all-clusters-app-build-${TYPE_PARAM}"
+    # INSTALL_NAME=${IOTER_BIN_DIR}"/chip-all-clusters-app-build-${TYPE_PARAM}"
+    INSTALL_NAME=${IOTER_BIN_DIR}"/chip-all-clusters-app-${TYPE_PARAM}"
     echo "install chip-all-clusters-app to ${INSTALL_NAME}"
     cp ${OUTPUT} ${INSTALL_NAME}
 }
@@ -27,7 +29,7 @@ build_chip_all_clusters_app()
     . scripts/activate.sh
 
     #./scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target linux-x64-all-clusters-asan-clang-${TYPE_PARAM} build"
-    ./scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target darwin-arm64-all-clusters-no-ble-asan build"
+    ./scripts/run_in_build_env.sh "./scripts/build/build_examples.py --target darwin-arm64-all-clusters-asan build"
     
     if [ $? -eq 0 ];then
         echo "chip-all-clusters-app is generated"
