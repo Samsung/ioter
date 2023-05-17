@@ -1,3 +1,4 @@
+import math
 from common.utils import Utils
 from common.device_command import *
 
@@ -28,7 +29,7 @@ class LightsensorWindow(QDialog):
 
     def post_setup_window(self):
         # variables
-        self.set_light_sensor_level(LIGHTSENSOR_MIN_VAL)
+        self.set_light_sensor_measured_value(MEASURED_VALUE_MIN)
         self.is_slider_pressed = False
         # device specific handler
         self.common_window.add_pipe_event_handler(self.event_handler)
@@ -55,67 +56,66 @@ class LightsensorWindow(QDialog):
         self.spinBoxInput.installEventFilter(self)
 
     def init_slider(self):
-        self.horizontalSliderLightsensor.setRange(LIGHTSENSOR_MIN_VAL, LIGHTSENSOR_MAX_VAL)
+        self.horizontalSliderLightsensor.setRange(MEASURED_VALUE_MIN, MEASURED_VALUE_MAX)
         self.horizontalSliderLightsensor.setSingleStep(
-            self.common_window.get_slider_single_step(LIGHTSENSOR_MIN_VAL, LIGHTSENSOR_MAX_VAL))
-        self.horizontalSliderLightsensor.setValue(self.level)
+            self.common_window.get_slider_single_step(MEASURED_VALUE_MIN, MEASURED_VALUE_MAX))
+        self.horizontalSliderLightsensor.setValue(self.measured_value)
         self.horizontalSliderLightsensor.sliderPressed.connect(
             self.sliderPressed)
         self.horizontalSliderLightsensor.sliderReleased.connect(
             self.sliderReleased)
         self.horizontalSliderLightsensor.valueChanged.connect(
-            self.valueChanged)
+            self.sliderValueChanged)
         self.horizontalSliderLightsensor.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
         
     def set_state(self):
-        if self.level >= 50000 :
+        if self.toIlluminance(self.measured_value) >= 50000 :
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path('lightsensor_high.png'), 70, 70))
-        elif 10000 <= self.level < 50000 :
+        elif 10000 <= self.toIlluminance(self.measured_value) < 50000 :
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path('lightsensor_medium.png'), 70, 70))
         else:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path('lightsensor_low.png'), 70, 70))
 
-    def valueChanged(self):
+    def sliderValueChanged(self):
         if self.is_slider_pressed:
-            self.spinBoxInput.setValue(self.horizontalSliderLightsensor.value())
+            self.spinBoxInput.setValue(self.toIlluminance(self.horizontalSliderLightsensor.value()))
             return
-        if not self.is_slider_pressed:
-            level = self.horizontalSliderLightsensor.value()
-            # print(f"valueChanged: old ({self.level}), new ({level})")
-            if self.level != level:
-                self.update_light_sensor()
 
     def sliderPressed(self):
         self.is_slider_pressed = True
 
     def sliderReleased(self):
         self.is_slider_pressed = False
-        level = self.horizontalSliderLightsensor.value()
-        if self.level != level:
+        measured_value = self.horizontalSliderLightsensor.value()
+        if self.measured_value != measured_value:
+            self.set_light_sensor_measured_value(measured_value)
             self.update_light_sensor()
 
     def input_click(self):
-        level = self.spinBoxInput.value()
-        self.update_light_sensor(level)
+        self.set_light_sensor_measured_value(self.toMeasuredValue(self.spinBoxInput.value()))
+        self.spinBoxInput.setValue(self.toIlluminance(self.measured_value))
+        self.update_light_sensor(self.measured_value)
 
-    def set_light_sensor_level(self, level=None):
-        self.level = level or self.horizontalSliderLightsensor.value()
-        self.level = max(min(self.level, LIGHTSENSOR_MAX_VAL), LIGHTSENSOR_MIN_VAL)
+    def set_light_sensor_measured_value(self, measured_value):
+        self.measured_value = measured_value
+        if self.measured_value < LIGHTSENSOR_MIN_VAL:
+            self.measured_value = LIGHTSENSOR_MIN_VAL
+        elif self.measured_value > LIGHTSENSOR_MAX_VAL:
+            self.measured_value = LIGHTSENSOR_MAX_VAL
 
     def update_ui(self):
-        self.spinBoxInput.setValue(self.level)
-        self.horizontalSliderLightsensor.setValue(self.level)
+        self.spinBoxInput.setValue(self.toIlluminance(self.measured_value))
+        self.horizontalSliderLightsensor.setValue(self.measured_value)
 
     def send_command(self):
         LightsensorCommand.set_lightsensor(
-            self.device_info.device_num, self.level)
-        self.textBrowserLog.append(f'[Send] {self.level}{LIGHTSENSOR_UNIT}')
+            self.device_info.device_num, self.measured_value)
+        self.textBrowserLog.append(f'[Send] {self.measured_value}')
 
-    def update_light_sensor(self, level=None, need_command=True):
-        self.set_light_sensor_level(level)
+    def update_light_sensor(self, need_command=True):
         self.update_ui()
         self.set_state()
         if need_command:
@@ -130,8 +130,14 @@ class LightsensorWindow(QDialog):
 
     def event_handler(self, event):
         if 'illum' in event:
-            self.update_light_sensor(int(event.split(":")[1]), False)
+            self.update_light_sensor(False)
 
     def autotest_event_handler(self, used_device):
         self.pushButtonInput.setEnabled(not used_device)
         self.horizontalSliderLightsensor.setEnabled(not used_device)
+
+    def toIlluminance(self, value):
+        return int(pow(10, (value-1)/10000))
+
+    def toMeasuredValue(self, illum):
+        return round(10000*math.log(illum, 10)+1)
