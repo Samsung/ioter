@@ -49,7 +49,9 @@ HUMIDITY_UNIT = '%'
 LIGHTSENSOR_DEVICE_TYPE = 'Light Sensor'
 LIGHTSENSOR_DEVICE_ID = '262'
 LIGHTSENSOR_MIN_VAL = 1
-LIGHTSENSOR_MAX_VAL = 100000
+LIGHTSENSOR_MAX_VAL = 3576000
+MEASURED_VALUE_MIN = 1
+MEASURED_VALUE_MAX = 65534
 LIGHTSENSOR_UNIT = ' lux'
 
 OCCUPANCY_DEVICE_TYPE = 'Occupancy'
@@ -201,8 +203,6 @@ class PowerCommand():
 '''
 Light
 '''
-
-
 class LightCommand():
     def onOff(device_num, state):
         if state:
@@ -231,8 +231,6 @@ class LightCommand():
 '''
 Doorlock
 '''
-
-
 class DoorlockCommand():
     @staticmethod
     def lockUnlock(device_num, state):
@@ -248,8 +246,6 @@ class DoorlockCommand():
 '''
 ContactSensor
 '''
-
-
 class ContactSensorCommand():
     @staticmethod
     def closeOpen(device_num, state):
@@ -270,8 +266,6 @@ class ContactSensorCommand():
 '''
 Temperature
 '''
-
-
 class TempCommand():
     @staticmethod
     def set_temp(device_num, level):
@@ -289,8 +283,6 @@ class TempCommand():
 '''
 Humidity
 '''
-
-
 class HumidCommand():
     @staticmethod
     def set_humid(device_num, level):
@@ -308,26 +300,21 @@ class HumidCommand():
 '''
 LightSensor
 '''
-
-
 class LightsensorCommand():
     @staticmethod
-    def set_lightsensor(device_num, lux):
-        value = (10000 * math.log(int(lux), 10)) + 1    # 1 < value < 100000
+    def set_lightsensor(device_num, measured_value):
         # ui reflect
-        command = "echo illum:%s > /tmp/chip_pipe_device%s" % (lux, device_num)
+        command = "echo illum:%s > /tmp/chip_pipe_device%s" % (measured_value, device_num)
         os.popen(command)
 
-        set_lux_command = "echo '{\"Name\":\"Measurement\",\"illum\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
-        command = set_lux_command % (value, device_num)
+        set_measured_value_command = "echo '{\"Name\":\"Measurement\",\"illum\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
+        command = set_measured_value_command % (measured_value, device_num)
         os.popen(command)
 
 
 '''
 OccupancySensor
 '''
-
-
 class OccupancyCommand():
     @staticmethod
     def occupiedUnoccupied(device_num, state):
@@ -348,8 +335,6 @@ class OccupancyCommand():
 '''
 WindowCovering
 '''
-
-
 class WindowCoveringCommand():
     @staticmethod
     def set_target_position(device_num, pos):
@@ -369,8 +354,6 @@ class WindowCoveringCommand():
 '''
 On Off Plugin
 '''
-
-
 class OnOffPluginCommand():
     def onOff(device_num, state):
         if state:
