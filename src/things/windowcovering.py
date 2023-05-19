@@ -1,3 +1,38 @@
+###########################################################################
+#
+#BSD 3-Clause License
+#
+#Copyright (c) 2023, Samsung Electronics Co.
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the copyright holder nor the
+#   names of its contributors may be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+# File : windowcovering.py
+# Description:
+# Create and handles window covering device type.
+
 from common.utils import Utils
 from common.device_command import *
 
@@ -8,9 +43,10 @@ WC_MOVE_DOWN = -1
 WC_MOVE_UP = 1
 WC_INIT_LEVEL = 50
 
-
+## Window covering device class ##
 class WindowcoveringWindow(QDialog):
 
+    ## Initialise window covering UI and device info ##
     def __init__(self, device_info, window_class, window_manager):
         super().__init__()
 
@@ -19,17 +55,21 @@ class WindowcoveringWindow(QDialog):
         self.pre_setup_window(window_class, window_manager)
         self.post_setup_window()
 
+    ## Deinitialise window covering UI ##
     def __del__(self):
         del self.common_window
 
+    ## Get UI window for window covering ##
     def get_window(self):
         return self.common_window
 
+    ## UI setup for window covering ##
     def pre_setup_window(self, window_class, window_manager):
         self.common_window = window_class(
             'windowcovering.ui', 'windowcovering_8.png', self.device_info, self, window_manager)
         self.get_ui_component_from_common_window(self.common_window)
 
+    ## Event handlers registration for window covering ##
     def post_setup_window(self):
         # variables
         self.currentlevel = WC_INIT_LEVEL
@@ -51,6 +91,7 @@ class WindowcoveringWindow(QDialog):
         # Connect the timer signal to its slot
         self.timer.timeout.connect(self.update_current_value)
 
+    ## Get UI component from common window ##
     def get_ui_component_from_common_window(self, common_window):
         # device specific ui component
         self.labelDevicePicture = common_window.labelDevicePicture
@@ -62,6 +103,7 @@ class WindowcoveringWindow(QDialog):
         self.pauseButton = common_window.pauseButton
         self.textBrowserLog = common_window.textBrowserLog
 
+    ## Update window covering icon image based on level ##
     def set_state(self):
         if self.currentlevel == 100:
             self.labelCoveringState.setPixmap(Utils.get_icon_img(
@@ -91,30 +133,38 @@ class WindowcoveringWindow(QDialog):
             self.labelCoveringState.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('windowcovering_8.png'), 70, 70))
 
+
+    ## Initialise open button for window covering UI ##
     def init_open_button(self):
         self.openButton.setCheckable(True)
         self.openButton.setStyleSheet(
             Utils.get_ui_style_toggle_btn(True))
         self.openButton.clicked.connect(self.open_click)
 
+    ## Initialise close button for window covering UI ##
     def init_close_button(self):
         self.closeButton.setCheckable(True)
         self.closeButton.setStyleSheet(
             Utils.get_ui_style_toggle_btn(True))
         self.closeButton.clicked.connect(self.close_click)
 
+
+    ## Initialise pause button for window covering UI ##
     def init_pause_button(self):
         self.pauseButton.setCheckable(True)
         self.pauseButton.setStyleSheet(
             Utils.get_ui_style_toggle_btn(True))
         self.pauseButton.clicked.connect(self.pause_click)
 
+
+    ## Set window cover direction based on current level ##
     def set_direction(self):
         if self.targetlevel >= self.currentlevel:
             self.direction = WC_MOVE_UP
         elif self.targetlevel < self.currentlevel:
             self.direction = WC_MOVE_DOWN
 
+    ## Initialise UI slider ##
     def init_slider(self):
         self.horizontalSliderWindow.setRange(
             WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL)
@@ -131,6 +181,7 @@ class WindowcoveringWindow(QDialog):
         self.horizontalSliderWindow.setStyleSheet(
             Utils.get_ui_style_slider("COMMON"))
 
+    ## Set the window cover to target value ##
     def to_target(self):
         self.horizontalSliderWindow.setValue(self.targetlevel)
         self.labelSliderPercent.setText(str(self.targetlevel)+'%')
@@ -139,6 +190,7 @@ class WindowcoveringWindow(QDialog):
             self.set_direction()
             self.timer.start(50)
 
+    ## Handle slider events ##
     def value_changed(self):
         if not self.is_slider_pressed:
             self.timer.stop()
@@ -149,10 +201,12 @@ class WindowcoveringWindow(QDialog):
                 f'value_changed : target ({self.targetlevel}), current ({self.currentlevel})')
             self.to_target()
 
+    ## Set slider state to pressed ##
     def slider_pressed(self):
         self.timer.stop()
         self.is_slider_pressed = True
 
+    ## Set slider state to unpressed ##
     def slider_released(self):
         self.is_slider_pressed = False
         self.timer.stop()
@@ -160,6 +214,7 @@ class WindowcoveringWindow(QDialog):
         if self.targetlevel != self.currentlevel:
             self.to_target()
 
+    ## Send command to window cover device with target value ##
     def send_target_value(self):
         if self.target_update_from_remote:
             print("send_target_value : do not send")
@@ -171,6 +226,7 @@ class WindowcoveringWindow(QDialog):
         self.textBrowserLog.append(
             f'[Send target] {self.targetlevel}{WINDOWCOVERING_UNIT}')
 
+    ## Send command to window cover device with current value ##
     def send_current_value(self):
         # pos = 10000 - (self.currentlevel * 100)
         WindowCoveringCommand.set_current_postion(
@@ -178,24 +234,24 @@ class WindowcoveringWindow(QDialog):
         self.textBrowserLog.append(
             f'[Send current] {self.currentlevel}{WINDOWCOVERING_UNIT}')
 
-        """
-        implement open/close/pause button
-        """
-
+    ## Handle opening of the window cover ##
     def open_click(self):
         self.timer.stop()
         self.targetlevel = WINDOWCOVERING_MAX_VAL
         self.to_target()
 
+    ## Handle closing of the window cover ##
     def close_click(self):
         self.timer.stop()
         self.targetlevel = WINDOWCOVERING_MIN_VAL
         self.to_target()
 
+    ## Handle pausing of the window cover ##
     def pause_click(self):
         self.targetlevel = self.currentlevel
         self.set_state()
 
+    ## Update window cover position based on current level ##
     def update_current_value(self):
         # self.currentlevel = self.horizontalCurrentSlider.value()
         if self.direction is WC_MOVE_UP:
@@ -210,6 +266,7 @@ class WindowcoveringWindow(QDialog):
         elif (self.currentlevel % 10) == 0:  # ui update in units of 10
             self.send_current_value()
 
+    ## pipeThread event handler ##
     def event_handler(self, event):
         # self.textBrowserLog.append(event)
         if 'go-to-percentage' in event:
@@ -224,27 +281,32 @@ class WindowcoveringWindow(QDialog):
                 self.timer.stop()
                 self.to_target()
 
+    ## Autotest event handler ##
     def autotest_event_handler(self, used_device):
         self.openButton.setEnabled(not used_device)
         self.closeButton.setEnabled(not used_device)
         self.pauseButton.setEnabled(not used_device)
         self.horizontalSliderWindow.setEnabled(not used_device)
 
-# auto test
+    ## Read and update the window cover position based on value ##
     def setWindowcoveringValue(self, value):
         self.horizontalSliderWindow.setValue(int(value))
 
+    ## Get window cover position ##
     def getWindowcoveringValue(self):
         return self.horizontalSliderWindow.value()
 
+    ## Read and update the window cover power state based on value ##
     def setPowerOnOff(self, value):
         powerState = self.common_window.pushButtonDevicePower.isChecked()
         if (value == "On" and not powerState) or (value == "Off" and powerState):
             self.common_window.pushButtonDevicePower.toggle()
 
+    ## Get window cover power state ##
     def getPowerOnOff(self):
         return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
 
+    ## Get window cover supported commands ##
     def _return_command(self, value=None):
         command0 = {
             "Name": "Power On/Off",
