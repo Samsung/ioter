@@ -1,3 +1,38 @@
+###########################################################################
+#
+#BSD 3-Clause License
+#
+#Copyright (c) 2023, Samsung Electronics Co.
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the copyright holder nor the
+#   names of its contributors may be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+# File : autod.py
+# Description:
+# Supports Auto onboarding of devices
+
 from common.utils import Utils
 from common.device_command import CommandUtil
 
@@ -52,8 +87,10 @@ class AutoDeviceState():
     ONBOARDING = 2
     REMOVING = 3
 
-
+## Dialog class ##
 class simpleDlg(QDialog):
+
+    ## Initialize Dialog ##
     def __init__(self, title, content):
         super(simpleDlg, self).__init__()
         self.app = QErrorMessage()
@@ -62,10 +99,11 @@ class simpleDlg(QDialog):
         self.app.setWindowTitle(title)
         self.app.exec()
 
-
+## Automation of devices ##
 class autoDevice(QThread):
     update_onboarding_state = pyqtSignal(int, str, str)
 
+    ## Initialize autodevice ##
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -80,6 +118,7 @@ class autoDevice(QThread):
         self.debug = False
         # print("autoDevice")
 
+    ## Run autodevice ##
     def run(self):
         self.running = True
         self.step = AutoDeviceState.IDLE
@@ -98,6 +137,7 @@ class autoDevice(QThread):
                 self.step = AutoDeviceState.IDLE
             QTest.qWait(1000)
 
+    ## Get number of adb devices ##
     def get_number_of_adb_devices(self):
         sh_process = os.popen("adb devices")
         res = sh_process.read()
@@ -109,6 +149,7 @@ class autoDevice(QThread):
         sh_process.close()
         return len(list)
 
+    ## Check adb connections ##
     def check_connectable(self):
         adb_num = self.get_number_of_adb_devices()
         if adb_num > 0:
@@ -117,6 +158,7 @@ class autoDevice(QThread):
         else:
             return False
 
+    ## Check device available for auto-onboarding ##
     def check_auto_available(self):
         if self.check_connectable():
             return True
@@ -127,9 +169,11 @@ class autoDevice(QThread):
             print("Can't work auto-onboarding because the phone is not connected")
             return False
 
+    ## Check device running state ##
     def is_running(self):
         return self.running
 
+    ## Try to connect to phone ##
     def try_connect_phone(self):
         result = False
         if self.check_auto_available():
@@ -144,12 +188,14 @@ class autoDevice(QThread):
                 result = True
         return result
 
+    ## Check device connection state ##
     def is_connected(self):
         if self.device and self.vc:
             return True
         else:
             return False
 
+    ## Request onboarding ##
     def request_onboarding(self, comport, device_num, code, device_id):
         if self.step != AutoDeviceState.IDLE:
             print(f'working on something else  step : {self.step}')
@@ -168,6 +214,7 @@ class autoDevice(QThread):
             self.step = AutoDeviceState.ONBOARDING
         return True
 
+    ## Update onboarding status of device ##
     def auto_onboarding_device(self):
         self.device_name = f"{CommandUtil.get_device_type_by_device_id(self.device_id)}-{self.device_num}"
         self.count = 0
@@ -183,6 +230,7 @@ class autoDevice(QThread):
             if self.device_num in self.is_request:
                 del self.is_request[self.device_num]
 
+    ## auto onboarding ##
     def auto_onboarding(self):
         start_time = time.time()
         stair = ONBOARDING_ADD_BUTTON
@@ -314,11 +362,13 @@ class autoDevice(QThread):
                     print("press BACK")
                 return False
 
+    ## Disconnect device ##
     def disconnect_device(self, device_num):
         if device_num in self.is_request:
             del self.is_request[device_num]
             # self.step = 0
 
+    ## Remove request ##
     def request_remove(self, comport, device_num, device_id):
         if self.step != AutoDeviceState.IDLE:
             print(f'working on something else  step : {self.is_request}')
@@ -334,6 +384,7 @@ class autoDevice(QThread):
         self.device_id = device_id
         self.step = AutoDeviceState.REMOVING
 
+    ## Check remove status of device ##
     def auto_remove_device(self):
         self.device_name = f"{CommandUtil.get_device_type_by_device_id(self.device_id)}-{self.device_num}"
         if self.remove_device():
@@ -349,6 +400,7 @@ class autoDevice(QThread):
         if self.device_num in self.is_request:
             del self.is_request[self.device_num]
 
+    ## Remove device ##
     def remove_device(self):
         print(f"{self.device_name} will be removed ...")
         start_time = time.time()
@@ -390,6 +442,7 @@ class autoDevice(QThread):
                 print("exit removing device")
                 return True
 
+    ## Take screen shot ##
     def screenshot(self):
         screenshot_path = Utils.get_screenshot_path()
         if not os.path.isdir(screenshot_path):
@@ -399,6 +452,7 @@ class autoDevice(QThread):
             f"{screenshot_path}error_{self.device_name}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.png", "PNG")
         print("error screenshot done")
 
+    ## Get object ##
     def get_obj(self, key, request_dump=False):
         if not self.vc:
             return None
@@ -413,12 +467,14 @@ class autoDevice(QThread):
         else:
             return self.vc.findViewById(self.get_smartthings_view_id(int(key)))
 
+    ## View dump ##
     def view_dump(self, delay=1):
         try:
             self.vc.dump(window=-1, sleep=delay)
         except:
             pass
 
+    ## Get smartthings view id ##
     def get_smartthings_view_id(self, key):
         type = {
             ONBOARDING_ADD_BUTTON: "com.samsung.android.oneconnect:id/add_menu_button",
@@ -443,12 +499,14 @@ class autoDevice(QThread):
         }.get(key, key)
         return type
 
+    ## Phone removed ##
     def removed_phone(self):
         del self.device
         del self.vc
         self.device = None
         self.vc = None
 
+    ## Stop Onboarding ##
     def stop(self):
         self.removed_phone()
         self.running = False

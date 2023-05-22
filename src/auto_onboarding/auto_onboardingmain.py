@@ -1,3 +1,38 @@
+###########################################################################
+#
+#BSD 3-Clause License
+#
+#Copyright (c) 2023, Samsung Electronics Co.
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the copyright holder nor the
+#   names of its contributors may be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+# File : auto_onboardingmain.py
+# Description:
+# Handles auto onboarding of devices
+
 from auto_onboarding.auto_devicelayout import auto_device
 from auto_onboarding.autod import *
 from common.device_command import *
@@ -19,7 +54,7 @@ POWER_OFF = False
 MULTI_DEVICE = 0
 SINGLE_REPEAT = 1
 
-
+## Helper class ##
 class help(QDialog):
     def __init__(self):
         super(help, self).__init__()
@@ -27,7 +62,9 @@ class help(QDialog):
         self.setWindowTitle("Help: How to use")
 
 
+## Auto-Onboarding report class ##
 class report(QDialog):
+    ## Init report dialog  ##
     def __init__(self):
         super(report, self).__init__()
         uic.loadUi(Utils.get_view_path('reportDialog.ui'), self)
@@ -35,9 +72,11 @@ class report(QDialog):
         self.btn_quit.clicked.connect(self.dlg_quit)
         self.setWindowTitle("Onboarding Report")
 
+    ## Quit report dialog ##
     def dlg_quit(self):
         self.close()
 
+    ## Reset stats of auto-onboarding report ##
     def reset(self):
         self.total_count = 0
         self.try_count = 0
@@ -48,6 +87,7 @@ class report(QDialog):
         self.removing_failure = 0
         self.retry_remove = 0
 
+    ## Print results of auto-onboarding ##
     def printResult(self):
         print(f"Total count   : {self.total_count}")
         print(f"Success       : {self.success}")
@@ -66,9 +106,11 @@ class report(QDialog):
         self.show()
 
 
+## Main Window of auto-onboarding class ##
 class auto_onboardingWindow(QMainWindow):
     dialog_closed = pyqtSignal(str)
 
+    ## Init auto_onboardingWindow ##
     def __init__(self, parent):
         super(auto_onboardingWindow, self).__init__()
         self.parent = parent
@@ -98,6 +140,7 @@ class auto_onboardingWindow(QMainWindow):
         self.init_ui_setting()
         QCoreApplication.processEvents()
 
+    ## Toggle all check boxes ##
     def toggle_chkbox_all(self):
         if self.chkbox_all.isChecked():
             for i in range(len(self.objs)):
@@ -108,6 +151,7 @@ class auto_onboardingWindow(QMainWindow):
                 if self.objs[i].chkbox.isChecked():
                     self.objs[i].chkbox.toggle()
 
+    ## Init UI settings ##
     def init_ui_setting(self):
         self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -163,29 +207,34 @@ class auto_onboardingWindow(QMainWindow):
         self.default_debug_level.addItems(["1", "2", "3", "4", "5"])
         self.setFixedWidth(700)
 
+    ## Update discriminator values used during auto-onboarding ##
     def update_discriminator(self):
         for i in range(len(self.objs)):
             self.objs[i].discriminator.setValue(
                 self.default_discriminator.value() + i)
 
+    ## Update device types ##
     def update_device_type(self, selected):
         if selected != "Device-Type":
             for i in range(len(self.objs)):
                 self.objs[i].combo_device_type.setCurrentText(selected)
         self.default_device_type.setCurrentIndex(0)
 
+    ## Update thread types ##
     def update_thread_type(self, selected):
         if selected != "Thread-Type":
             for i in range(len(self.objs)):
                 self.objs[i].combo_thread_type.setCurrentText(selected)
         self.default_thread_type.setCurrentIndex(0)
 
+    ## Update debug level ##
     def update_debug_level(self, selected):
         if selected != "Log":
             for i in range(len(self.objs)):
                 self.objs[i].combo_debug_level.setCurrentText(selected)
         self.default_debug_level.setCurrentIndex(0)
 
+    ## Get thread types list ##
     def get_thread_type_list(self):
         version = []
         list = os.listdir(Utils.get_thread_lib_path())
@@ -195,10 +244,12 @@ class auto_onboardingWindow(QMainWindow):
             version.append(file[len(Utils.get_thread_lib_prefix()):])
         return version
 
+    ## Help dialog ##
     def how_to_use(self):
         self.helpDlg = help()
         self.helpDlg.show()
 
+    ## Add devices to list ##
     def add(self, dm):
         self.clear()
         unused_vendor_list = dict()
@@ -208,6 +259,7 @@ class auto_onboardingWindow(QMainWindow):
             self.add_device(comport, unused_vendor_list[comport])
         self.show()
 
+    ## Add device ##
     def add_device(self, comport, vendor):
         for i in range(len(self.objs)):
             if self.objs[i].comport == comport:
@@ -225,6 +277,7 @@ class auto_onboardingWindow(QMainWindow):
         self.scrollAreaWidgetContents.setMinimumSize(
             QSize(self.axis_y, self.axis_y))
 
+    ## Remove device ##
     def remove_device(self, comPort):
         index = self.get_index_from_comport(comPort)
         if index is not None:
@@ -235,6 +288,7 @@ class auto_onboardingWindow(QMainWindow):
             self.scrollAreaWidgetContents.setMinimumSize(
                 QSize(self.axis_y, self.axis_y))
 
+    ## Device power on/off ##
     def device_powerOnOff(self, comport, Onoff):
         if comport not in self.parent.dialog:
             return
@@ -247,6 +301,7 @@ class auto_onboardingWindow(QMainWindow):
                 self.parent.dialog[comport].get_window(
                 ).pushButtonDevicePower.toggle()
 
+    ## Auto multiple onboarding ##
     def auto_multi_onboarding(self):
         self.test_category = MULTI_DEVICE
         self.order.clear()
@@ -274,6 +329,7 @@ class auto_onboardingWindow(QMainWindow):
                             "Check the device for onboarding")
             print("Error: No device is selected for onboarding.")
 
+    ## Auto multiple remove ##
     def auto_multi_removing(self):
         self.test_category = MULTI_DEVICE
         self.order.clear()
@@ -298,6 +354,7 @@ class auto_onboardingWindow(QMainWindow):
                             "Check the device for removing")
             print("Error: No device is selected for removing..")
 
+    ## Single device can use Auto onboarding repeat test ##
     def auto_single_repeat(self):
         self.test_category = SINGLE_REPEAT
         onlyOne = 0
@@ -320,6 +377,7 @@ class auto_onboardingWindow(QMainWindow):
             print("only one device can use Auto onboarding repeat test!!")
             return
 
+    ## Load device window ##
     def load_device_window(self, i):
         deviceNum = str(self.parent.deviceManager.get_device_number()[0])
         discriminator = self.objs[i].discriminator.value()
@@ -334,6 +392,7 @@ class auto_onboardingWindow(QMainWindow):
             if not self.parent.dialog[comPort].get_window().chkbox_auto.isChecked():
                 self.parent.dialog[comPort].get_window().chkbox_auto.toggle()
 
+    ## multi device onboarding process ##
     def multi_device_process(self, index, value, comport, device_num):
         # onboarding
         if value == STOnboardingResult.ONBOARDING_SUCCESS:  # success
@@ -359,6 +418,7 @@ class auto_onboardingWindow(QMainWindow):
                 next = self.order.pop()
                 self.device_powerOnOff(next, POWER_OFF)
 
+    ## Single device onboarding process ##
     def single_repeat_process(self, index, value, comport, device_num):
         # onboarding
         if value == STOnboardingResult.ONBOARDING_SUCCESS:  # success
@@ -422,6 +482,7 @@ class auto_onboardingWindow(QMainWindow):
                 if comport in self.parent.dialog:
                     self.parent.dialog[comport].get_window().auto_remove()
 
+    ## Update status ##
     @pyqtSlot(int, str, str)
     def update_status(self, value, comport, device_num):
         if self.force_quit:
@@ -435,12 +496,14 @@ class auto_onboardingWindow(QMainWindow):
             elif self.test_category == SINGLE_REPEAT:
                 self.single_repeat_process(index, value, comport, device_num)
 
+    ## Get index from comport ##
     def get_index_from_comport(self, comport):
         for i in range(len(self.objs)):
             if self.objs[i].comport == comport:
                 return i
         return None
 
+    ## clear ##
     def clear(self):
         diff = (len(self.objs)-1) - 0 + 1
         while (diff):
@@ -456,6 +519,7 @@ class auto_onboardingWindow(QMainWindow):
         self.scrollAreaWidgetContents.setMinimumSize(
             QSize(self.axis_y, self.axis_y))
 
+    ## Adjust geometry ##
     def adjust_geometry(self):
         axis_y = 0
         for x in range(len(self.objs)):
@@ -469,12 +533,14 @@ class auto_onboardingWindow(QMainWindow):
         self.scrollAreaWidgetContents.setMinimumSize(
             QSize(self.axis_y, self.axis_y))
 
+    ## Resize Event ##
     def resizeEvent(self, event):
         self.width = self.size().width()
         for x in range(len(self.objs)):
             self.objs[x].layoutWidget.resize(self.width-20, 29)
         QMainWindow.resizeEvent(self, event)
 
+    ## Close Auto onboarding ##
     def closeEvent(self, event):
         if not self.force_quit:
             re = QMessageBox.question(self, "Exit", "Do you want to close Auto onboarding and all device windows as well?",
@@ -488,6 +554,7 @@ class auto_onboardingWindow(QMainWindow):
             elif re == QMessageBox.Cancel:
                 event.ignore()
 
+    ## Quit Auto Onboarding ##
     def force_closeEvent(self, device):
         if (device & ForceClose.AUTO_ONBOARDING) and not self.force_quit:
             print('quit Auto Onboarding')

@@ -1,9 +1,45 @@
+###########################################################################
+#
+#BSD 3-Clause License
+#
+#Copyright (c) 2023, Samsung Electronics Co.
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the copyright holder nor the
+#   names of its contributors may be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+# File : window_manager.py
+# Description:
+# Handles UI : Window Manager
+
 from winman.guider import Guider
 from common.utils import singleton
 
 DEBUG = False
 
 
+## Position class ##
 class Position():
     def __init__(self, x, y, w, h):
         self.x = x
@@ -11,6 +47,7 @@ class Position():
         self.w = w
         self.h = h
 
+    ## Check for one rectangle inside other ##
     def contains(self, r2):
         # Tests if another rectangle is contained by this one
         return (r2.y >= self.y and
@@ -18,6 +55,7 @@ class Position():
                 r2.y + r2.h <= self.y + self.h and
                 r2.x + r2.w <= self.x + self.w)
 
+    ## Check for one rectangle overlap with other ##
     def overlapped(self, r2):
         if (self.x == r2.x and self.w == r2.w):
             if self.y > r2.y:
@@ -30,6 +68,7 @@ class Position():
             else:
                 return self.x + self.w >= r2.x
 
+    ## Check for one rectangle intersects with other ##
     def intersects(self, r2):
         # Find intersects
         return not (self.x + self.w <= r2.x or
@@ -37,13 +76,16 @@ class Position():
                     self.y + self.h <= r2.y or
                     self.y >= r2.y + r2.h)
 
+    ## position ##
     def __str__(s):
         return "Position ({0}, {1}, {2}, {3})".format(s.x, s.y, s.w, s.h)
 
 
+## Window Manager ##
 @singleton
 class WindowManager():
 
+    ## Init Window Manager ##
     def __init__(self, *args, **kwargs):
         self.screen_width = args[2]
         self.screen_height = args[3]
@@ -56,6 +98,7 @@ class WindowManager():
         self.used_positions = []
         print("WindowManager init(): Screen", self.free_rectangles[0])
 
+    ## Get Center Position ##
     def getCenterPosition(self):
         x = self.cur_pos_x
         y = self.cur_pos_y
@@ -63,6 +106,7 @@ class WindowManager():
         self.cur_pos_y += self.title_bar_height + 1
         return x, y
 
+    ## Join Rectangles ##
     def joinRectangles(self, rectangles):
         # Make combinations and compare them
         sub_rectangles = []
@@ -82,6 +126,7 @@ class WindowManager():
         new_rectangles.update(set(join_rectangles))
         return list(new_rectangles)
 
+    ## Add Rectangle with position ##
     def addWithPosition(self, x, y, width, height):
         p = Position(x, y, width, height)
         if DEBUG is True:
@@ -104,6 +149,7 @@ class WindowManager():
 
         return x, y
 
+    ## Add Rectangle ##
     def add(self, width, height):
         # Find a best position to put rectangle
         selected = self.find_position(self.free_rectangles, width, height)
@@ -116,6 +162,7 @@ class WindowManager():
 
         return self.addWithPosition(selected.x, selected.y, width, height)
 
+    ## Remove Rectangle ##
     def remove(self, x, y, width, height):
         p = Position(x, y, width, height)
         if DEBUG is True:
@@ -132,6 +179,7 @@ class WindowManager():
                 return True
         return False
 
+    ## Print Rectangles ##
     def dumpRectangles(self):
         print("==DUMP=========")
         print("Free rectangles")
@@ -148,6 +196,7 @@ class WindowManager():
             i += 1
         print("==========END==")
 
+    ## Join Two Rectangles ##
     def join(self, r1, r2):
         assert self.overlapped(r1, r2)
 
@@ -171,6 +220,7 @@ class WindowManager():
             res.w = x_max - x_min
         return res
 
+    ## Check Overlap of Two Rectangles ##
     def overlapped(self, r1, r2):
         if r1.x == r2.x and r1.w == r2.w:
             if r1.y > r2.y:
@@ -183,6 +233,7 @@ class WindowManager():
             else:
                 return r1.x + r1.w >= r2.x
 
+    ## Find Best Rectangle ##
     def find_position(self, free_rectangles, width, height):
         best_height = float('inf')
         best_rectangle = Position(-1, -1, width, height)
@@ -195,6 +246,7 @@ class WindowManager():
                     best_rectangle = rectangle
         return best_rectangle
 
+    ## Subtract Rectangle ##
     def subtract_rectangle(self, s, r):
         # NOTE: s(free_rectangle) is always larger than r
         ret = []
@@ -212,10 +264,12 @@ class WindowManager():
             ret.append(Position(s.x, r.y + r.h, s.w, s.y + s.h - (r.y + r.h)))
         return ret
 
+    ## Show Guide ##
     def showGuide(self):
         self.g = Guider(self.free_rectangles)
         self.g.showFullScreen()
 
+    ## Maximal Rectangles ##
     def maximal_rectangles(self, bin_width, bin_height, rectangles):
         # Empty area (in rectangle shape)
         free_rectangles = [Position(0, 0, bin_width, bin_height)]
