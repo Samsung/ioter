@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 cd "$(dirname "$0")/.."
 
@@ -6,38 +6,34 @@ CONFIG_SCRIPT="./script/_config"
 test -r ${CONFIG_SCRIPT} && . ${CONFIG_SCRIPT}
 
 PARAM="$1"
+DEVICE_TYPE=("fed" "med" "sed")
 OPENTHREAD_DIR=${IOTER_DIR}"/third_party/openthread/ot-samsung"
-FTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-ftd-shared.so"
-MTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-mtd-shared.so"
+OPENTHREAD_LIB_TYPE=("ftd" "mtd" "mtd")
 OPENTHREAD_VER="1.3"
 LOCAL_BUILD="-build"
 
-_install_fed()
+_install()
 {
-    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-fed${LOCAL_BUILD}"
-    cp ${FTD_LIB} ${INSTALL_NAME}
-}
+    i=0
+    while [ ${i} -le 2 ]; do
+        INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-${DEVICE_TYPE[i]}${LOCAL_BUILD}"
+        LIB_NAME=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-${OPENTHREAD_LIB_TYPE[i]}-shared.so"
+        cp ${LIB_NAME} ${INSTALL_NAME}
+        i=$((${i}+1))
 
-_install_med()
-{
-    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-med${LOCAL_BUILD}"
-    cp ${MTD_LIB} ${INSTALL_NAME}
-}
-
-_install_sed()
-{
-    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-sed${LOCAL_BUILD}"
-    cp ${MTD_LIB} ${INSTALL_NAME}
+        echo "output  : ${LIB_NAME}"
+        echo "install : ${INSTALL_NAME}"
+    done
 }
 
 install_openthread()
 {
+    # for release
     if [ "-r" = "$PARAM" ]; then
         LOCAL_BUILD=""
     fi
-    _install_fed
-    _install_med
-    _install_sed
+
+    _install
 }
 
 build_openthread()
@@ -47,7 +43,6 @@ build_openthread()
     ./script/cmake-build posix -DOT_LIB_SHARED=ON -DOT_PLATFORM_NETIF=ON
     if [ $? -eq 0 ];then
         echo "shared libraries are generated"
-        echo "output : ${FTD_LIB}, ${MTD_LIB}"
         install_openthread
     fi
 }
