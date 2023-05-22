@@ -16,10 +16,11 @@ class automationWindow(QtWidgets.QMainWindow):
     dialog_closed = QtCore.pyqtSignal(str)
     send_used_list = QtCore.pyqtSignal(dict)
 
-    def __init__(self, devMgrObj, use_test_window):
+    def __init__(self, parent):
         super(automationWindow, self).__init__()
+        self.parent = parent
         self.objs = []
-        self.use_test_window = use_test_window
+        self.use_test_window = parent.use_test_window
         self.width = 0
         self.axis_y = 3
         self.curcmd = 0
@@ -31,7 +32,7 @@ class automationWindow(QtWidgets.QMainWindow):
         self.logtrack = 0
         self.force_quit = False
         self.currentOpenFile = None
-        self.devMgrObj = devMgrObj
+        self.devMgrObj = parent.deviceManager
         uic.loadUi(Utils.get_view_path('automationwindow.ui'), self)
         self.resize(600, 700)
         self.setWindowTitle('Automation')
@@ -84,7 +85,7 @@ class automationWindow(QtWidgets.QMainWindow):
             re = QtWidgets.QMessageBox.question(self, "Exit", "Do you want to exit from Automation?",
                                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.Yes)
             if re == QtWidgets.QMessageBox.Yes:
-                self.force_closeEvent()
+                self.force_closeEvent(ForceClose.AUTOMATION)
                 self.dialog_closed.emit("Automation")
                 event.accept()
             else:
@@ -215,7 +216,7 @@ class automationWindow(QtWidgets.QMainWindow):
                     self.objs[x].layoutWidget.move(0, axis_y)
                     axis_y += 30
             except Exception as e:
-                print(x, e)
+                print(f'line {x} error {e}')
         self.scrollAreaWidgetContents.setMinimumSize(
             QtCore.QSize(self.axis_y, self.axis_y))
 
@@ -228,7 +229,7 @@ class automationWindow(QtWidgets.QMainWindow):
                         if self.objs[x].objectName == 'loopEnd':
                             return x
                 except Exception as e:
-                    print(x, e)
+                    print(f'loopEnd line {x} error {e}')
         elif find_obj == 'start':
             for x in range(index, -1, -1):
                 try:
@@ -236,7 +237,7 @@ class automationWindow(QtWidgets.QMainWindow):
                         if self.objs[x].objectName == 'loopStart':
                             return x
                 except Exception as e:
-                    print(x, e)
+                    print(f'loopStart line {x} error {e}')
         return -1
 
 ############ Create Etree XML object and Save ##############
@@ -284,7 +285,7 @@ class automationWindow(QtWidgets.QMainWindow):
                         c.set("val", self.objs[x].comboBox_value.currentText())
                         current.append(c)
             except Exception as e:
-                print(e)
+                print(f'save error {e}')
         if current == m1:
             self.btn_LoopStartEnd.setChecked(False)
             self.addLoopStartEnd()
@@ -413,7 +414,6 @@ class automationWindow(QtWidgets.QMainWindow):
                                 if valid == True:
                                     valid = False
                             else:
-                                print(input)
                                 if input < -273.15 or input > 327.68:
                                     self.objs[x].layoutWidget.setStyleSheet(
                                         'background-color:  red;')
@@ -427,7 +427,7 @@ class automationWindow(QtWidgets.QMainWindow):
                         else:
                             self.objs[x].layoutWidget.setStyleSheet('')
             except Exception as e:
-                print(e)
+                print(f'validatefield error {e}')
         if valid == False:
             self.errorbox('Please fill required fields')
         return valid
@@ -456,7 +456,7 @@ class automationWindow(QtWidgets.QMainWindow):
                     diff -= 1
                     self.axis_y -= 30
             except Exception as e:
-                print(e)
+                print(f'clear error {e}')
         self.adjustGeometry()
         self.scrollAreaWidgetContents.setMinimumSize(
             QtCore.QSize(self.axis_y, self.axis_y))
