@@ -7,26 +7,43 @@ test -r ${CONFIG_SCRIPT} && . ${CONFIG_SCRIPT}
 
 PARAM="$1"
 OPENTHREAD_DIR=${IOTER_DIR}"/third_party/openthread/ot-samsung"
+if [[ "$OSTYPE" = "linux"* ]]; then
 FTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-ftd-shared.so"
 MTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-mtd-shared.so"
+elif [[ "$OSTYPE" = "darwin"* ]]; then
+FTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-ftd-shared.dylib"
+MTD_LIB=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-mtd-shared.dylib"
+fi
 OPENTHREAD_VER="1.3"
 LOCAL_BUILD="-build"
 
 _install_fed()
 {
+if [[ "$OSTYPE" = "linux"* ]]; then
     INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-fed${LOCAL_BUILD}"
+elif [[ "$OSTYPE" = "darwin"* ]]; then
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread-fed-shared.dylib"
+fi
     cp ${FTD_LIB} ${INSTALL_NAME}
 }
 
 _install_med()
 {
+if [[ "$OSTYPE" = "linux"* ]]; then
     INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-med${LOCAL_BUILD}"
+elif [[ "$OSTYPE" = "darwin"* ]]; then
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread-med-shared.dylib"
+fi
     cp ${MTD_LIB} ${INSTALL_NAME}
 }
 
 _install_sed()
 {
+if [[ "$OSTYPE" = "linux"* ]]; then
     INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-sed${LOCAL_BUILD}"
+elif [[ "$OSTYPE" = "darwin"* ]]; then
+    INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread-sed-shared.dylib"
+fi
     cp ${MTD_LIB} ${INSTALL_NAME}
 }
 
