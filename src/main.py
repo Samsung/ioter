@@ -309,7 +309,6 @@ class MainWindow(QMainWindow,
 
     @pyqtSlot(dict)
     def autotest_used_list(self, used_device_dict):
-        print("used_list : ", used_device_dict.items())
         for device_num in used_device_dict.items():
             device_info = self.deviceManager.get_device_info_by_device_num(
                 int(device_num[0]))

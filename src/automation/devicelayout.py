@@ -65,7 +65,6 @@ class Ui_Device(object):
         self.btn_down.setText(_translate("parent", "↓"))
 
     def datainsert(self, parent):
-        print(len(parent.devMgrObj.get_used_devices()))
         for device in parent.devMgrObj.get_used_devices():
             if device.get_commissioning_state():
                 num = device.get_device_num()

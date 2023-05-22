@@ -170,8 +170,8 @@ class ProcessCmd(QThread):
     update_highlight = pyqtSignal(int)
     complete_autotest = pyqtSignal()
     # Class Variable
-    mDevConfFilepath = 'automation/conf/'
-    mScriptFilePath = 'automation/output/'
+    mDevConfFilepath = 'src/automation/conf/'
+    mScriptFilePath = 'src/automation/output/'
 
     # The init method or constructor
     def __init__(self, aUiObj, aFilePath):
