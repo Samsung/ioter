@@ -92,3 +92,8 @@ $ sudo update-grub
 ```
 ### 2. With Ubuntu 20.04.2 LTS(Focal Fossa) , there is a BLE connection issue while onboarding End Node. To use ioter please upgrade Ubuntu 22.04 LTS or later.
 https://github.com/project-chip/connectedhomeip/issues/6347 
+
+## Contributing
+
+For Ioter contribution, see our [Contributing Guidelines](https://github.com/Samsung/ioter/blob/main/CONTRIBUTING.md) for more information.
+We welcome your contribution at any time.
