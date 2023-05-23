@@ -57,7 +57,8 @@ class LightsensorWindow(QDialog):
         self.spinBoxInput.installEventFilter(self)
 
     def init_slider(self):
-        self.horizontalSliderLightsensor.setRange(MEASURED_VALUE_MIN, MEASURED_VALUE_MAX)
+        self.horizontalSliderLightsensor.setRange(
+            MEASURED_VALUE_MIN, MEASURED_VALUE_MAX)
         self.horizontalSliderLightsensor.setSingleStep(
             self.common_window.get_slider_single_step(MEASURED_VALUE_MIN, MEASURED_VALUE_MAX))
         self.horizontalSliderLightsensor.setValue(self.measured_value)
@@ -67,23 +68,30 @@ class LightsensorWindow(QDialog):
             self.sliderReleased)
         self.horizontalSliderLightsensor.valueChanged.connect(
             self.sliderValueChanged)
-        self.horizontalSliderLightsensor.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
-        
+        self.horizontalSliderLightsensor.setStyleSheet(
+            Utils.get_ui_style_slider("COMMON"))
+
     def set_state(self):
-        if self.toIlluminance(self.measured_value) >= 50000 :
+        if self.toIlluminance(self.measured_value) >= 50000:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('lightsensor_high.png'), 70, 70))
-        elif 10000 <= self.toIlluminance(self.measured_value) < 50000 :
+                Utils.get_icon_path('lightsensor_high.png'), 70, 70))
+        elif 10000 <= self.toIlluminance(self.measured_value) < 50000:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('lightsensor_medium.png'), 70, 70))
+                Utils.get_icon_path('lightsensor_medium.png'), 70, 70))
         else:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('lightsensor_low.png'), 70, 70))
+                Utils.get_icon_path('lightsensor_low.png'), 70, 70))
 
     def sliderValueChanged(self):
         if self.is_slider_pressed:
-            self.spinBoxInput.setValue(self.toIlluminance(self.horizontalSliderLightsensor.value()))
+            self.spinBoxInput.setValue(self.toIlluminance(
+                self.horizontalSliderLightsensor.value()))
             return
+        else:
+            measured_value = self.horizontalSliderLightsensor.value()
+            if self.measured_value != measured_value:
+                self.set_light_sensor_measured_value(measured_value)
+                self.update_light_sensor()
 
     def sliderPressed(self):
         self.is_slider_pressed = True
@@ -96,7 +104,8 @@ class LightsensorWindow(QDialog):
             self.update_light_sensor()
 
     def input_click(self):
-        self.set_light_sensor_measured_value(self.toMeasuredValue(self.spinBoxInput.value()))
+        self.set_light_sensor_measured_value(
+            self.toMeasuredValue(self.spinBoxInput.value()))
         self.spinBoxInput.setValue(self.toIlluminance(self.measured_value))
         self.update_light_sensor(self.measured_value)
 
@@ -142,3 +151,34 @@ class LightsensorWindow(QDialog):
 
     def toMeasuredValue(self, illum):
         return round(10000*math.log(illum, 10)+1)
+
+# auto test
+    def setLightSensorValue(self, value):
+        self.spinBoxInput.setValue(int(value))
+        self.input_click()
+
+    def getLightSensorValue(self):
+        return self.spinBoxInput.value()
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "Level Control lux",
+            "range": [LIGHTSENSOR_MIN_VAL, LIGHTSENSOR_MAX_VAL],
+            "Set_val": self.setLightSensorValue,
+            "Get_val": self.getLightSensorValue
+        }
+        return [command0, command1]

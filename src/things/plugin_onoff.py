@@ -92,3 +92,35 @@ class OnoffPlugin(QDialog):
 
     def autotest_event_handler(self, used_device):
         self.pushButtonStatus.setEnabled(not used_device)
+
+# auto test
+    def setPluginCmd(self, value):
+        state = self.pushButtonStatus.isChecked()
+        if (value == "On" and not state) or (value == "Off" and state):
+            self.pushButtonStatus.toggle()
+
+    def getPluginState(self):
+        return "On" if self.pushButtonStatus.isChecked() else "Off"
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPluginCmd,
+            "Get_val": self.getPluginState
+        }
+        return [command0, command1]

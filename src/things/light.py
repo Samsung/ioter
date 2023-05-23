@@ -14,6 +14,7 @@ EVENT_COLOR = 3
 EVENT_SPINBOX_DIMMING = 4
 EVENT_SPINBOX_COLOR = 5
 
+
 class LightWindow(QDialog):
 
     toggle_text = {
@@ -97,7 +98,8 @@ class LightWindow(QDialog):
             lambda: self.valueChanged(SLIDER_DIM))
         self.horizontalSliderDimming.sliderPressed.connect(
             self.sliderPressed)
-        self.horizontalSliderDimming.setStyleSheet(Utils.get_ui_style_slider("DIMMING"))
+        self.horizontalSliderDimming.setStyleSheet(
+            Utils.get_ui_style_slider("DIMMING"))
         self.spinboxDimming.installEventFilter(self)
 
     def init_colortemp_slider(self):
@@ -117,7 +119,8 @@ class LightWindow(QDialog):
             lambda: self.valueChanged(SLIDER_COLOR))
         self.horizontalSliderColorTemp.sliderPressed.connect(
             self.sliderPressed)
-        self.horizontalSliderColorTemp.setStyleSheet(Utils.get_ui_style_slider("COLORTEMP"))
+        self.horizontalSliderColorTemp.setStyleSheet(
+            Utils.get_ui_style_slider("COLORTEMP"))
         self.spinboxColorTemp.installEventFilter(self)
 
     def valueChanged(self, slider_id="0"):
@@ -125,7 +128,8 @@ class LightWindow(QDialog):
             self.spinboxDimming.setValue(self.horizontalSliderDimming.value())
             return
         elif self.is_slider_pressed and slider_id == SLIDER_COLOR:
-            self.spinboxColorTemp.setValue(self.horizontalSliderColorTemp.value())
+            self.spinboxColorTemp.setValue(
+                self.horizontalSliderColorTemp.value())
             return
         if slider_id == SLIDER_DIM:
             level = self.horizontalSliderDimming.value()
@@ -177,7 +181,7 @@ class LightWindow(QDialog):
         QApplication.processEvents()
         self.stackedWidget.update()
 
-    def send_command(self, event_type = EVENT_TOGGLE):
+    def send_command(self, event_type=EVENT_TOGGLE):
         if event_type is EVENT_TOGGLE:
             LightCommand.onOff(self.device_info.device_num, self.state)
             self.textBrowserLog.append(
@@ -205,11 +209,11 @@ class LightWindow(QDialog):
             if value is not None and value != self.dimming_level:
                 self.textBrowserLog.append(
                     f'[Recv] {self.log_text.get(event_type)} {round(value/LIGHTBULB_DIM_ST_CONVERT*100)}{LIGHTBULB_DIM_UNIT}')
-            self.dimming_level = round(value/LIGHTBULB_DIM_ST_CONVERT*100) if value else self.horizontalSliderDimming.value()
+            self.dimming_level = round(
+                value/LIGHTBULB_DIM_ST_CONVERT*100) if value else self.horizontalSliderDimming.value()
         elif event_type is EVENT_COLOR:
             if value is not None and value != self.color_level:
                 self.textBrowserLog.append(
-                    #f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) }{LIGHTBULB_COLOR_TEMP_UNIT}')
                     f'[Recv] {self.log_text.get(event_type)} {int(round(1000000/value, 0)) if value else self.color_level}{LIGHTBULB_COLOR_TEMP_UNIT}')
             # We have to convert color level
             self.color_level = int(
@@ -253,7 +257,8 @@ class LightWindow(QDialog):
     def eventFilter(self, obj, event):
         if (obj is self.spinboxDimming or obj is self.spinboxColorTemp) and event.type() == QEvent.KeyPress:
             if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-                self.update_light(EVENT_SPINBOX_DIMMING if obj is self.spinboxDimming else EVENT_SPINBOX_COLOR)
+                self.update_light(
+                    EVENT_SPINBOX_DIMMING if obj is self.spinboxDimming else EVENT_SPINBOX_COLOR)
                 return True
         return super().eventFilter(obj, event)
 
@@ -261,3 +266,59 @@ class LightWindow(QDialog):
         self.horizontalSliderColorTemp.setEnabled(not used_device)
         self.horizontalSliderDimming.setEnabled(not used_device)
         self.pushButtonStatus.setEnabled(not used_device)
+
+# auto test
+    def setLightOnOff(self, value):
+        state = self.pushButtonStatus.isChecked()
+        if (value == "On" and not state) or (value == "Off" and state):
+            self.pushButtonStatus.toggle()
+
+    def getLightOnOff(self):
+        return "On" if self.pushButtonStatus.isChecked() else "Off"
+
+    def setLevelControl(self, value):
+        self.horizontalSliderDimming.setValue(int(value))
+
+    def getLevelControl(self):
+        return self.horizontalSliderDimming.value()
+
+    def setColorControl(self, value):
+        self.horizontalSliderColorTemp.setValue(int(value))
+
+    def getColorControl(self):
+        return self.horizontalSliderColorTemp.value()
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "Light On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setLightOnOff,
+            "Get_val": self.getLightOnOff
+        }
+        command2 = {
+            "Name": "Level Control %",
+            "range": [LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL],
+            "Set_val": self.setLevelControl,
+            "Get_val": self.getLevelControl
+        }
+        command3 = {
+            "Name": "Color Control K",
+            "range": [LIGHTBULB_COLOR_TEMP_MIN_VAL, LIGHTBULB_COLOR_TEMP_MAX_VAL],
+            "Set_val": self.setColorControl,
+            "Get_val": self.getColorControl
+        }
+        return [command0, command1, command2, command3]

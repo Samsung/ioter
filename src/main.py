@@ -209,7 +209,6 @@ class MainWindow(QMainWindow,
                 file[len(Utils.get_thread_lib_prefix()):])
 
     def display_deviceType(self):
-        CommandUtil.device_type_id.keys()
         self.comboBoxDevice.addItems(CommandUtil.device_type_id.keys())
 
     def display_ioterName(self):

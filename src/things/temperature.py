@@ -32,7 +32,8 @@ class TempWindow(QDialog):
         self.is_slider_pressed = False
         # device specific handler
         self.common_window.add_pipe_event_handler(self.event_handler)
-        self.common_window.add_initial_value_handler(self.update_temparature_sensor)
+        self.common_window.add_initial_value_handler(
+            self.update_temparature_sensor)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.init_input_button()
@@ -66,11 +67,13 @@ class TempWindow(QDialog):
             self.sliderReleased)
         self.horizontalSliderTemp.valueChanged.connect(
             self.valueChanged)
-        self.horizontalSliderTemp.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
+        self.horizontalSliderTemp.setStyleSheet(
+            Utils.get_ui_style_slider("COMMON"))
 
     def valueChanged(self):
         if self.is_slider_pressed:
-            self.doubleSpinBoxInput.setValue(self.horizontalSliderTemp.value()/100)
+            self.doubleSpinBoxInput.setValue(
+                self.horizontalSliderTemp.value()/100)
             return
         if not self.is_slider_pressed:
             level = self.horizontalSliderTemp.value()/100
@@ -96,7 +99,8 @@ class TempWindow(QDialog):
             self.level = level
         else:
             self.level = self.horizontalSliderTemp.value()/100
-        self.level = max(min(self.level, TEMPERATURE_MAX_VAL), TEMPERATURE_MIN_VAL)
+        self.level = max(min(self.level, TEMPERATURE_MAX_VAL),
+                         TEMPERATURE_MIN_VAL)
 
     def update_ui(self):
         self.horizontalSliderTemp.setValue(int(self.level*100))
@@ -114,13 +118,13 @@ class TempWindow(QDialog):
     def set_state(self):
         if self.level > 100:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('thermometer_high.png'), 70, 70))
+                Utils.get_icon_path('thermometer_high.png'), 70, 70))
         elif self.level < 0:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('thermometer_low.png'), 70, 70))
+                Utils.get_icon_path('thermometer_low.png'), 70, 70))
         elif 0 <= self.level <= 100:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('thermometer_medium.png'), 70, 70))
+                Utils.get_icon_path('thermometer_medium.png'), 70, 70))
 
     def event_handler(self, event):
         if 'temp' in event:
@@ -137,3 +141,33 @@ class TempWindow(QDialog):
     def autotest_event_handler(self, used_device):
         self.pushButtonInput.setEnabled(not used_device)
         self.horizontalSliderTemp.setEnabled(not used_device)
+
+# auto test
+    def setTemperatureValue(self, value):
+        self.horizontalSliderTemp.setValue(float(value)*100)
+
+    def getTemperatureValue(self):
+        return self.horizontalSliderTemp.value()/100
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "Level Control °C",
+            "range": [TEMPERATURE_MIN_VAL, TEMPERATURE_MAX_VAL],
+            "Set_val": self.setTemperatureValue,
+            "Get_val": self.getTemperatureValue
+        }
+        return [command0, command1]

@@ -19,147 +19,30 @@ sys.path.append(
 class ExecuteCmd:
 
     # Class Variable
-    CMD_1 = 0
-    CMD_2 = 1
-    CMD_3 = 2
+    CMD_0 = 0
+    CMD_1 = 1
+    CMD_2 = 2
+    CMD_3 = 3
 
     # The init method or constructor
-    def __init__(self, aDevType, aCmd, aCmdVal):
-        print('ExecuteCmd init')
+    def __init__(self, commandList, aDevType, aCmd, aCmdVal):
         self.devType = aDevType[0:aDevType.find('-')]
         self.cmd = aCmd
         self.cmdVal = aCmdVal
         self.devNum = aDevType[len(self.devType)+len('-'):]
+        self.command = commandList[self.devNum]
 
     def execCmd(self):
         print('execCmd' + ' + ' + self.devType)
-        if (self.devType == LIGHTBULB_DEVICE_TYPE):
-            self.execLightBulbCmd()
-        elif (self.devType == DOORLOCK_DEVICE_TYPE):
-            self.execDoorLockCmd()
-        elif (self.devType == CONTACTSENSOR_DEVICE_TYPE):
-            self.execContactSensorCmd()
-        elif (self.devType == TEMPERATURE_DEVICE_TYPE):
-            self.execTemperatureCmd()
-        elif (self.devType == HUMIDITY_DEVICE_TYPE):
-            self.execHumidityCmd()
-        elif (self.devType == LIGHTSENSOR_DEVICE_TYPE):
-            self.execLightSensorCmd()
-        elif (self.devType == OCCUPANCY_DEVICE_TYPE):
-            self.execOccupancyCmd()
-        elif (self.devType == WINDOWCOVERING_DEVICE_TYPE):
-            self.execWindowCoveringCmd()
-        elif (self.devType == ONOFFPLUGIN_DEVICE_TYPE):
-            self.execOnOffPluginCmd()
-        else:
-            print('ERROR: Unknown cmd')
-
-    def execLightBulbCmd(self):
-        print('execLightBulbCmd' + ' : ' + self.devNum)
-        lightCmd = CommandUtil.get_command_list_by_device_type(
-            LIGHTBULB_DEVICE_TYPE)
-        if (self.cmd == lightCmd[self.CMD_1]['Name']):
-            if self.cmdVal in lightCmd[self.CMD_1]['val']:
-                state = True if self.cmdVal == lightCmd[self.CMD_1]['val'][0] else False
-                LightCommand.onOff(self.devNum, state)
-                print('On' if state else 'Off')
-            else:
-                print('ERROR: Unknown value')
-        elif (self.cmd == lightCmd[self.CMD_2]['Name']):
-            print('Level Control : ' + self.cmdVal)
-            # value = (int(self.cmdVal)*254)/100
-            LightCommand.dimming(self.devNum, self.cmdVal)
-        elif (self.cmd == lightCmd[self.CMD_3]['Name']):
-            print('Color Control : ' + self.cmdVal)
-            # value = int(round(1000000/int(self.cmdVal), 0))
-            LightCommand.colortemp(self.devNum, self.cmdVal)
-        else:
-            print('ERROR: Unknown Command')
-
-    def execDoorLockCmd(self):
-        print('execDoorLockCmd' + ' : ' + self.devNum)
-        doorLockCmd = CommandUtil.get_command_list_by_device_type(
-            DOORLOCK_DEVICE_TYPE)
-        if (self.cmd == doorLockCmd[self.CMD_1]['Name']):
-            if self.cmdVal in doorLockCmd[self.CMD_1]['val']:
-                state = True if self.cmdVal == doorLockCmd[self.CMD_1]['val'][0] else False
-                DoorlockCommand.lockUnlock(self.devNum, state)
-                print('Lock' if state else 'UnLock')
-            else:
-                print('ERROR: Unknown value')
-        else:
-            print('ERROR: Unknown Command')
-
-    def execContactSensorCmd(self):
-        print('execContactSensorCmd' + ' : ' + self.devNum)
-        contactSensorCmd = CommandUtil.get_command_list_by_device_type(
-            CONTACTSENSOR_DEVICE_TYPE)
-        if (self.cmd == contactSensorCmd[self.CMD_1]['Name']):
-            if self.cmdVal in contactSensorCmd[self.CMD_1]['val']:
-                state = True if self.cmdVal == contactSensorCmd[self.CMD_1]['val'][0] else False
-                ContactSensorCommand.closeOpen(self.devNum, state)
-                print('Close' if state else 'Open')
-            else:
-                print('ERROR: Unknown value')
-        else:
-            print('ERROR: Unknown Command')
-
-    def execTemperatureCmd(self):
-        print('execTemperatureCmd' + ' : ' + self.devNum)
-        temperatureCmd = CommandUtil.get_command_list_by_device_type(
-            TEMPERATURE_DEVICE_TYPE)
-        if (self.cmd == temperatureCmd[self.CMD_1]['Name']):
-            print('Level Control : ' + self.cmdVal)
-            # value = int(self.cmdVal) * 100
-            TempCommand.set_temp(self.devNum, self.cmdVal)
-
-    def execHumidityCmd(self):
-        print('execHumidityCmd' + ' : ' + self.devNum)
-        humidityCmd = CommandUtil.get_command_list_by_device_type(
-            HUMIDITY_DEVICE_TYPE)
-        if (self.cmd == humidityCmd[self.CMD_1]['Name']):
-            print('Level Control : ' + self.cmdVal)
-            # value = (int(self.cmdVal)*10000)/100
-            HumidCommand.set_humid(self.devNum, self.cmdVal)
-
-    def execLightSensorCmd(self):
-        print('execLightSensorCmd' + ' : ' + self.devNum)
-        lightSensorCmd = CommandUtil.get_command_list_by_device_type(
-            LIGHTSENSOR_DEVICE_TYPE)
-        if (self.cmd == lightSensorCmd[self.CMD_1]['Name']):
-            print('Level Control :' + self.cmdVal)
-            # value = (10000 * math.log(int(self.cmdVal), 10)) + 1
-            LightsensorCommand.set_lightsensor(self.devNum, self.cmdVal)
-
-    def execOccupancyCmd(self):
-        print('execOccupancyCmd' + ' : ' + self.devNum)
-        occupancyCmd = CommandUtil.get_command_list_by_device_type(
-            OCCUPANCY_DEVICE_TYPE)
-        if (self.cmd == occupancyCmd[self.CMD_1]['Name']):
-            if self.cmdVal in occupancyCmd[self.CMD_1]['val']:
-                state = True if self.cmdVal == occupancyCmd[self.CMD_1]['val'][0] else False
-                OccupancyCommand.occupiedUnoccupied(self.devNum, state)
-                print('Occupied' if state else 'Unoccupied')
-            else:
-                print('ERROR: Unknown value')
-
-    def execWindowCoveringCmd(self):
-        print('execWindowCoveringCmd' + ' : ' + self.devNum)
-        windowCoveringCmd = CommandUtil.get_command_list_by_device_type(
-            WINDOWCOVERING_DEVICE_TYPE)
-        if (self.cmd == windowCoveringCmd[self.CMD_1]['Name']):
-            print('Level Control : ' + self.cmdVal)
-            WindowCoveringCommand.set_target_position(self.devNum, self.cmdVal)
-
-    def execOnOffPluginCmd(self):
-        print('execOnOffPluginCmd' + ' : ' + self.devNum)
-        OnOffPluginCmd = CommandUtil.get_command_list_by_device_type(
-            ONOFFPLUGIN_DEVICE_TYPE)
-        if (self.cmd == OnOffPluginCmd[self.CMD_1]['Name']):
-            if self.cmdVal in OnOffPluginCmd[self.CMD_1]['val']:
-                state = True if self.cmdVal == OnOffPluginCmd[self.CMD_1]['val'][0] else False
-                OnOffPluginCommand.onOff(self.devNum, state)
-                print('On' if state else 'Off')
+        for cmd in self.command:
+            if (self.cmd == cmd['Name']):
+                execmd = cmd['Set_val']
+                execmd(self.cmdVal)
+                execmd = cmd['Get_val']
+                value = execmd()
+                print(f"get_val {value}")
+                return
+        print(f'ERROR: Unknown Command {self.cmd}-{self.cmdVal} devNum {self.devNum}')
 
     def __str__(self):
         return "devType:{1}, cmd:{2}, cmdVal:{3}, devNum:{1}".format(self.devType, self.cmd, self.cmdVal, self.devNum)
@@ -174,10 +57,10 @@ class ProcessCmd(QThread):
     mScriptFilePath = 'src/automation/output/'
 
     # The init method or constructor
-    def __init__(self, aUiObj, aFilePath):
+    def __init__(self, parent, aFilePath):
         super().__init__()
         print('ProcessCmd init')
-        self.uiObj = aUiObj
+        self.parent = parent
         self.scriptFilePath = aFilePath
 
         self.exec_stop = False
@@ -245,7 +128,7 @@ class ProcessCmd(QThread):
                             self.setSleep(sleepInterval)
                         else:
                             print(child.tag, child.attrib)
-                            ExecuteCmd(child.get('devType'), child.get(
+                            ExecuteCmd(self.parent.commandList, child.get('devType'), child.get(
                                 'cmdName'), child.get('val')).execCmd()
                             self.setSleep(1)
                     print('Current Loop Count->', curCnt)
@@ -256,7 +139,7 @@ class ProcessCmd(QThread):
                 self.send_highlight(uiIdx)
                 uiIdx += 1
             else:
-                ExecuteCmd(element.get('devType'), element.get(
+                ExecuteCmd(self.parent.commandList, element.get('devType'), element.get(
                     'cmdName'), element.get('val')).execCmd()
                 self.send_highlight(uiIdx)
                 uiIdx += 1

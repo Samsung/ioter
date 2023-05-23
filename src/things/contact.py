@@ -92,3 +92,35 @@ class ContactWindow(QDialog):
 
     def autotest_event_handler(self, used_device):
         self.pushButtonStatus.setEnabled(not used_device)
+
+# auto test
+    def setContactCmd(self, value):
+        state = self.pushButtonStatus.isChecked()
+        if (value == "Close" and not state) or (value == "Open" and state):
+            self.pushButtonStatus.toggle()
+
+    def getContactState(self):
+        return "Close" if self.pushButtonStatus.isChecked() else "Open"
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "Open/Close",
+            "val": ['Close', 'Open'],
+            "Set_val": self.setContactCmd,
+            "Get_val": self.getContactState
+        }
+        return [command0, command1]
