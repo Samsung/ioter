@@ -1,25 +1,53 @@
+#BSD 3-Clause License
+#
+#Copyright (c) 2023, Samsung Electronics Co.
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the copyright holder nor the
+#   names of its contributors may be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+# File : manage_use.py
+# Description: Manage usb devices and operations
+# e.g. current usb list, usb detect (add/remove), reset usb device
+
 #!/usr/bin/env python
 import os
 import fcntl
 import pyudev
 import time
 from PyQt5.QtCore import *
-'''
-current usb list
-usb detect (add/remove)
-reset usb device
-'''
 
-
+## USB monitor class ##
 class UsbMonitor(QThread):
     usb_changed = pyqtSignal(str, str)
 
-    # 초기화 메서드 구현
+    ## Init new thread ##
     def __init__(self):
         super().__init__()
 
+    ## Runs the actual loop to detect the events ##
     def run(self):
-        # Runs the actual loop to detect the events
         self.context = pyudev.Context()
         self.monitor = pyudev.Monitor.from_netlink(self.context)
         self.monitor.filter_by(subsystem='usb')
@@ -27,6 +55,7 @@ class UsbMonitor(QThread):
             self.monitor, self.usb_Device_EventHandler)
         self.observer.start()
 
+    ## USB device event handler ##
     def usb_Device_EventHandler(self, action, device):
         if device.action == 'add':
             time.sleep(1)  # wait for reading properties when insert dongle
@@ -34,11 +63,13 @@ class UsbMonitor(QThread):
         elif device.action == 'remove':
             self.usb_changed.emit(device.action, device.device_path)
 
+    ## Stop thread ##
     def stop(self):
         self.quit()
 
-
+## USB manager class ##
 class UsbManager():
+    ## Init class ##
     def __init__(self, max_device_number):
         self.max_device_number = max_device_number
         self.usb_devices = []
@@ -48,12 +79,14 @@ class UsbManager():
         if len(self.usb_devices) == 0:
             print('No USB Serial devices detected.')
 
+    ## Check if phone device is connected ##
     def connected_phone_device(self):
         for usb_device in self.usb_devices:
             if usb_device.is_phone:
                 return True
         return False
 
+    ## Verify USB device ##
     def is_usb_device(self, device, path=None):
         if 'ID_VENDOR' not in device.properties:
             return False
@@ -65,6 +98,7 @@ class UsbManager():
                     return False
         return True
 
+    ## Add USB device ##
     def add_device(self, path=None):
         self.context = pyudev.Context()
         for device in self.context.list_devices(subsystem='tty'):
@@ -81,6 +115,7 @@ class UsbManager():
                     return usb_device.comPort
         return None
 
+    ## Remove USB device ##
     def remove_device(self, path):
         path = path.partition('/tty')
         for usb_device in self.usb_devices:
@@ -89,6 +124,7 @@ class UsbManager():
                 return usb_device.comPort
         return None
 
+    ## Find USB device ##
     def find_device(self, path):
         result = ""
         path = path.partition('/tty')
@@ -97,6 +133,7 @@ class UsbManager():
                 return usb_device
         return None
 
+    ## Set device number ##
     def set_devnum(self, new_device):
         num = list(range(self.max_device_number))
         for usb_device in self.usb_devices:
@@ -105,9 +142,11 @@ class UsbManager():
         # print('set devnum : %d - %s' %(num[0], new_device.comPort))
         new_device.set_devnum(num[0])
 
+    ## Get USB device list ##
     def get_list(self):
         return self.usb_devices
 
+    ## Reset USB device ##
     def reset_device(self, comPort):
         print('manage reset usb device :' + comPort)
         for usb_device in self.usb_devices:
@@ -116,8 +155,9 @@ class UsbManager():
                 usb_device.reset_device()
                 break
 
-
+## USB device class ##
 class UsbDevice:
+    ## Init class ##
     def __init__(self, comPort, devpath, serial, vendor_name):
         '''
         ex : comPort : /dev/ttyACM0
@@ -149,6 +189,7 @@ class UsbDevice:
 
         # self.vendor_id = vendor_id
         # self.model_id = model_id
+    ## USB reset ##
     def reset_device(self):
         USBDEVFS_RESET = 21780
         try:
@@ -158,12 +199,15 @@ class UsbDevice:
         except Exception as ex:
             print('Failed to reset device! Error: %s' % ex)
 
+    ## Set device bumber ##
     def set_devnum(self, devnum):
         self.devnum = devnum
 
+    ## Set device as phone ##
     def set_phone(self):
         self.is_phone = True
 
+    ## Display device information ##
     def item_display(self):
         print('comPort = ' + self.comPort)
         print('devpath = ' + self.devpath)
