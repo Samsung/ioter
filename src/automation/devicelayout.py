@@ -69,15 +69,15 @@ class Ui_Device(object):
             if device.get_commissioning_state():
                 num = device.get_device_num()
                 self.comboBox_devicetype.addItem(
-                    CommandUtil. get_device_type_by_device_id(device. get_device_id())+'-'+num)
+                    CommandUtil.get_device_type_by_device_id(device.get_device_id())+'-'+num)
 
     def changecomboBox_devicetype(self, parent):
         self.comboBox_cmd.clear()
         devicetype = self.comboBox_devicetype.currentText()
         if devicetype == 'Device Type':
             return
-        devicetype = devicetype.split('-')
-        cmdlist = CommandUtil.get_command_list_by_device_type(devicetype[0])
+        devicenum = devicetype.split('-')[1]
+        cmdlist = parent.commandList[devicenum]
         for cmd in cmdlist:
             if 'val' in cmd.keys():
                 self.comboBox_cmd.addItem(cmd['Name'], cmd['val'])

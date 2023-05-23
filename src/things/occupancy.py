@@ -43,7 +43,8 @@ class OccupancyWindow(QDialog):
         self.common_window.init_toggle_button()
         self.common_window.add_toggle_button_handler(self.toggle_handler)
         self.common_window.add_pipe_event_handler(self.event_handler)
-        self.common_window.add_initial_value_handler(self.send_occupancy_command)
+        self.common_window.add_initial_value_handler(
+            self.send_occupancy_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.update_ui()
@@ -74,7 +75,8 @@ class OccupancyWindow(QDialog):
             Utils.get_icon_path(self.toggle_icon.get(self.state)), 70, 70))
 
     def send_occupancy_command(self):
-        OccupancyCommand.occupiedUnoccupied(self.device_info.device_num, self.state)
+        OccupancyCommand.occupiedUnoccupied(
+            self.device_info.device_num, self.state)
         self.textBrowserLog.append(
             f'[Send] {self.toggle_text.get(self.state)}')
 
@@ -91,3 +93,35 @@ class OccupancyWindow(QDialog):
 
     def autotest_event_handler(self, used_device):
         self.pushButtonStatus.setEnabled(not used_device)
+
+# auto test
+    def setOccupancyCmd(self, value):
+        state = self.pushButtonStatus.isChecked()
+        if (value == "Occupied" and not state) or (value == "Unoccupied" and state):
+            self.pushButtonStatus.toggle()
+
+    def getOccupancyState(self):
+        return "Occupied" if self.pushButtonStatus.isChecked() else "Unoccupied"
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "Occupied/Unoccupied",
+            "val": ['Occupied', 'Unoccupied'],
+            "Set_val": self.setOccupancyCmd,
+            "Get_val": self.getOccupancyState
+        }
+        return [command0, command1]

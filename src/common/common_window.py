@@ -91,6 +91,7 @@ class CommonWindow(QMainWindow):
         self.plainTextEditComport.setReadOnly(True)
         self.plainTextEditDebugLevel.setPlainText(device_info.debug_level)
         self.plainTextEditDebugLevel.setReadOnly(True)
+        self.plainTextEditPairingCode.setPlainText("0")
         self.plainTextEditPairingCode.setReadOnly(True)
 
     def add_toggle_button_handler(self, handler):

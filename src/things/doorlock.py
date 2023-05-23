@@ -47,7 +47,8 @@ class DoorlockWindow(QDialog):
         self.common_window.init_toggle_button()
         self.common_window.add_toggle_button_handler(self.toggle_handler)
         self.common_window.add_pipe_event_handler(self.event_handler)
-        self.common_window.add_initial_value_handler(self.send_doorlock_command)
+        self.common_window.add_initial_value_handler(
+            self.send_doorlock_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.update_ui()
@@ -105,3 +106,35 @@ class DoorlockWindow(QDialog):
 
     def autotest_event_handler(self, used_device):
         self.pushButtonStatus.setEnabled(not used_device)
+
+# auto test
+    def setDoorLockCmd(self, value):
+        state = self.pushButtonStatus.isChecked()
+        if (value == "Lock" and not state) or (value == "UnLock" and state):
+            self.pushButtonStatus.toggle()
+
+    def getDoorLockState(self):
+        return "Lock" if self.pushButtonStatus.isChecked() else "UnLock"
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "Lock/UnLock",
+            "val": ['Lock', 'UnLock'],
+            "Set_val": self.setDoorLockCmd,
+            "Get_val": self.getDoorLockState
+        }
+        return [command0, command1]

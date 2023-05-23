@@ -74,79 +74,6 @@ class ForceClose():
     DEVICES = int('0b0010', 2)
 
 
-class Command():
-    def _return_light_bulb_command():
-        command1 = {
-            "Name": "On/Off",
-            "val": ['On', 'Off']
-        }
-        command2 = {
-            "Name": "Level Control %",
-            "range": [LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL]
-        }
-        command3 = {
-            "Name": "Color Control K",
-            "range": [LIGHTBULB_COLOR_TEMP_MIN_VAL, LIGHTBULB_COLOR_TEMP_MAX_VAL]
-        }
-        return [command1, command2, command3]
-
-    def _return_doorlock_command():
-        command1 = {
-            "Name": "Lock/UnLock",
-            "val": ['Lock', 'UnLock']
-        }
-        return [command1]
-
-    def _return_contact_sensor_command():
-        command1 = {
-            "Name": "Open/Close",
-            "val": ['Close', 'Open']
-        }
-        return [command1]
-
-    def _return_temp_sensor_command():
-        command1 = {
-            "Name": "Level Control °C",
-            "range": [TEMPERATURE_MIN_VAL, TEMPERATURE_MAX_VAL]
-        }
-        return [command1]
-
-    def _return_humid_sensor_command():
-        command1 = {
-            "Name": "Level Control %",
-            "range": [HUMIDITY_MIN_VAL, int(HUMIDITY_MAX_VAL/100)]
-        }
-        return [command1]
-
-    def _return_light_sensor_command():
-        command1 = {
-            "Name": "Level Control lux",
-            "range": [LIGHTSENSOR_MIN_VAL, LIGHTSENSOR_MAX_VAL]
-        }
-        return [command1]
-
-    def _return_occupancy_sensor_command():
-        command1 = {
-            "Name": "Occupied/Unoccupied",
-            "val": ['Occupied', 'Unoccupied']
-        }
-        return [command1]
-
-    def _return_window_covering_command():
-        command1 = {
-            "Name": "Level Control %",
-            "range": [0, 100]
-        }
-        return [command1]
-
-    def _return_onoff_plugin_command():
-        command1 = {
-            "Name": "On/Off",
-            "val": ['On', 'Off']
-        }
-        return [command1]
-
-
 class CommandUtil():
     device_type_id = {
         LIGHTBULB_DEVICE_TYPE: LIGHTBULB_DEVICE_ID,
@@ -160,27 +87,8 @@ class CommandUtil():
         ONOFFPLUGIN_DEVICE_TYPE: ONOFFPLUGIN_DEVICE_ID
     }
 
-    device_id_command = {
-        LIGHTBULB_DEVICE_ID: Command._return_light_bulb_command(),
-        DOORLOCK_DEVICE_ID: Command._return_doorlock_command(),
-        CONTACTSENSOR_DEVICE_ID: Command._return_contact_sensor_command(),
-        TEMPERATURE_DEVICE_ID: Command._return_temp_sensor_command(),
-        HUMIDITY_DEVICE_ID: Command._return_humid_sensor_command(),
-        LIGHTSENSOR_DEVICE_ID: Command._return_light_sensor_command(),
-        OCCUPANCY_DEVICE_ID: Command._return_occupancy_sensor_command(),
-        WINDOWCOVERING_DEVICE_ID: Command._return_window_covering_command(),
-        ONOFFPLUGIN_DEVICE_ID: Command._return_onoff_plugin_command()
-    }
-
     def get_supported_device_type():
         return CommandUtil.device_type_id
-
-    def get_command_list_by_device_type(device_type):
-        device_id = CommandUtil.device_type_id.get(device_type, '')
-        return CommandUtil.get_command_list_by_device_id(device_id)
-
-    def get_command_list_by_device_id(device_id):
-        return CommandUtil.device_id_command.get(device_id, [])
 
     def get_device_id_by_device_type(device_type):
         return CommandUtil.device_type_id.get(device_type, '')
@@ -203,12 +111,15 @@ class PowerCommand():
 '''
 Light
 '''
+
+
 class LightCommand():
     def onOff(device_num, state):
         if state:
             value = 1  # On
         else:
             value = 0  # Off
+
         light_onoff_command = "echo '{\"Name\":\"Onoff\",\"onoff\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = light_onoff_command % (value, device_num)
         os.popen(command)
@@ -216,13 +127,14 @@ class LightCommand():
     def dimming(device_num, level):
         value = int(int(level)*LIGHTBULB_DIM_ST_CONVERT /
                     100)    # 0 < value < 254
+
         light_level_command = "echo '{\"Name\":\"Level\",\"level\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = light_level_command % (value, device_num)
         os.popen(command)
 
     def colortemp(device_num, level):
         value = int(round(1000000/int(level), 0))   # 2000 < value < 10000
-        print(f'value {value}')
+
         colortemp_command = "echo '{\"Name\":\"Colortemp\",\"colortemp\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = colortemp_command % (value, device_num)
         os.popen(command)
@@ -231,6 +143,8 @@ class LightCommand():
 '''
 Doorlock
 '''
+
+
 class DoorlockCommand():
     @staticmethod
     def lockUnlock(device_num, state):
@@ -238,6 +152,7 @@ class DoorlockCommand():
             value = 1  # Lock
         else:
             value = 2  # Unlock
+
         lock_command = "echo '{\"Name\":\"Lockstate\",\"lockstate\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = lock_command % (value, device_num)
         os.popen(command)
@@ -246,6 +161,8 @@ class DoorlockCommand():
 '''
 ContactSensor
 '''
+
+
 class ContactSensorCommand():
     @staticmethod
     def closeOpen(device_num, state):
@@ -253,10 +170,6 @@ class ContactSensorCommand():
             value = 1  # Close
         else:
             value = 0  # Open
-        # ui reflect
-        command = "echo bool:%s > /tmp/chip_pipe_device%s" % (
-            value, device_num)
-        os.popen(command)
 
         close_command = "echo '{\"Name\":\"Bool\",\"bool\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = close_command % (value, device_num)
@@ -266,14 +179,12 @@ class ContactSensorCommand():
 '''
 Temperature
 '''
+
+
 class TempCommand():
     @staticmethod
     def set_temp(device_num, level):
         value = int(float(level) * 100)    # -27315 < value < 32767
-        # ui reflect
-        command = "echo temp:%s > /tmp/chip_pipe_device%s" % (
-            value, device_num)
-        os.popen(command)
 
         set_temp_command = "echo '{\"Name\":\"Measurement\",\"temp\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = set_temp_command % (value, device_num)
@@ -283,14 +194,12 @@ class TempCommand():
 '''
 Humidity
 '''
+
+
 class HumidCommand():
     @staticmethod
     def set_humid(device_num, level):
         value = int(float(level) * 100)     # 0 < value < 10000
-        # ui reflect
-        command = "echo humid:%s > /tmp/chip_pipe_device%s" % (
-            value, device_num)
-        os.popen(command)
 
         set_humid_command = "echo '{\"Name\":\"Measurement\",\"humid\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = set_humid_command % (value, device_num)
@@ -300,12 +209,11 @@ class HumidCommand():
 '''
 LightSensor
 '''
+
+
 class LightsensorCommand():
     @staticmethod
     def set_lightsensor(device_num, measured_value):
-        # ui reflect
-        command = "echo illum:%s > /tmp/chip_pipe_device%s" % (measured_value, device_num)
-        os.popen(command)
 
         set_measured_value_command = "echo '{\"Name\":\"Measurement\",\"illum\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = set_measured_value_command % (measured_value, device_num)
@@ -315,6 +223,8 @@ class LightsensorCommand():
 '''
 OccupancySensor
 '''
+
+
 class OccupancyCommand():
     @staticmethod
     def occupiedUnoccupied(device_num, state):
@@ -322,10 +232,6 @@ class OccupancyCommand():
             value = 1    # Occupied
         else:
             value = 0    # Unoccupid
-        # ui reflect
-        command = "echo occupancy:%s > /tmp/chip_pipe_device%s" % (
-            value, device_num)
-        os.popen(command)
 
         occupied_command = "echo '{\"Name\":\"Occupancy\",\"occupancy\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = occupied_command % (value, device_num)
@@ -335,10 +241,13 @@ class OccupancyCommand():
 '''
 WindowCovering
 '''
+
+
 class WindowCoveringCommand():
     @staticmethod
     def set_target_position(device_num, pos):
         value = 10000 - (int(pos) * 100)
+
         target_position_command = "echo '{\"Name\":\"WindowCovering\",\"target_position\":%s}' > /tmp/chip_all_clusters_fifo_device"
         command = (target_position_command % (value)) + device_num
         os.popen(command)
@@ -346,6 +255,7 @@ class WindowCoveringCommand():
     @staticmethod
     def set_current_postion(device_num, pos):
         value = 10000 - (int(pos) * 100)
+
         current_position_command = "echo '{\"Name\":\"WindowCovering\",\"current_position\":%s}' > /tmp/chip_all_clusters_fifo_device"
         command = (current_position_command % (value)) + device_num
         os.popen(command)
@@ -354,12 +264,15 @@ class WindowCoveringCommand():
 '''
 On Off Plugin
 '''
+
+
 class OnOffPluginCommand():
     def onOff(device_num, state):
         if state:
             value = 1  # On
         else:
             value = 0  # Off
+
         plug_on_command = "echo '{\"Name\":\"Onoff\",\"onoff\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = plug_on_command % (value, device_num)
         os.popen(command)

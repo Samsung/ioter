@@ -32,7 +32,8 @@ class HumidWindow(QDialog):
         self.is_slider_pressed = False
         # device specific handler
         self.common_window.add_pipe_event_handler(self.event_handler)
-        self.common_window.add_initial_value_handler(self.update_humidity_sensor)
+        self.common_window.add_initial_value_handler(
+            self.update_humidity_sensor)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.init_input_button()
@@ -65,11 +66,13 @@ class HumidWindow(QDialog):
             self.sliderReleased)
         self.horizontalSliderHumid.valueChanged.connect(
             self.valueChanged)
-        self.horizontalSliderHumid.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
+        self.horizontalSliderHumid.setStyleSheet(
+            Utils.get_ui_style_slider("COMMON"))
 
     def valueChanged(self):
         if self.is_slider_pressed:
-            self.doubleSpinBoxInput.setValue(self.horizontalSliderHumid.value()/100)
+            self.doubleSpinBoxInput.setValue(
+                self.horizontalSliderHumid.value()/100)
             return
         if not self.is_slider_pressed:
             level = self.horizontalSliderHumid.value()/100
@@ -110,16 +113,16 @@ class HumidWindow(QDialog):
     def set_state(self):
         if self.level >= 90:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('humidity_100.png'), 70, 70))
+                Utils.get_icon_path('humidity_100.png'), 70, 70))
         elif self.level >= 50:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('humidity_66.png'), 70, 70))
+                Utils.get_icon_path('humidity_66.png'), 70, 70))
         elif self.level >= 10:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('humidity_33.png'), 70, 70))
+                Utils.get_icon_path('humidity_33.png'), 70, 70))
         else:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
-            Utils.get_icon_path('humidity_0.png'), 70, 70))
+                Utils.get_icon_path('humidity_0.png'), 70, 70))
 
     def event_handler(self, event):
         if 'humid' in event:
@@ -136,3 +139,33 @@ class HumidWindow(QDialog):
     def autotest_event_handler(self, used_device):
         self.pushButtonInput.setEnabled(not used_device)
         self.horizontalSliderHumid.setEnabled(not used_device)
+
+# auto test
+    def setHumidityValue(self, value):
+        self.horizontalSliderHumid.setValue(int(value)*100)
+
+    def getHumidityValue(self):
+        return int(self.horizontalSliderHumid.value()/100)
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "Level Control %",
+            "range": [HUMIDITY_MIN_VAL, int(HUMIDITY_MAX_VAL/100)],
+            "Set_val": self.setHumidityValue,
+            "Get_val": self.getHumidityValue
+        }
+        return [command0, command1]

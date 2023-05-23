@@ -116,7 +116,8 @@ class WindowcoveringWindow(QDialog):
             self.direction = WC_MOVE_DOWN
 
     def init_slider(self):
-        self.horizontalSliderWindow.setRange(WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL)
+        self.horizontalSliderWindow.setRange(
+            WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL)
         self.horizontalSliderWindow.setSingleStep(1)
         self.horizontalSliderWindow.setValue(WC_INIT_LEVEL)
         self.horizontalSliderWindow.sliderPressed.connect(
@@ -125,8 +126,10 @@ class WindowcoveringWindow(QDialog):
             self.slider_released)
         self.horizontalSliderWindow.valueChanged.connect(
             self.value_changed)
-        self.labelSliderPercent.setText(f'{WC_INIT_LEVEL}{WINDOWCOVERING_UNIT}')
-        self.horizontalSliderWindow.setStyleSheet(Utils.get_ui_style_slider("COMMON"))
+        self.labelSliderPercent.setText(
+            f'{WC_INIT_LEVEL}{WINDOWCOVERING_UNIT}')
+        self.horizontalSliderWindow.setStyleSheet(
+            Utils.get_ui_style_slider("COMMON"))
 
     def to_target(self):
         self.horizontalSliderWindow.setValue(self.targetlevel)
@@ -194,7 +197,7 @@ class WindowcoveringWindow(QDialog):
         self.set_state()
 
     def update_current_value(self):
-        #self.currentlevel = self.horizontalCurrentSlider.value()
+        # self.currentlevel = self.horizontalCurrentSlider.value()
         if self.direction is WC_MOVE_UP:
             self.currentlevel = min(self.currentlevel + 1, self.targetlevel)
         elif self.direction is WC_MOVE_DOWN:
@@ -226,3 +229,33 @@ class WindowcoveringWindow(QDialog):
         self.closeButton.setEnabled(not used_device)
         self.pauseButton.setEnabled(not used_device)
         self.horizontalSliderWindow.setEnabled(not used_device)
+
+# auto test
+    def setWindowcoveringValue(self, value):
+        self.horizontalSliderWindow.setValue(int(value))
+
+    def getWindowcoveringValue(self):
+        return self.horizontalSliderWindow.value()
+
+    def setPowerOnOff(self, value):
+        powerState = self.common_window.pushButtonDevicePower.isChecked()
+        if (value == "On" and not powerState) or (value == "Off" and powerState):
+            self.common_window.pushButtonDevicePower.toggle()
+
+    def getPowerOnOff(self):
+        return "On" if self.common_window.pushButtonDevicePower.isChecked() else "Off"
+
+    def _return_command(self, value=None):
+        command0 = {
+            "Name": "Power On/Off",
+            "val": ['On', 'Off'],
+            "Set_val": self.setPowerOnOff,
+            "Get_val": self.getPowerOnOff
+        }
+        command1 = {
+            "Name": "Level Control %",
+            "range": [0, 100],
+            "Set_val": self.setWindowcoveringValue,
+            "Get_val": self.getWindowcoveringValue
+        }
+        return [command0, command1]
