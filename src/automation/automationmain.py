@@ -122,7 +122,6 @@ class automationWindow(QtWidgets.QMainWindow):
             self.logwindow_output.clear()
             self.testprogressBar.setValue(0)
 
-
     ## Close/Exit Event Handler ##
     def closeEvent(self, event):
         if not self.force_quit:
@@ -449,26 +448,6 @@ class automationWindow(QtWidgets.QMainWindow):
                                 'background-color:  red;')
                             if valid == True:
                                 valid = False
-                        elif ('Temperature' in devtype):
-                            try:
-                                input = float(
-                                    self.objs[x].comboBox_value.currentText())
-                            except ValueError:
-                                self.objs[x].layoutWidget.setStyleSheet(
-                                    'background-color:  red;')
-                                if valid == True:
-                                    valid = False
-                            else:
-                                if input < -273.15 or input > 327.68:
-                                    self.objs[x].layoutWidget.setStyleSheet(
-                                        'background-color:  red;')
-                                    self.errorbox(
-                                        '-273.15 &lt;Temperature&gt; 327.68')
-                                    if valid == True:
-                                        valid = False
-                                else:
-                                    self.objs[x].layoutWidget.setStyleSheet('')
-
                         else:
                             self.objs[x].layoutWidget.setStyleSheet('')
             except Exception as e:
@@ -630,9 +609,9 @@ class automationWindow(QtWidgets.QMainWindow):
                     obj.comboBox_devicetype.setCurrentIndex(0)
                 obj.comboBox_devicetype.removeItem(id)
 
-    @QtCore.pyqtSlot()
 
     ## Complete Automation test ##
+    @QtCore.pyqtSlot()
     def complete_autotest(self):
         print('Complete automation test')
         if self.autotestThread and not self.autotestThread.exec_stop:

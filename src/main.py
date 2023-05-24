@@ -180,6 +180,7 @@ class MainWindow(QMainWindow,
             print('No Devices are Connected/Onboarded')
             automationWindow.errorbox('No Devices are Connected/Onboarded')
 
+    ## Emit auto onboarding state  ##
     @pyqtSlot(int, str, str)
     def auto_onboarding_state(self, state, comPort, device_num):
         print(f'state {state} comport {comPort} device_num {device_num}')
@@ -213,6 +214,7 @@ class MainWindow(QMainWindow,
         else:
             self.pushButtonStart.setEnabled(True)
 
+    ## Display comport in UI ##
     @pyqtSlot(str, str)
     # received msg from ioterPipe.Thread1
     def display_comport(self, action=None, path=None):
@@ -333,6 +335,7 @@ class MainWindow(QMainWindow,
         self.spinBoxDiscriminator.setValue((discriminator+1) & 0xFFF)
         return True
 
+    ## Handle exit events ##
     @pyqtSlot(str)
     def exit_dialog(self, comPort):
         print('exit_dialog : ' + comPort)
@@ -358,6 +361,7 @@ class MainWindow(QMainWindow,
         else:
             print("set_unused_device is fail")
 
+    ## List devices used in autotest ##
     @pyqtSlot(dict)
     def autotest_used_list(self, used_device_dict):
         for device_num in used_device_dict.items():
@@ -366,6 +370,7 @@ class MainWindow(QMainWindow,
             comPort = device_info.get_com_port()
             self.dialog[comPort].get_window().autotest_used(device_num[1])
 
+    ## Reset USB devices ##
     @pyqtSlot(str)
     def reset_usb(self, comPort):
         print('reset_usb :' + comPort)
