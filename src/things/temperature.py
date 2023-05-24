@@ -198,7 +198,7 @@ class TempWindow(QDialog):
 
     ## Read and update the temperature based on value ##
     def setTemperatureValue(self, value):
-        self.horizontalSliderTemp.setValue(float(value)*100)
+        self.horizontalSliderTemp.setValue(int(value)*100)
 
     ## Get temperature ##
     def getTemperatureValue(self):

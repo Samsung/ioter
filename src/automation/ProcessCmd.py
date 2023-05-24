@@ -66,6 +66,7 @@ class ExecuteCmd:
         self.cmd = aCmd
         self.cmdVal = aCmdVal
         self.devNum = aDevType[len(self.devType)+len('-'):]
+        self.command = commandList[self.devNum]
 
     ## Execute commands ##
     def execCmd(self):
@@ -93,7 +94,7 @@ class ProcessCmd(QThread):
     mScriptFilePath = 'src/automation/output/'
 
     ## The init method or constructor
-    def __init__(self, aUiObj, aFilePath):
+    def __init__(self, parent, aFilePath):
         super().__init__()
         print('ProcessCmd init')
         self.parent = parent

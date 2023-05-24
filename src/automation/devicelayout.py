@@ -133,20 +133,11 @@ class Ui_Device(object):
         cmds = self.comboBox_cmd.itemData(index)
         self.comboBox_value.addItems(cmds)
         devtype = self.comboBox_devicetype.currentText()
-        if 'Temperature' in devtype:
-            self.comboBox_value.setEditable(True)
-        else:
-            self.comboBox_value.setEditable(False)
         self.comboBox_value.show()
 
     ## Change Combo Box Value ##
     def changecomboBox_value(self, index):
         devtype = self.comboBox_devicetype.currentText()
-        if 'Temperature' in devtype:
-            try:
-                int(self.comboBox_value.currentText())
-            except:
-                self.comboBox_value.clear()
 
     ## Removing Objects ##
     def deleteSelf(self, parent):
