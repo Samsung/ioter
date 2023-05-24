@@ -35,6 +35,8 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - Thread RCP usb dongle. We verified with this:
     1. **Nordic nrf52840** [OT RCP dongle guide](./docs/guides/README.md)   
     ![nordic_nrf52840_dongle](https://github.com/Samsung/ioter/assets/131251075/fe4f9fc3-077f-4cf1-8de3-56a64af69efa)
+    2. **Nordic nrf52840-DK board** [OT RCP board guide](https://openthread.io/codelabs/openthread-hardware#3)   
+    ![nrf52840dk](https://github.com/ejunu/ioter/assets/131251075/37bc25f2-fe3e-4dd3-94d8-e73d308a30ae)
 
 - Phone with SmartThings App installed and onboarded with Samsung SmartThings Station or SmartThings hub
 
