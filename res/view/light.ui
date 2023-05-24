@@ -151,7 +151,7 @@
              <number>1</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="5,2,2">
+             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="2,1,1">
               <property name="spacing">
                <number>3</number>
               </property>
@@ -332,19 +332,6 @@
               </item>
              </layout>
             </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>15</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="page_3"/>
@@ -361,19 +348,7 @@
              <number>1</number>
             </property>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,0,0">
-              <item>
-               <widget class="QLabel" name="labelPower">
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Power</string>
-                </property>
-               </widget>
-              </item>
+             <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0,0,1">
               <item>
                <widget class="QCheckBox" name="chkbox_auto">
                 <property name="toolTip">
@@ -396,6 +371,18 @@
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="labelPower">
+                <property name="font">
+                 <font>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Power</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
