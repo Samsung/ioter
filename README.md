@@ -99,3 +99,45 @@ https://github.com/project-chip/connectedhomeip/issues/6347
 
 For Ioter contribution, see our [Contributing Guidelines](https://github.com/Samsung/ioter/blob/main/CONTRIBUTING.md) for more information.
 We welcome your contribution at any time.
+
+
+## Docker image support
+You can use a Docker image that 'ioter' environment is prepared
+
+It confirmed that is working on below host OS:
+- Ubuntu 20.04
+
+It also confirmed that there are unsupported host OS:
+- Ubuntu 16.04
+- macOS
+
+### How to start
+Threre are things to be needed to prepare on host side
+1. Set xhost to connect to X server and use X11
+> $ xhost +local:root
+
+2. Turn off Bluetooth service
+> systemctl stop Bluetooth
+
+or
+
+> service bluetooth stop
+
+### Run docker container
+You can run with below command
+```
+sudo docker run --rm -it -e DISPLAY=$DISPLAY \
+-v [HOST_IOTER_PATH]:/home/iot/ioter \
+-v /tmp/.X11-unix:/tmp/.X11-unix \
+-v "$HOME/.Xauthority:/root/.Xauthority:ro" \
+--device=[DEVICE_NODE_PATH] \
+-v /dev:/dev \
+--privileged \
+--net=host \
+--cap-add=NET_ADMIN --cap-add=SYS_ADMIN \
+docker.io/spdkimo/ioter:[VERSION] \
+python3 ioter/src/main.py
+```
+- HOST_IOTER_PATH: Path of ioter repository on host pc
+- DEVICE_NODE_PATH: Path of device node. For example, most devices starts with 'dev/ttyACM' 
+- VERSION: ioter image version. You can find details from https://hub.docker/repository/docker/spdkimo/ioter/
