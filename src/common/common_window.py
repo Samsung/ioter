@@ -62,6 +62,8 @@ class CommonWindow(QMainWindow):
         self.initial_value_handler = None
         self.autotest_event_handler = None
         self.auto = self.device_info.get_auto()
+        self.is_slider_pressed = False
+        self.level = 0
 
         self.ioter.terminate_chip_all_clusters(self.device_info, True)
         self.init_ui_component(view_name, icon_name, device_info)
@@ -88,6 +90,9 @@ class CommonWindow(QMainWindow):
         self.init_power_button()
         self.init_auto_checkbox()
         self.init_information_ui(device_info)
+        if not(view_name == "light.ui" or view_name == "onoffplugin.ui"):
+            self.init_battery_slider()
+        self.spinboxBattery.installEventFilter(self)
         self.stackedWidget.setCurrentIndex(0)
 
     ## Initialize Common Window icon ##
@@ -133,6 +138,72 @@ class CommonWindow(QMainWindow):
         self.plainTextEditPairingCode.setPlainText("0")
         self.plainTextEditPairingCode.setReadOnly(True)
 
+    def init_battery_slider(self):
+        self.horizontalSliderBattery.setRange(
+            int(BATTERY_MIN_VAL), int(BATTERY_MAX_VAL))
+        self.spinboxBattery.setRange(
+            int(BATTERY_MIN_VAL), int(BATTERY_MAX_VAL))
+        self.horizontalSliderBattery.setSingleStep(
+            self.get_slider_single_step(BATTERY_MIN_VAL, BATTERY_MAX_VAL))
+        self.horizontalSliderBattery.setValue(int(self.level))
+        self.horizontalSliderBattery.sliderPressed.connect(
+            self.sliderPressed)
+        self.horizontalSliderBattery.sliderReleased.connect(
+            self.sliderReleased)
+        self.horizontalSliderBattery.valueChanged.connect(
+            self.valueChanged)
+        self.horizontalSliderBattery.setStyleSheet(
+            Utils.get_ui_style_slider("COMMON"))
+        
+    def valueChanged(self):
+        if self.is_slider_pressed:
+            self.spinboxBattery.setValue(
+                self.horizontalSliderBattery.value())
+            return
+        if not self.is_slider_pressed:
+            level = self.horizontalSliderBattery.value()
+            # print(f'valueChanged : old ({self.level}), new ({level})')
+            if self.level != level:
+                self.update_battery_sensor()
+
+    def sliderPressed(self):
+        self.is_slider_pressed = True
+
+    def sliderReleased(self):
+        self.is_slider_pressed = False
+        level = self.horizontalSliderBattery.value()
+        if self.level != level:
+            self.update_battery_sensor()
+
+    def set_battery_level(self, level=None):
+        if level is not None:
+            self.level = level
+        else:
+            self.level = self.horizontalSliderBattery.value()
+        self.level = max(min(self.level, BATTERY_MAX_VAL),
+                         BATTERY_MIN_VAL)
+
+    def update_ui(self):
+        self.horizontalSliderBattery.setValue(int(self.level))
+        self.spinboxBattery.setValue(self.level)
+
+    def update_battery_sensor(self, level=None, need_command=True):
+        self.set_battery_level(level)
+        self.update_ui()
+        # self.set_state()
+        if need_command:
+            BatteryCommand.remain(self.device_info.device_num, self.level)
+            self.textBrowserLog.append(
+                f'[Send] {self.level}{BATTERY_UNIT}')
+            
+    def eventFilter(self, obj, event):
+        if obj is self.spinboxBattery and event.type() == QEvent.KeyPress:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                level = self.spinboxBattery.value()
+                self.update_battery_sensor(level)
+                return True
+        return super().eventFilter(obj, event)
+    
     ## Toggle button handler ##
     def add_toggle_button_handler(self, handler):
         self.pushButtonStatus.toggled.connect(handler)

@@ -99,6 +99,10 @@ WINDOWCOVERING_MIN_VAL = 0
 WINDOWCOVERING_MAX_VAL = 100
 WINDOWCOVERING_UNIT = "%"
 
+BATTERY_MIN_VAL = 0
+BATTERY_MAX_VAL = 100
+BATTERY_UNIT = "%"
+
 ## Force close class ##
 class ForceClose():
     ALL = int('0b1110', 2)
@@ -143,6 +147,14 @@ class PowerCommand():
     def off(device_num):
         power_command = "echo '{\"Name\":\"PowerOff\",\"onoff\":0}' > /tmp/chip_all_clusters_fifo_device"
         command = power_command + device_num
+        os.popen(command)
+
+## Battery command class ##
+class BatteryCommand():
+    ## Battery remain command ##
+    def remain(device_num, value):
+        battery_command = "echo '{\"Name\":\"BatPercent\",\"remain\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
+        command = battery_command % (value, device_num)
         os.popen(command)
 
 ## Light commands set operation ##

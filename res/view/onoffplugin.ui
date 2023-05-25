@@ -183,7 +183,7 @@
                </layout>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1,1">
+               <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1">
                 <property name="spacing">
                  <number>0</number>
                 </property>
@@ -191,59 +191,11 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0,0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="">
                   <property name="spacing">
                    <number>6</number>
                   </property>
-                  <item>
-                   <widget class="QLabel" name="labelDeviceBattery">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>Battery</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="spinboxBattery"/>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="labelBatteryPercent">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>%</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
-                </item>
-                <item>
-                 <widget class="QSlider" name="horizontalSliderBattery">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
                 </item>
                </layout>
               </item>
