@@ -291,6 +291,7 @@ class MainWindow(QMainWindow,
         debugLevel = self.comboBoxDebug.currentText()
         device_type = self.comboBoxDevice.currentText()
 
+        print(f"dev : {self.comboBoxCom.currentText()}")
         if self.create_device_window(deviceNum, discriminator, threadType, comPort, debugLevel, device_type):
             if self.auto_onboarding is not None:
                 self.auto_onboarding.remove_device(comPort)
