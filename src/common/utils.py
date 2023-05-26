@@ -140,6 +140,11 @@ class Utils():
                 return False
         return True
 
+    ## Remove Data files ##
+    def remove_data_files():
+        Utils.remove_files('/tmp', 'chip_*')
+        Utils.remove_files(Utils.get_tmp_path(), '0_*.data')
+
     ## Remove Matter files ##
     def remove_matter_files(device_num):
         Utils.remove_files('/tmp', 'chip_*' + 'device' + str(device_num) + "*")
