@@ -90,10 +90,16 @@ class CommonWindow(QMainWindow):
         self.init_power_button()
         self.init_auto_checkbox()
         self.init_information_ui(device_info)
-        if not(view_name == "light.ui" or view_name == "onoffplugin.ui"):
+        if self.is_battery_use(view_name):
             self.init_battery_slider()
-        self.spinboxBattery.installEventFilter(self)
+            self.spinboxBattery.installEventFilter(self)
         self.stackedWidget.setCurrentIndex(0)
+        
+    ## Check if a thing use battery or not
+    def is_battery_use(self, view_name):
+        if not(view_name == "light.ui" or view_name == "onoffplugin.ui"):
+            return True
+        return False
 
     ## Initialize Common Window icon ##
     def init_icon(self, icon_name):
