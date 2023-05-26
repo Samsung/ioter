@@ -63,7 +63,7 @@ class CommonWindow(QMainWindow):
         self.autotest_event_handler = None
         self.auto = self.device_info.get_auto()
         self.is_slider_pressed = False
-        self.level = 0
+        self.level = 80
 
         self.ioter.terminate_chip_all_clusters(self.device_info, True)
         self.init_ui_component(view_name, icon_name, device_info)
@@ -91,7 +91,7 @@ class CommonWindow(QMainWindow):
         self.init_auto_checkbox()
         self.init_information_ui(device_info)
         if self.is_battery_use(view_name):
-            self.init_battery_slider()
+            self.init_battery_ui()
             self.spinboxBattery.installEventFilter(self)
         self.stackedWidget.setCurrentIndex(0)
         
@@ -144,10 +144,12 @@ class CommonWindow(QMainWindow):
         self.plainTextEditPairingCode.setPlainText("0")
         self.plainTextEditPairingCode.setReadOnly(True)
 
-    def init_battery_slider(self):
-        self.horizontalSliderBattery.setRange(
-            int(BATTERY_MIN_VAL), int(BATTERY_MAX_VAL))
+    def init_battery_ui(self):
         self.spinboxBattery.setRange(
+            int(BATTERY_MIN_VAL), int(BATTERY_MAX_VAL))
+        self.spinboxBattery.setValue(self.level)
+
+        self.horizontalSliderBattery.setRange(
             int(BATTERY_MIN_VAL), int(BATTERY_MAX_VAL))
         self.horizontalSliderBattery.setSingleStep(
             self.get_slider_single_step(BATTERY_MIN_VAL, BATTERY_MAX_VAL))
