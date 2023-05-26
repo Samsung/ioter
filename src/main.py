@@ -68,6 +68,12 @@ class MainWindow(QMainWindow,
     ## Initialize Main Window class ##
     def __init__(self, window_manager):
         super().__init__()
+
+        # Pre Main
+        Utils.remove_data_files()
+        self.checkDir()
+
+        # Start Main
         self.setupUi(self)
 
         self.dialog = dict()
@@ -106,7 +112,6 @@ class MainWindow(QMainWindow,
         self.polling_time_ms = 50
         self.initPositionTimer()
         self.savePos()
-        self.checkDir()
 
         self.default_config = Config()
         self.default_config_apply()
