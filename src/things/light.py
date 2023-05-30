@@ -308,7 +308,7 @@ class LightWindow(QDialog):
 
     ## UI event handler ##
     def eventFilter(self, obj, event):
-        if (obj is self.spinboxDimming or obj is self.spinboxColorTemp) and event.type() == QEvent.KeyPress:
+        if event.type() == QEvent.KeyPress and (obj is self.spinboxDimming or obj is self.spinboxColorTemp):
             if event.key() in (Qt.Key_Return, Qt.Key_Enter):
                 self.update_light(
                     EVENT_SPINBOX_DIMMING if obj is self.spinboxDimming else EVENT_SPINBOX_COLOR)
