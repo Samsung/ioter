@@ -187,7 +187,7 @@ class LightsensorWindow(QDialog):
 
     ## UI event handler ##
     def eventFilter(self, obj, event):
-        if obj is self.spinBoxInput and event.type() == QEvent.KeyPress:
+        if event.type() == QEvent.KeyPress and obj is self.spinBoxInput:
             if event.key() in (Qt.Key_Return, Qt.Key_Enter):
                 self.input_click()
                 return True

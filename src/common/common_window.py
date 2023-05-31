@@ -205,7 +205,7 @@ class CommonWindow(QMainWindow):
                 f'[Send] {self.level}{BATTERY_UNIT}')
             
     def eventFilter(self, obj, event):
-        if obj is self.spinboxBattery and event.type() == QEvent.KeyPress:
+        if event.type() == QEvent.KeyPress and obj is self.spinboxBattery:
             if event.key() in (Qt.Key_Return, Qt.Key_Enter):
                 level = self.spinboxBattery.value()
                 self.update_battery_sensor(level)
