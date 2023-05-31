@@ -51,6 +51,7 @@ cd ioter
 cd ioter
 ./script/run
 ```
+Or you can use [**Docker image**](./docs/guides/DOCKER.md)
 
 ## How to onboarding (with SmartThings App)
 ![onbooadingGuide 1](https://github.com/Samsung/ioter/assets/131251075/200fd452-549a-4db8-ad7d-bfbd1fef5ebf)

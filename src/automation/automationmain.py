@@ -1,3 +1,39 @@
+
+###########################################################################
+#
+#BSD 3-Clause License
+#
+#Copyright (c) 2023, Samsung Electronics Co.
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the copyright holder nor the
+#   names of its contributors may be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+# File : automationmain.py
+# Description:
+# Handle Automation Window.
+
 from automation.looplayout import Ui_Loop
 from automation.devicelayout import Ui_Device
 from automation.insertdialogbox import InsertDialog
@@ -5,17 +41,16 @@ from automation.filedialog import FileDialog
 from automation.ProcessCmd import *
 from automation.logtrackscriptcntl import *
 from common.utils import Utils
-
 import os
 import xml.etree.ElementTree as Etree
 from datetime import datetime
 from PyQt5 import QtWidgets, uic, QtCore
 
-
 class automationWindow(QtWidgets.QMainWindow):
     dialog_closed = QtCore.pyqtSignal(str)
     send_used_list = QtCore.pyqtSignal(dict)
 
+    ## Set Up Automation window ##
     def __init__(self, parent):
         super(automationWindow, self).__init__()
         self.parent = parent
@@ -70,23 +105,24 @@ class automationWindow(QtWidgets.QMainWindow):
         self.show()
         self.loadCommandList()
 
+    ## Load Commands ##
     def loadCommandList(self):
         for device in self.devMgrObj.get_used_devices():
             if device.get_commissioning_state():
                 self.commandList[device.device_num] = self.parent.dialog[device.com_port]._return_command()
 
-########## Handle scroll bar to bootom#############
+    ## Handle scroll bar to bootom##
     def scrollToBottom(self, minVal=None, maxVal=None):
         self.scrollArea.verticalScrollBar().setValue(
             self.scrollArea.verticalScrollBar().maximum())
 
-############# Clear Log window######################
+    ## Clear Log window ##
     def clear_log_window(self):
         if not self.autotestThread:
             self.logwindow_output.clear()
             self.testprogressBar.setValue(0)
 
-############ Close/Exit Event Handle ##############
+    ## Close/Exit Event Handler ##
     def closeEvent(self, event):
         if not self.force_quit:
             re = QtWidgets.QMessageBox.question(self, "Exit", "Do you want to exit from Automation?",
@@ -98,12 +134,12 @@ class automationWindow(QtWidgets.QMainWindow):
             else:
                 event.ignore()
 
-############ Log window###########################
+    ## Log window ##
     def logwindow(self, string):
         self.logwindow_output.insertPlainText(
             "["+str(datetime.now().strftime('%Y-%m-%d-%H:%M'))+"]: "+string+'\n\n')
 
-############ Open File Event Handle ##############
+    ## Open File Event Handler ##
     def openfile(self):
         openfile = FileDialog()
         openfile.openFileNameDialog()
@@ -114,7 +150,7 @@ class automationWindow(QtWidgets.QMainWindow):
                            str(openfile.fileName) + '" Successfully')
             self.testprogressBar.setValue(0)
 
-############ Save File Event Handle ##############
+    ## Save File Event Handler ##
     def savefile(self, valid):
         if valid == 0:  # Check if already validated
             if not self.validatefield():
@@ -131,6 +167,7 @@ class automationWindow(QtWidgets.QMainWindow):
         else:
             return False
 
+    ## Swap function for re-ordering the commands ##
     def swap(self, shift_index, y_axis):
         if shift_index >= 0:
             self.objs[shift_index+1].layoutWidget.move(0, y_axis)
@@ -140,22 +177,22 @@ class automationWindow(QtWidgets.QMainWindow):
             self.objs[shift_index].index = shift_index
             self.objs[shift_index+1].index = shift_index+1
 
-############ Resize Window Event Handle ##############
+    ## Resize Window Event Handle ##
     def resizeEvent(self, event):
         self.width = self.scrollArea.size().width()
         for x in range(len(self.objs)):
             self.objs[x].layoutWidget.resize(int(self.width-20), 29)
         QtWidgets.QMainWindow.resizeEvent(self, event)
         QtWidgets.QScrollArea.resizeEvent(self.scrollArea, event)
-############ Insert Command ##############
 
+    ## Insert Dialog box at given index ##
     def insertDialog(self, index):
         self.dialog = InsertDialog()
         self.dialog.btn_Devicecommand.clicked.connect(
             lambda: self.addDev(index))
         self.dialog.btn_Sleep.clicked.connect(lambda: self.addSleep(index))
 
-############ Add Loop Start/End Command ##############
+    ## Add Loop Start/End Command ##
     def addLoopStartEnd(self):
         self.objs.append(Ui_Loop())
         index = len(self.objs) - 1
@@ -171,7 +208,7 @@ class automationWindow(QtWidgets.QMainWindow):
         self.scrollAreaWidgetContents.setMinimumSize(
             QtCore.QSize(self.axis_y, self.axis_y))
 
-############ Add Device Command ##############
+    ## Add Device Command ##
     def addDev(self, index_insert):
         index = -1
         if index_insert != -1:
@@ -192,7 +229,7 @@ class automationWindow(QtWidgets.QMainWindow):
         self.scrollAreaWidgetContents.setMinimumSize(
             QtCore.QSize(self.axis_y, self.axis_y))
 
-############ Add Sleep Command ##############
+    ## Add Sleep Command ##
     def addSleep(self, index_insert):
         index = -1
         if index_insert != -1:
@@ -213,7 +250,7 @@ class automationWindow(QtWidgets.QMainWindow):
         self.scrollAreaWidgetContents.setMinimumSize(
             QtCore.QSize(self.axis_y, self.axis_y))
 
-############ Adjust Geometry of Autiona Window ##############
+    ## Adjust Geometry of Automation Window ##
     def adjustGeometry(self):
         axis_y = 0
         for x in range(len(self.objs)):
@@ -227,7 +264,7 @@ class automationWindow(QtWidgets.QMainWindow):
         self.scrollAreaWidgetContents.setMinimumSize(
             QtCore.QSize(self.axis_y, self.axis_y))
 
-############ Find Loop Start/End ##############
+    ## Find Loop Start/End ##
     def findLoopStartEnd(self, find_obj, index):
         if find_obj == 'end':
             for x in range(index, len(self.objs)):
@@ -247,7 +284,7 @@ class automationWindow(QtWidgets.QMainWindow):
                     print(f'loopStart line {x} error {e}')
         return -1
 
-############ Create Etree XML object and Save ##############
+    ## Create Etree XML object and Save ##
     def save(self, filename):
         ## In case of No objects are added ##
         if len(self.objs) == 0:
@@ -311,7 +348,7 @@ class automationWindow(QtWidgets.QMainWindow):
             print('Saved File Successfully')
         self.currentOpenFile = filename
 
-############ Load file ##############
+    ## Load script into Automation UI ##
     def load(self, filename):
         self.old_highlight = -1
         self.clear(0, len(self.objs)-1)
@@ -377,7 +414,7 @@ class automationWindow(QtWidgets.QMainWindow):
 
         self.currentOpenFile = filename
 
-############ Validate All Fields ##############
+    ## Validate All Fields ##
     def validatefield(self):
         valid = True
         if len(self.objs) == 0:
@@ -411,26 +448,6 @@ class automationWindow(QtWidgets.QMainWindow):
                                 'background-color:  red;')
                             if valid == True:
                                 valid = False
-                        elif ('Temperature' in devtype):
-                            try:
-                                input = float(
-                                    self.objs[x].comboBox_value.currentText())
-                            except ValueError:
-                                self.objs[x].layoutWidget.setStyleSheet(
-                                    'background-color:  red;')
-                                if valid == True:
-                                    valid = False
-                            else:
-                                if input < -273.15 or input > 327.68:
-                                    self.objs[x].layoutWidget.setStyleSheet(
-                                        'background-color:  red;')
-                                    self.errorbox(
-                                        '-273.15 &lt;Temperature&gt; 327.68')
-                                    if valid == True:
-                                        valid = False
-                                else:
-                                    self.objs[x].layoutWidget.setStyleSheet('')
-
                         else:
                             self.objs[x].layoutWidget.setStyleSheet('')
             except Exception as e:
@@ -439,7 +456,7 @@ class automationWindow(QtWidgets.QMainWindow):
             self.errorbox('Please fill required fields')
         return valid
 
-############ Common ErrorBox ##############
+    ## Common ErrorBox ##
     @staticmethod
     def errorbox(message):
         error_dialog = QtWidgets.QErrorMessage()
@@ -448,7 +465,7 @@ class automationWindow(QtWidgets.QMainWindow):
         error_dialog.setWindowTitle('Error')
         error_dialog.exec()
 
-############ Clear UX objects ##############
+    ## Clear UX objects ##
     def clear(self, start, stop):
         # Stop clearing while script is running
         if self.btn_Run.isChecked():
@@ -474,7 +491,7 @@ class automationWindow(QtWidgets.QMainWindow):
             self.testprogressBar.setValue(0)
             self.logwindow('Clean all')
 
-############ Run Test Script ##############
+    ## Run Test Script ##
     @QtCore.pyqtSlot(bool)
     def run(self, state):
         if state:
@@ -536,7 +553,7 @@ class automationWindow(QtWidgets.QMainWindow):
             self.btn_Run.setCheckable(True)
             self.send_device_number()
 
-############ highlight Executing command ##############
+    ## Highlight Executing command ##
     def highlight(self, index):
         if not self.autotestThread:
             self.objs[self.old_highlight].layoutWidget.setStyleSheet('')
@@ -554,7 +571,7 @@ class automationWindow(QtWidgets.QMainWindow):
         QTest.qWait(200)
         return
 
-############ close event from main window ##############
+    ## Close event from main window ##
     def force_closeEvent(self, device):
         if (device & ForceClose.AUTOMATION) and not self.force_quit:
             print('quit automation test')
@@ -565,7 +582,7 @@ class automationWindow(QtWidgets.QMainWindow):
                 self.logtrack.terminate_log_track_script()
             self.close()
 
-############ device remove event from main window ##############
+    ## Device remove event ##
     @QtCore.pyqtSlot(str)
     def removed_device(self, device_num):
         if self.force_quit:
@@ -592,6 +609,8 @@ class automationWindow(QtWidgets.QMainWindow):
                     obj.comboBox_devicetype.setCurrentIndex(0)
                 obj.comboBox_devicetype.removeItem(id)
 
+
+    ## Complete Automation test ##
     @QtCore.pyqtSlot()
     def complete_autotest(self):
         print('Complete automation test')
@@ -599,6 +618,7 @@ class automationWindow(QtWidgets.QMainWindow):
             self.btn_Run.toggle()
             self.autotestComplete = True
 
+    ## Send device number for Automation##
     def send_device_number(self, xmlFile=None):
         used_device_dict = dict()
         used_device_list = self.devMgrObj.get_used_devices()
@@ -618,6 +638,7 @@ class automationWindow(QtWidgets.QMainWindow):
 
         self.send_used_list.emit(used_device_dict)
 
+    ## Check device number ##
     def check_device_number(self, element, used_device_dict):
         device_number = element.get('devType').split("-")[1]
         used_device_dict[device_number] = True

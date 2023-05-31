@@ -1,3 +1,38 @@
+###########################################################################
+#
+#BSD 3-Clause License
+#
+#Copyright (c) 2023, Samsung Electronics Co.
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the copyright holder nor the
+#   names of its contributors may be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+# File : main.py
+# Description:
+# Auto onboarding, automation of IoT test scenarios and UI Window Management
+
 #!/usr/bin/python
 from common.device_command import *
 from common.device_window import *
@@ -23,14 +58,22 @@ sys.path.append('automation')
 
 IOTER_NAME: Final = 'ioter'
 
+## Main Window class ##
 class MainWindow(QMainWindow,
                  uic.loadUiType(Utils.get_view_path('main.ui'))[0]):
     force_close = pyqtSignal(int)
     send_msg_about_onboarding = pyqtSignal(int, str, str)
     removed_usb = pyqtSignal(str)
 
+    ## Initialize Main Window class ##
     def __init__(self, window_manager):
         super().__init__()
+
+        # Pre Main
+        Utils.remove_data_files()
+        self.checkDir()
+
+        # Start Main
         self.setupUi(self)
 
         self.dialog = dict()
@@ -69,13 +112,13 @@ class MainWindow(QMainWindow,
         self.polling_time_ms = 50
         self.initPositionTimer()
         self.savePos()
-        self.checkDir()
 
         self.default_config = Config()
         self.default_config_apply()
         self.option_menu_click_count = 0
         self.labelMatterlogo.mousePressEvent = self.on_label_matterlogo_clicked
 
+    ## Apply default configurations ##
     def default_config_apply(self):
         conf = self.default_config
         self.option_menu_shown = conf.option_menu_shown if conf.option_menu_shown else False
@@ -86,15 +129,18 @@ class MainWindow(QMainWindow,
         self.default_thread_type = conf.default_thread_type if conf.default_thread_type in ['fed','med','sed'] else 'fed'
         self.default_set_thread_type(self.comboBoxThread)
 
+    ## Set default thread debug level ##
     def default_set_thread_debug_level(self, comboBoxObj):
         if comboBoxObj.findText(f'{self.default_thread_debug_level}') != -1:
             comboBoxObj.setCurrentText(f'{self.default_thread_debug_level}')
 
+    ## Set default thread type ##
     def default_set_thread_type(self, comboBoxObj):
         for i in range(comboBoxObj.count()):
             if comboBoxObj.itemText(i).find(self.default_thread_type) != -1:
                 comboBoxObj.setCurrentText(comboBoxObj.itemText(i))
 
+    ## Matter logo click ##
     def on_label_matterlogo_clicked(self, event):
         self.option_menu_click_count += 1
         if self.option_menu_click_count >= 10:
@@ -111,6 +157,7 @@ class MainWindow(QMainWindow,
                 QMessageBox.about(self,'Option menu','Option menu is closed.')
                 self.option_menu_click_count = 0
 
+    ## Create dialog ##
     def create_dialog(self, obj, cls_name):
         if obj is None:
             obj = cls_name(self)
@@ -121,6 +168,7 @@ class MainWindow(QMainWindow,
             print("Already Opened")
         return obj
 
+    ## Start Automation ##
     def start_automation(self):
         device_list = self.deviceManager.get_used_devices()
         isonboarded = False
@@ -137,25 +185,30 @@ class MainWindow(QMainWindow,
             print('No Devices are Connected/Onboarded')
             automationWindow.errorbox('No Devices are Connected/Onboarded')
 
+    ## Emit auto onboarding state  ##
     @pyqtSlot(int, str, str)
     def auto_onboarding_state(self, state, comPort, device_num):
         print(f'state {state} comport {comPort} device_num {device_num}')
         self.send_msg_about_onboarding.emit(state, comPort, device_num)
 
+    ## Start auto onboarding ##
     def start_auto_onboarding(self):
         self.auto_onboarding = self.create_dialog(self.auto_onboarding, auto_onboardingWindow)
         self.send_msg_about_onboarding.connect(self.auto_onboarding.update_status)
 
+    ## Start help ##
     def start_help(self):
         self.help = HelpWindow(self, IOTER_NAME)
         self.help.show()
 
+    ## Set logo ##
     def set_logo(self):
         self.labelMatterlogo.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path('ioter_logo.png'), 100, 15))
         self.labelDeviceIcon.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path('devices.png'), 50, 50))
 
+    ## Check start button ##
     def check_start_button(self):
         comPort = self.comboBoxCom.currentText()
         deviceNum = self.deviceManager.get_device_number()
@@ -166,6 +219,7 @@ class MainWindow(QMainWindow,
         else:
             self.pushButtonStart.setEnabled(True)
 
+    ## Display comport in UI ##
     @pyqtSlot(str, str)
     # received msg from ioterPipe.Thread1
     def display_comport(self, action=None, path=None):
@@ -200,6 +254,7 @@ class MainWindow(QMainWindow,
                     f"{comport}/{self.deviceManager.get_device_vendor(comport)}")
         self.check_start_button()
 
+    ## Display thread Type ##
     def display_threadType(self):
         list = os.listdir(Utils.get_thread_lib_path())
         filtered_list = [thread for thread in list if thread.startswith(
@@ -208,9 +263,11 @@ class MainWindow(QMainWindow,
             self.comboBoxThread.addItem(
                 file[len(Utils.get_thread_lib_prefix()):])
 
+    ## Display device Type ##
     def display_deviceType(self):
         self.comboBoxDevice.addItems(CommandUtil.device_type_id.keys())
 
+    ## Display ioter name ##
     def display_ioterName(self):
         items = []
         list = os.listdir(Utils.get_ioter_path())
@@ -227,6 +284,7 @@ class MainWindow(QMainWindow,
         else:
             return None
 
+    ## Start commission ##
     def start_click(self):
         """
         commission start 구현
@@ -238,10 +296,12 @@ class MainWindow(QMainWindow,
         debugLevel = self.comboBoxDebug.currentText()
         device_type = self.comboBoxDevice.currentText()
 
+        print(f"dev : {self.comboBoxCom.currentText()}")
         if self.create_device_window(deviceNum, discriminator, threadType, comPort, debugLevel, device_type):
             if self.auto_onboarding is not None:
                 self.auto_onboarding.remove_device(comPort)
 
+    ## Create device window ##
     def create_device_window(self, deviceNum, discriminator, threadType, comPort, debugLevel, device_type):
         print(
             f"create_device_window - device number : {deviceNum} com port : {comPort}")
@@ -281,6 +341,7 @@ class MainWindow(QMainWindow,
         self.spinBoxDiscriminator.setValue((discriminator+1) & 0xFFF)
         return True
 
+    ## Handle exit events ##
     @pyqtSlot(str)
     def exit_dialog(self, comPort):
         print('exit_dialog : ' + comPort)
@@ -306,6 +367,7 @@ class MainWindow(QMainWindow,
         else:
             print("set_unused_device is fail")
 
+    ## List devices used in autotest ##
     @pyqtSlot(dict)
     def autotest_used_list(self, used_device_dict):
         for device_num in used_device_dict.items():
@@ -314,11 +376,13 @@ class MainWindow(QMainWindow,
             comPort = device_info.get_com_port()
             self.dialog[comPort].get_window().autotest_used(device_num[1])
 
+    ## Reset USB devices ##
     @pyqtSlot(str)
     def reset_usb(self, comPort):
         print('reset_usb :' + comPort)
         self.deviceManager.reset_device(comPort)
 
+    ## Stop auto onboarding ##
     # must not rename closeEvent
     def closeEvent(self, event):
         # print('closeEvent : ')
@@ -334,27 +398,33 @@ class MainWindow(QMainWindow,
             event.ignore()
         self.default_config.save()
 
+    ## Hanlde key press event ##
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
 
+    ## Save position ##
     def savePos(self):
         self.cur_pos = self.frameGeometry()
 
+    ## Move window ##
     def winMove(self, x, y):
         fg = self.frameGeometry()
         self.winRemove(fg)
         self.window_manager.addWithPosition(
             x, y, self.frameGeometry().width(), self.frameGeometry().height())
 
+    ## Remove window ##
     def winRemove(self, fg=None):
         if fg is None:
             fg = self.cur_pos
         self.window_manager.remove(fg.x(), fg.y(), fg.width(), fg.height())
 
+    ## Poll move event ##
     def moveEvent(self, event):
         self.timer.start(self.polling_time_ms)
 
+    ## Check position of window ##
     def checkPosition(self):
         if self.timer and not self.timer.isActive():
             return
@@ -369,16 +439,19 @@ class MainWindow(QMainWindow,
             self.winRemove()
             self.savePos()
 
+    ## Init position timer ##
     def initPositionTimer(self):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.checkPosition)
         self.timer.start(self.polling_time_ms)
 
+    ## Check key Press Event ##
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_F12:
             self.window_manager.showGuide()
             self.window_manager.dumpRectangles()
 
+    ## Check Directory ##
     def checkDir(self):
         if not os.path.isdir(Utils.get_tmp_path()):
             os.mkdir(Utils.get_tmp_path())

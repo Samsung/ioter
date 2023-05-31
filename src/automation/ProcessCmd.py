@@ -1,3 +1,39 @@
+###########################################################################
+#
+#BSD 3-Clause License
+#
+#Copyright (c) 2023, Samsung Electronics Co.
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the copyright holder nor the
+#   names of its contributors may be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#POSSIBILITY OF SUCH DAMAGE.
+#
+###########################################################################
+# File : ProcessCmd.py
+# Description:
+# executing and Processing Automation Script Commands.
+
+
 # Automation of Matter Device Emulator
 from common.manage_device import *
 from common.device_command import *
@@ -24,7 +60,7 @@ class ExecuteCmd:
     CMD_2 = 2
     CMD_3 = 3
 
-    # The init method or constructor
+    ## The init method or constructor ##
     def __init__(self, commandList, aDevType, aCmd, aCmdVal):
         self.devType = aDevType[0:aDevType.find('-')]
         self.cmd = aCmd
@@ -32,6 +68,7 @@ class ExecuteCmd:
         self.devNum = aDevType[len(self.devType)+len('-'):]
         self.command = commandList[self.devNum]
 
+    ## Execute commands ##
     def execCmd(self):
         print('execCmd' + ' + ' + self.devType)
         for cmd in self.command:
@@ -56,7 +93,7 @@ class ProcessCmd(QThread):
     mDevConfFilepath = 'src/automation/conf/'
     mScriptFilePath = 'src/automation/output/'
 
-    # The init method or constructor
+    ## The init method or constructor
     def __init__(self, parent, aFilePath):
         super().__init__()
         print('ProcessCmd init')
@@ -66,8 +103,7 @@ class ProcessCmd(QThread):
         self.exec_stop = False
         self.count = 0
 
-  # Total Cmd
-
+    ##  Give Total Command ##
     def totalCmd(self, parent):
         cmdTree = ET.parse(self.scriptFilePath)
         parent.totalcmd = 0
@@ -84,8 +120,8 @@ class ProcessCmd(QThread):
             else:
                 parent.totalcmd += 1
         print('Total Commands ->', parent.totalcmd)
-        # Run Cmd
 
+    ## Run Command ##
     def run(self):
         print('Run Cmd')
 
@@ -146,6 +182,7 @@ class ProcessCmd(QThread):
                 self.setSleep(1)
         self.complete_autotest.emit()
 
+    ## Set Sleep ##
     def setSleep(self, delaytime):
         count = 0
         while not self.exec_stop:
@@ -154,11 +191,13 @@ class ProcessCmd(QThread):
             QTest.qWait(1000)
             count += 1
 
+    ## Send Highlighting Index ##
     def send_highlight(self, pos):
         if not self.exec_stop:
             self.update_highlight.emit(pos)
             QTest.qWait(200)
 
+    ## Stop Execution of  Automation Script ##
     def stop(self):
         self.exec_stop = True
         self.quit()
