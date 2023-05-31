@@ -245,6 +245,9 @@ class CommonWindow(QMainWindow):
             self.device_info.set_commissioning_state(False)
             if self.chkbox_auto.isChecked():
                 self.auto_go()
+        elif step == 60:
+            # set routing information
+            Utils.add_route_with_device_num(int(self.device_info.device_num))
         elif step == 80 and self.device_info.get_commissioning_state():
             self.stackedWidget.setCurrentIndex(1)
             self.progressBar.setValue(100)
