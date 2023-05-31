@@ -12,7 +12,7 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - **Automation:** Repeated testing through scripts can validate device stability and connection.
 
 ## Overview
-![ioter_overview](https://user-images.githubusercontent.com/131251075/234764651-0662208c-3cc6-40b3-9999-9beab3db718a.JPG)
+![ioter_overview](https://github.com/ejunu/ioter/assets/131251075/c9403271-ef84-4cfa-b199-d9376e245a00)
 
 ## Supporting Things (2023-04-27)
 
@@ -25,8 +25,7 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - Window Covering
 - Occupancy Sensor
 - OnOff Plugin
-
-![ioter-things](https://user-images.githubusercontent.com/131251075/234766757-ec8cb1e9-4d6a-439e-bf78-cec875855e01.PNG)
+![Supporting Things (2023-04-27)](https://github.com/ejunu/ioter/assets/131251075/56c74ffc-af74-4174-8906-6c261c247b85)
 
 ## Prepare tools
 - Bluetooth enabled desktop or laptop
@@ -36,9 +35,10 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
     1. **Nordic nrf52840** [OT RCP dongle guide](./docs/guides/README.md)   
     ![nordic_nrf52840_dongle](https://github.com/Samsung/ioter/assets/131251075/fe4f9fc3-077f-4cf1-8de3-56a64af69efa)
     2. **Nordic nrf52840-DK board** [OT RCP board guide](https://openthread.io/codelabs/openthread-hardware#3)   
-    ![nrf52840dk](https://github.com/ejunu/ioter/assets/131251075/37bc25f2-fe3e-4dd3-94d8-e73d308a30ae)
+    ![nrf52840dk](https://github.com/ejunu/ioter/assets/131251075/82652f07-59c1-4a4a-928e-97accabaf29e)
 
-- Phone with SmartThings App installed and onboarded with Samsung SmartThings Station or SmartThings hub
+- Samsung SmartThings with SmartThings hub or SmartThings Station / Apple Home app with Homepod2 or Homepod mini
+![sam_app](https://github.com/ejunu/ioter/assets/131251075/19aaf665-9814-4486-a4f6-fd6d5072b8bf)
 
 ## How to install and excute
 1. install
@@ -53,18 +53,18 @@ cd ioter
 ```
 Or you can use [**Docker image**](./docs/guides/DOCKER.md)
 
-## How to onboarding (with SmartThings App)
-![onbooadingGuide 1](https://github.com/Samsung/ioter/assets/131251075/200fd452-549a-4db8-ad7d-bfbd1fef5ebf)
+## How to onboarding
+![guide1](https://github.com/ejunu/ioter/assets/131251075/91dd529f-4cf9-450f-80a2-8bb7175cd8f5)
 1. If you run the ioter with run script, the main window will appear, and if you press the start button, the device control window will appear.
 2. The power on button is the same as the power operation of the actual device.
-3. In the SmartThings App, click the add device button in the upper right corner.   
+3. In the App, click the add device button in the upper right corner.
 
-![onbooadingGuide 2](https://github.com/Samsung/ioter/assets/131251075/ce292cc1-cc6e-48da-9827-1f673f66e545)
+![guide2](https://github.com/ejunu/ioter/assets/131251075/0d643c3e-e492-42c3-8ba5-9726a8b59684)
 
-4. And with scan qr code, device onboarding can be started. (It can also be started with pairing code and scan nearby device.)
-5. When you click Power on (step 2), a QR code and a paring code are created. Use this to proceed with the onboarding procedure.   
+4. And with scan qr code, device onboarding can be started. (It can also be started with other options like pairing code or scanning for nearby device.)
+5. When you click Power on (step 2), a QR code and a paring code are created. Use this to proceed with the onboarding procedure.
 
-![onbooadingGuide 3](https://github.com/Samsung/ioter/assets/131251075/fccf8da9-020b-4b69-9e00-089488af1523)
+![guide3](https://github.com/ejunu/ioter/assets/131251075/c851b54e-8769-45db-9e97-cd8816e35163)
 
 6. When onboarding is completed, device control is possible.
 
