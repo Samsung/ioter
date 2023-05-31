@@ -281,6 +281,18 @@ class Utils():
             pass
         return ver
 
+    # Add thread interface to routing table
+    def add_route_with_device_num(device_num):
+        interface = f"wpan{device_num}"
+        priority = 256 - device_num
+        command = f"sudo ip -6 route add default dev {interface} metric {priority}"
+        try:
+            subprocess.run(command, shell=True, check=True)
+            print(f"Route added for {interface} with priority {priority}.")
+        except subprocess.CalledProcessError as e:
+            print("Error executing command:", e)
+
+
 ## Singleton ##
 def singleton(cls_):
     class class_w(cls_):
