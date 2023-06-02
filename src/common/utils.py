@@ -34,12 +34,14 @@
 
 import os
 import sys
+import math
 import psutil
 import qrcode
 import subprocess
 from pathlib import Path
 from PyQt5.QtGui import *
 from random import Random
+from common.device_command import *
 
 ## Utility class ##
 class Utils():
@@ -183,6 +185,38 @@ class Utils():
         else:
             rand = Random(str(seed))
         return rand.randint(0x3E8, 0xFFF)
+
+    ## Convert to illuminance value from measured value ##
+    def toIlluminance(value):
+        return int(pow(10, (value-1)/10000))
+
+    ## Convert to measured value from illuminance value ##
+    def toMeasuredValue(illum):
+        return round(10000*math.log(illum, 10)+1)
+
+    ## Find measured value to set the desired illuminace value  ##
+    def findMeasuredValue(illum):
+        input_illum = Utils.illuminanceMinMax(illum)
+        measured_value = Utils.toMeasuredValue(illum)
+        convert_illum = Utils.toIlluminance(measured_value)
+        while input_illum > convert_illum:
+            if measured_value > MEASURED_VALUE_MAX:
+                break
+            measured_value += 1
+            convert_illum = Utils.toIlluminance(measured_value)
+
+        if input_illum == convert_illum:
+            return measured_value
+        else:
+            return measured_value - 1
+
+    ## Set the illuminance value to not exceed the maximum and minimum values##
+    def illuminanceMinMax(value):
+        if value < LIGHTSENSOR_MIN_VAL:
+            value = LIGHTSENSOR_MIN_VAL
+        elif value > LIGHTSENSOR_MAX_VAL:
+            value = LIGHTSENSOR_MAX_VAL
+        return value
 
     ## Get ui style toggle button ##
     def get_ui_style_toggle_btn(toggle):

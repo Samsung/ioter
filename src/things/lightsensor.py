@@ -70,7 +70,7 @@ class LightsensorWindow(QDialog):
     ## Event handlers registration for light sensor window ##
     def post_setup_window(self):
         # variables
-        self.set_light_sensor_measured_value(MEASURED_VALUE_MIN)
+        self.measured_value = MEASURED_VALUE_MIN
         self.is_slider_pressed = False
         # device specific handler
         self.common_window.add_pipe_event_handler(self.event_handler)
@@ -117,10 +117,10 @@ class LightsensorWindow(QDialog):
 
     ## Update light sensor icon image based on level ##
     def set_state(self):
-        if self.toIlluminance(self.measured_value) >= 50000:
+        if Utils.toIlluminance(self.measured_value) >= 50000:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('lightsensor_high.png'), 70, 70))
-        elif 10000 <= self.toIlluminance(self.measured_value) < 50000:
+        elif 10000 <= Utils.toIlluminance(self.measured_value) < 50000:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('lightsensor_medium.png'), 70, 70))
         else:
@@ -131,13 +131,13 @@ class LightsensorWindow(QDialog):
     ## Handle slider events ##
     def sliderValueChanged(self):
         if self.is_slider_pressed:
-            self.spinBoxInput.setValue(self.toIlluminance(
+            self.spinBoxInput.setValue(Utils.toIlluminance(
                 self.horizontalSliderLightsensor.value()))
             return
         else:
             measured_value = self.horizontalSliderLightsensor.value()
             if self.measured_value != measured_value:
-                self.set_light_sensor_measured_value(measured_value)
+                self.measured_value = measured_value
                 self.update_light_sensor()
 
     ## Set slider state to pressed ##
@@ -149,34 +149,25 @@ class LightsensorWindow(QDialog):
         self.is_slider_pressed = False
         measured_value = self.horizontalSliderLightsensor.value()
         if self.measured_value != measured_value:
-            self.set_light_sensor_measured_value(measured_value)
+            self.measured_value = measured_value
             self.update_light_sensor()
 
     ## Read and update input value ##
     def input_click(self):
-        self.set_light_sensor_measured_value(
-            self.toMeasuredValue(self.spinBoxInput.value()))
-        self.spinBoxInput.setValue(self.toIlluminance(self.measured_value))
+        self.measured_value = Utils.findMeasuredValue(self.spinBoxInput.value())
+        self.spinBoxInput.setValue(Utils.toIlluminance(self.measured_value))
         self.update_light_sensor(self.measured_value)
-
-    ## Set light sensor level ##
-    def set_light_sensor_measured_value(self, measured_value):
-        self.measured_value = measured_value
-        if self.measured_value < LIGHTSENSOR_MIN_VAL:
-            self.measured_value = LIGHTSENSOR_MIN_VAL
-        elif self.measured_value > LIGHTSENSOR_MAX_VAL:
-            self.measured_value = LIGHTSENSOR_MAX_VAL
 
     ## Update light sensor window UI based on level ##
     def update_ui(self):
-        self.spinBoxInput.setValue(self.toIlluminance(self.measured_value))
+        self.spinBoxInput.setValue(Utils.toIlluminance(self.measured_value))
         self.horizontalSliderLightsensor.setValue(self.measured_value)
 
     ## Send command to light sensor device ##
     def send_command(self):
         LightsensorCommand.set_lightsensor(
             self.device_info.device_num, self.measured_value)
-        self.textBrowserLog.append(f'[Send] {self.measured_value}')
+        self.textBrowserLog.append(f'[Send] {self.spinBoxInput.value()} lx')
 
     ## Update light sensor UI and device based on level ##
     def update_light_sensor(self, need_command=True):
@@ -203,18 +194,10 @@ class LightsensorWindow(QDialog):
         self.pushButtonInput.setEnabled(not used_device)
         self.horizontalSliderLightsensor.setEnabled(not used_device)
 
-    ## Convert to illuminance value from measured value ##
-    def toIlluminance(self, value):
-        return int(pow(10, (value-1)/10000))
-
-    ## Convert to measured value from illuminance value ##
-    def toMeasuredValue(self, illum):
-        return round(10000*math.log(illum, 10)+1)
-
     ## Read and update the light sensor state based on value ##
     def setLightSensorValue(self, value):
-        self.spinBoxInput.setValue(int(value))
-        self.input_click()
+        measured_value = Utils.findMeasuredValue(int(value))
+        self.horizontalSliderLightsensor.setValue(measured_value)
 
     ## Get light sensor state ##
     def getLightSensorValue(self):
