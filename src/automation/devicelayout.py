@@ -33,7 +33,7 @@
 # Description:
 # Setup Device command Layout.
 
-from common.device_command import CommandUtil
+from common.device_command import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import xml.etree.ElementTree as Etree
@@ -44,6 +44,7 @@ class Ui_Device(object):
 
     ## Setup Device command Layout ##
     def setupUi(self, parent):
+        self.range = dict()
         self.objectName = 'cmd'
         self.layoutWidget = QtWidgets.QWidget(parent.scrollAreaWidgetContents)
         self.layoutWidget.setGeometry(QtCore.QRect(
@@ -121,23 +122,44 @@ class Ui_Device(object):
                 self.comboBox_cmd.addItem(cmd['Name'], cmd['val'])
             elif 'range' in cmd.keys():
                 data = []
-                for x in range(int(cmd['range'][0]), int(cmd['range'][1])+1):
-                    data.append(str(x))
+                numbers = range(int(cmd['range'][0]), int(cmd['range'][1])+1)
+                if len(numbers) <= 10001 :
+                    for x in numbers:
+                        data.append(str(x))
+                else:
+                    data.append(f"Range {cmd['range'][0]} ~ {cmd['range'][1]}")
                 self.comboBox_cmd.addItem(cmd['Name'], data)
         self.comboBox_cmd.show()
+
     ## Change Combo Box Command ##
     def changecomboBox_cmd(self, index):
         self.comboBox_value.clear()
         if index == -1:
             return
         cmds = self.comboBox_cmd.itemData(index)
+        index = self.comboBox_cmd.currentIndex()
+        self.range[index] = cmds[0]
         self.comboBox_value.addItems(cmds)
-        devtype = self.comboBox_devicetype.currentText()
         self.comboBox_value.show()
 
     ## Change Combo Box Value ##
     def changecomboBox_value(self, index):
-        devtype = self.comboBox_devicetype.currentText()
+        index = self.comboBox_cmd.currentIndex()
+        count = self.comboBox_value.count()
+        self.comboBox_value.setToolTip("")
+        msg = self.range.get(index, None)
+        if count <= 1 and msg:
+            self.comboBox_value.setToolTip(msg)
+            self.comboBox_value.setEditable(True)
+            try:
+                int(self.comboBox_value.currentText())
+            except:
+                self.comboBox_value.clear()
+        elif count > 2:
+            self.comboBox_value.setEditable(True)
+            self.comboBox_value.setEditable(False)
+        else:
+            self.comboBox_value.setEditable(False)
 
     ## Removing Objects ##
     def deleteSelf(self, parent):
