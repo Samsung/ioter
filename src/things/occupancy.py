@@ -78,11 +78,9 @@ class OccupancyWindow(QDialog):
     def post_setup_window(self):
         # variables
         self.state = False
-        self.toggle_update_from_remote = False
         # device specific handler
         self.common_window.init_toggle_button()
         self.common_window.add_toggle_button_handler(self.toggle_handler)
-        self.common_window.add_pipe_event_handler(self.event_handler)
         self.common_window.add_initial_value_handler(
             self.send_occupancy_command)
         self.common_window.add_autotest_event_handler(
@@ -104,10 +102,7 @@ class OccupancyWindow(QDialog):
         """
         self.state = state
         self.update_ui()
-        if self.toggle_update_from_remote:
-            self.toggle_update_from_remote = False
-        else:
-            self.send_occupancy_command()
+        self.send_occupancy_command()
 
     ## Update occupancy window UI based on event ##
     def update_ui(self):
@@ -124,19 +119,6 @@ class OccupancyWindow(QDialog):
         self.textBrowserLog.append(
             f'[Send] {self.toggle_text.get(self.state)}')
 
-    ## Update occupancy window UI based on event ##
-    def update_occupancy(self, state):
-        if state != self.state:
-            self.textBrowserLog.append(f'[Recv] {self.toggle_text.get(state)}')
-            self.toggle_update_from_remote = True
-            self.pushButtonStatus.toggle()
-
-    ## pipeThread event handler ##
-    def event_handler(self, event):
-        if 'occupancy' in event:
-            state = event.split(":")[1]
-            self.update_occupancy(bool(int(state)))
-
     ## Autotest event handler ##
     def autotest_event_handler(self, used_device):
         self.pushButtonStatus.setEnabled(not used_device)
@@ -144,12 +126,12 @@ class OccupancyWindow(QDialog):
     ## Read and update the occupancy state based on value ##
     def setOccupancyCmd(self, value):
         state = self.pushButtonStatus.isChecked()
-        if (value == "Occupied" and not state) or (value == "Unoccupied" and state):
+        if (value == "Occupy" and not state) or (value == "Vacate" and state):
             self.pushButtonStatus.toggle()
 
     ## Get occupancy state ##
     def getOccupancyState(self):
-        return "Occupied" if self.pushButtonStatus.isChecked() else "Unoccupied"
+        return self.toggle_text.get(self.pushButtonStatus.isChecked())
 
     ## Read and update the occupancy sensor power state based on value ##
     def setPowerOnOff(self, value):
@@ -170,8 +152,8 @@ class OccupancyWindow(QDialog):
             "Get_val": self.getPowerOnOff
         }
         command1 = {
-            "Name": "Occupied/Unoccupied",
-            "val": ['Occupied', 'Unoccupied'],
+            "Name": "Occupy/Vacate",
+            "val": ['Occupy', 'Vacate'],
             "Set_val": self.setOccupancyCmd,
             "Get_val": self.getOccupancyState
         }

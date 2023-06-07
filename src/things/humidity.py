@@ -71,7 +71,6 @@ class HumidWindow(QDialog):
         self.level = HUMIDITY_MIN_VAL
         self.is_slider_pressed = False
         # device specific handler
-        self.common_window.add_pipe_event_handler(self.event_handler)
         self.common_window.add_initial_value_handler(
             self.update_humidity_sensor)
         self.common_window.add_autotest_event_handler(
@@ -122,7 +121,7 @@ class HumidWindow(QDialog):
             level = self.horizontalSliderHumid.value()/100
             # print(f'valueChanged : old ({self.level}), new ({level})')
             if self.level != level:
-                self.update_humidity_sensor()
+                self.update_humidity_sensor(level)
 
     ## Set slider state to pressed ##
     def sliderPressed(self):
@@ -133,7 +132,7 @@ class HumidWindow(QDialog):
         self.is_slider_pressed = False
         level = self.horizontalSliderHumid.value()/100
         if self.level != level:
-            self.update_humidity_sensor()
+            self.update_humidity_sensor(level)
 
     ## Read and update input value ##
     def input_click(self):
@@ -141,9 +140,8 @@ class HumidWindow(QDialog):
         self.update_humidity_sensor(level)
 
     ## Set humidity level ##
-    def set_humidity_level(self, level=None):
-        self.level = level or self.horizontalSliderHumid.value()/100
-        self.level = max(min(self.level, HUMIDITY_MAX_VAL), HUMIDITY_MIN_VAL)
+    def set_humidity_level(self, level):
+        self.level = max(min(level, HUMIDITY_MAX_VAL), HUMIDITY_MIN_VAL)
 
     ## Update humidity window UI based on level ##
     def update_ui(self):
@@ -151,14 +149,13 @@ class HumidWindow(QDialog):
         self.doubleSpinBoxInput.setValue(self.level)
 
     ## Update humidity window UI and device based on level ##
-    def update_humidity_sensor(self, level=None, need_command=True):
+    def update_humidity_sensor(self, level):
         self.set_humidity_level(level)
         self.update_ui()
         self.set_state()
-        if need_command:
-            HumidCommand.set_humid(self.device_info.device_num, self.level)
-            self.textBrowserLog.append(
-                f'[Send] {self.level}{HUMIDITY_UNIT}')
+        HumidCommand.set_humid(self.device_info.device_num, self.level)
+        self.textBrowserLog.append(
+            f'[Send] {self.level}{HUMIDITY_UNIT}')
 
     ## Update humidity icon image based on level ##
     def set_state(self):
@@ -174,12 +171,6 @@ class HumidWindow(QDialog):
         else:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('humidity_0.png'), 70, 70))
-
-    ## pipeThread event handler ##
-    def event_handler(self, event):
-        if 'humid' in event:
-            level = event.split(":")[1]
-            self.update_humidity_sensor(int(level)/100, False)
 
     ## UI event handler ##
     def eventFilter(self, obj, event):

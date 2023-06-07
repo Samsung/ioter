@@ -73,7 +73,6 @@ class LightsensorWindow(QDialog):
         self.measured_value = MEASURED_VALUE_MIN
         self.is_slider_pressed = False
         # device specific handler
-        self.common_window.add_pipe_event_handler(self.event_handler)
         self.common_window.add_initial_value_handler(self.send_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
@@ -137,8 +136,7 @@ class LightsensorWindow(QDialog):
         else:
             measured_value = self.horizontalSliderLightsensor.value()
             if self.measured_value != measured_value:
-                self.measured_value = measured_value
-                self.update_light_sensor()
+                self.update_light_sensor(measured_value)
 
     ## Set slider state to pressed ##
     def sliderPressed(self):
@@ -149,14 +147,12 @@ class LightsensorWindow(QDialog):
         self.is_slider_pressed = False
         measured_value = self.horizontalSliderLightsensor.value()
         if self.measured_value != measured_value:
-            self.measured_value = measured_value
-            self.update_light_sensor()
+            self.update_light_sensor(measured_value)
 
     ## Read and update input value ##
     def input_click(self):
-        self.measured_value = Utils.findMeasuredValue(self.spinBoxInput.value())
-        self.spinBoxInput.setValue(Utils.toIlluminance(self.measured_value))
-        self.update_light_sensor(self.measured_value)
+        measured_value = Utils.findMeasuredValue(self.spinBoxInput.value())
+        self.update_light_sensor(measured_value)
 
     ## Update light sensor window UI based on level ##
     def update_ui(self):
@@ -167,14 +163,14 @@ class LightsensorWindow(QDialog):
     def send_command(self):
         LightsensorCommand.set_lightsensor(
             self.device_info.device_num, self.measured_value)
-        self.textBrowserLog.append(f'[Send] {self.spinBoxInput.value()} lx')
+        self.textBrowserLog.append(f'[Send] {self.spinBoxInput.value()}{LIGHTSENSOR_UNIT}')
 
     ## Update light sensor UI and device based on level ##
-    def update_light_sensor(self, need_command=True):
+    def update_light_sensor(self, measured_value):
+        self.measured_value = measured_value
         self.update_ui()
         self.set_state()
-        if need_command:
-            self.send_command()
+        self.send_command()
 
     ## UI event handler ##
     def eventFilter(self, obj, event):
@@ -183,11 +179,6 @@ class LightsensorWindow(QDialog):
                 self.input_click()
                 return True
         return super().eventFilter(obj, event)
-
-    ## pipeThread event handler ##
-    def event_handler(self, event):
-        if 'illum' in event:
-            self.update_light_sensor(False)
 
     ## Autotest event handler ##
     def autotest_event_handler(self, used_device):
