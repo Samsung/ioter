@@ -79,11 +79,9 @@ class ContactWindow(QDialog):
     def post_setup_window(self):
         # variables
         self.state = False
-        self.toggle_update_from_remote = False
         # device specific handler
         self.common_window.init_toggle_button()
         self.common_window.add_toggle_button_handler(self.toggle_handler)
-        self.common_window.add_pipe_event_handler(self.event_handler)
         self.common_window.add_initial_value_handler(self.send_contact_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
@@ -101,10 +99,7 @@ class ContactWindow(QDialog):
     def toggle_handler(self, state):
         self.state = state
         self.update_ui()
-        if self.toggle_update_from_remote:
-            self.toggle_update_from_remote = False
-        else:
-            self.send_contact_command()
+        self.send_contact_command()
 
     ## Update contact sensor UI window based on event ##
     def update_ui(self):
@@ -120,19 +115,6 @@ class ContactWindow(QDialog):
         self.textBrowserLog.append(
             f'[Send] {self.toggle_text.get(self.state)}')
 
-    ## Update contact sensor UI window based on event ##
-    def update_contact(self, state):
-        if state != self.state:
-            self.textBrowserLog.append(f'[Recv] {self.toggle_text.get(state)}')
-            self.toggle_update_from_remote = True
-            self.pushButtonStatus.toggle()
-
-    ## pipeThread event handler ##
-    def event_handler(self, event):
-        if 'bool' in event:
-            state = event.split(":")[1]
-            self.update_contact(bool(int(state)))
-
     ## Autotest event handler ##
     def autotest_event_handler(self, used_device):
         self.pushButtonStatus.setEnabled(not used_device)
@@ -145,7 +127,7 @@ class ContactWindow(QDialog):
 
     ## Get contact sensor state ##
     def getContactState(self):
-        return "Close" if self.pushButtonStatus.isChecked() else "Open"
+        return self.toggle_text.get(self.pushButtonStatus.isChecked())
 
     ## Read and update the contact sensor power state based on value ##
     def setPowerOnOff(self, value):
