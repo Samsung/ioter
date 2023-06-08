@@ -84,6 +84,8 @@ class MainWindow(QMainWindow,
         self.set_logo()
         self.removedDeviceNumber = -1
         self.pushButtonStart.clicked.connect(self.start_click)
+        self.pushButtonStart.setStyleSheet(
+            Utils.get_ui_style_toggle_btn(False))
         self.actionAutomation.triggered.connect(self.start_automation)
         self.actionAutomation.setShortcut("Ctrl+A")
         self.actionAuto_onboarding.triggered.connect(
@@ -107,6 +109,8 @@ class MainWindow(QMainWindow,
         self.use_test_window = False
         discriminator = Utils.generate_random_discriminator()
         self.spinBoxDiscriminator.setValue(discriminator)
+        # self.spinBoxDiscriminator.setStyleSheet(
+        #     Utils.get_ui_style_spinbox())
 
         self.window_manager = window_manager
         self.cur_pos = None

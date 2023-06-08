@@ -75,7 +75,7 @@ class TempWindow(QDialog):
             self.update_temparature_sensor)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
-        self.init_input_button()
+        self.init_spinbox()
         self.init_slider()
 
     ## Get UI component from common window ##
@@ -83,16 +83,11 @@ class TempWindow(QDialog):
         # device specific ui component
         self.horizontalSliderTemp = common_window.horizontalSliderTemp
         self.doubleSpinBoxInput = common_window.doubleSpinBoxInput
-        self.pushButtonInput = common_window.pushButtonInput
         self.textBrowserLog = common_window.textBrowserLog
         self.labelStatePicture = common_window.labelDevicePicture
 
     ## Initialise UI input button ##
-    def init_input_button(self):
-        self.pushButtonInput.setCheckable(True)
-        self.pushButtonInput.setStyleSheet(
-            Utils.get_ui_style_toggle_btn(True))
-        self.pushButtonInput.clicked.connect(self.input_click)
+    def init_spinbox(self):
         self.doubleSpinBoxInput.installEventFilter(self)
 
     ## Initialise UI slider ##
@@ -180,7 +175,6 @@ class TempWindow(QDialog):
 
     ## Autotest event handler ##
     def autotest_event_handler(self, used_device):
-        self.pushButtonInput.setEnabled(not used_device)
         self.horizontalSliderTemp.setEnabled(not used_device)
 
     ## Read and update the temperature based on value ##

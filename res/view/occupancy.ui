@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>454</height>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -151,9 +151,15 @@
              <number>6</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,1,1">
+             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="2,1,1">
+              <property name="spacing">
+               <number>18</number>
+              </property>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,0">
+               <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0">
+                <property name="topMargin">
+                 <number>3</number>
+                </property>
                 <item>
                  <widget class="QLabel" name="labelDevicePicture">
                   <property name="sizePolicy">
@@ -161,6 +167,9 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="text">
                    <string>Device</string>
@@ -185,7 +194,7 @@
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1,1">
                 <property name="spacing">
-                 <number>0</number>
+                 <number>18</number>
                 </property>
                 <property name="topMargin">
                  <number>0</number>
@@ -284,10 +293,13 @@
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Preferred</enum>
+                </property>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>5</width>
-                  <height>40</height>
+                  <height>30</height>
                  </size>
                 </property>
                </spacer>
@@ -312,7 +324,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -322,7 +334,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Power On</string>
+               <string>Power on</string>
               </property>
              </widget>
             </item>
@@ -351,7 +363,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -387,7 +399,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -423,7 +435,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">

@@ -33,6 +33,7 @@
 # Description:Device window in test mode
 
 from common.common_window import CommonWindow
+from common.utils import Utils
 
 
 ## Main test window class ##
@@ -44,7 +45,9 @@ class TestWindow(CommonWindow):
     ## Set power on/off in test mode ##
     def power_onoff(self, state):
         self.pushButtonDevicePower.setText(
-            {True: "Power Off", False: "Power On"}[state])
+            {True: "Power off", False: "Power on"}[state])
+        self.pushButtonDevicePower.setStyleSheet(
+            Utils.get_ui_style_power_btn(state))
         if state:
             self.stackedWidget.setCurrentIndex(1)
             self.textBrowserLog.append("=== Matter Commissioning ===")

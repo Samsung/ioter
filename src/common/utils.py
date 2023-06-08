@@ -220,26 +220,88 @@ class Utils():
 
     ## Get ui style toggle button ##
     def get_ui_style_toggle_btn(toggle):
-        style_string = "background-color: %s;"\
-            "font-weight: bold;"\
-            "border-radius: 3px;"\
+        style_string = "background-color: qlineargradient(spread:pad,\
+              x1:0, y1:0, x2:0, y2:1, stop:0 %s, stop:1 %s);"\
+            "border-radius: 4px;"\
             "border: 1px solid %s;"\
-            "color: %s"
+            "color: %s;"
         if toggle:
             style = style_string % (
-                "white", "rgb(186, 186, 186)", "rgb(58, 134, 255)")
+                "#ffffff", "#efefef", "#b8b8b8", "rgb(58, 134, 255)")
         else:
             style = style_string % (
-                "rgb(58, 134, 255)", "rgb(58, 134, 255)", "white")
+                "#5697fe", "#3a86ff", "#b8b8b8", "white")
         return style
+
+    ## Get ui style power toggle button ##
+    def get_ui_style_power_btn(toggle):
+        style_string = "background-color: qlineargradient(spread:pad,\
+              x1:0, y1:0, x2:0, y2:1, stop:0 %s, stop:1 %s);"\
+            "border-radius: 4px;"\
+            "border: 1px solid %s;"\
+            "color: %s;"
+        if toggle:
+            style = style_string % (
+                "#ffffff", "#efefef", "#b8b8b8", "black")
+        else:
+            style = style_string % (
+                "#5697fe", "#3a86ff", "#b8b8b8", "#ffffff")
+        return style
+
+    def get_ui_style_textedit():
+        style_string = "background-color: %s;"\
+            "border-radius: 4px;"\
+            "border: 1px solid %s;"
+        style = style_string % ("#ffffff", "#b8b8b8")
+        # style = "border: 1px solid; border-radius:10px; background-color: palette(base); "
+        return style
+
+    def get_ui_style_progress():
+        style_sheet = """
+            QProgressBar::chunk {
+                background-color: %s;
+            }
+            QProgressBar {
+                text-align: center;
+                border: 1px solid %s;
+                color: 1px solid %s;
+                border-radius: 5px;
+            }
+        """
+        style_string = "color: %s;"\
+            "border-radius: 4px;"\
+            "border: 1px solid %s;"
+        style = style_sheet % ("#3a86ff", "#b8b8b8", "#ffffff")
+        # style = "border: 1px solid; border-radius:10px; background-color: palette(base); "
+        return style
+    
+    def get_ui_style_spinbox():
+        spinbox_stylesheet = """
+            QSpinBox {
+                border : 1px solid #b8b8b8;
+                border-radius: 4px;
+                background : #ffffff;
+            }
+            QSpinBox::hover {
+                border : 2px solid green;
+                border-radius: 4px;
+                background : lightgreen;
+            }
+            """
+        style_string = "background-color: %s;"\
+            "border-radius: 4px;"\
+            "border: 1px solid %s;"
+        style = style_string % ("#ffffff", "#b8b8b8")
+        # style = "border: 1px solid; border-radius:10px; background-color: palette(base); "
+        return spinbox_stylesheet
 
     ## Get ui style slider ##
     def get_ui_style_slider(type):
         slider_stylesheet = """
             QSlider::handle:horizontal {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #eee, stop:1 #ccc);
-                border: 1px solid #777;
+                    stop:0 #ffffff, stop:1 #efefef);
+                border: 1px solid #ababab;
                 width: 14px;
                 margin-top: -3px;
                 margin-bottom: -3px;
@@ -247,29 +309,29 @@ class Utils():
             }
             QSlider::handle:horizontal:hover {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #fff, stop:1 #ddd);
-                border: 1px solid #444;
+                    stop:0 #ffffff, stop:1 #efefef);
+                border: 1px solid #ababab;
             }
             """
         if type == "COMMON":
             addition = """
                 QSlider::groove:horizontal {
                     background-color: rgba(58, 134, 255, 255);
-                    border: 1px solid #bbb;
+                    border: 1px solid #ababab;
                     height: 10px;
-                    border-radius: 4px;
+                    border-radius: 5px;
                 }
                 QSlider::sub-page:horizontal {
-                    background-color: rgba(58, 134, 255, 255);
-                    border: 1px solid #bbb;
+                    background-color: #3a86ff;
+                    border: 1px solid #ababab;
                     height: 10px;
-                    border-radius: 4px;
+                    border-radius: 5px;
                 }
                 QSlider::add-page:horizontal {
-                    background-color: rgba(192, 191, 188, 255);
-                    border: 1px solid #bbb;
+                    background-color: #dadada;
+                    border: 1px solid #ababab;
                     height: 10px;
-                    border-radius: 4px;
+                    border-radius: 5px;
                 }
                 """
         elif type == "DIMMING":
@@ -278,12 +340,12 @@ class Utils():
                     border: 1px solid #bbb;
                     background-color: qlineargradient(
                         spread:pad, x1:0, y1:0.5, x2:1, y2:0.5, 
-                        stop:0 rgba(26, 95, 180, 255), 
+                        stop:0 #3a86ff, 
                         stop:0.485149 rgba(153, 193, 241, 255), 
                         stop:0.787129 rgba(246, 245, 244, 255), 
-                        stop:1 rgba(255, 255, 255, 255));
+                        stop:1 #ffffff);
                     height: 10px;
-                    border-radius: 4px;
+                    border-radius: 5px;
                 }
                 """
         elif type == "COLORTEMP":
@@ -292,15 +354,15 @@ class Utils():
                     border: 1px solid #bbb;
                     background-color: qlineargradient(
                         spread:pad, x1:0, y1:0, x2:1, y2:0, 
-                        stop:0 rgba(255, 138, 18, 255), 
+                        stop:0 #ff8114, 
                         stop:0.166 rgba(255, 196, 137, 255), 
                         stop:0.333 rgba(255, 228, 206, 255), 
-                        stop:0.5 rgba(255, 249, 253, 255), 
+                        stop:0.5 #ffffff, 
                         stop:0.666 rgba(227, 233, 255, 255), 
                         stop:0.833 rgba(207, 218, 255, 255), 
-                        stop:1 rgba(196, 209, 255, 255));
+                        stop:1 #3a86ff);
                     height: 10px;
-                    border-radius: 4px;
+                    border-radius: 5px;
                 }
                 """
         slider_stylesheet += addition
