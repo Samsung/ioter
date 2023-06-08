@@ -16,7 +16,7 @@ _install()
     i=0
     while [ ${i} -le 2 ]; do
         INSTALL_NAME=${IOTER_LIB_DIR}"/libopenthread.so.${OPENTHREAD_VER}-${DEVICE_TYPE[i]}${LOCAL_BUILD}"
-        LIB_NAME=${OPENTHREAD_DIR}"/build/posix/src/core/libopenthread-${OPENTHREAD_LIB_TYPE[i]}-shared.so"
+        LIB_NAME=${OPENTHREAD_DIR}"/build/posix/src/posix/platform/libopenthread-${OPENTHREAD_LIB_TYPE[i]}-posix-multithread.so"
         cp ${LIB_NAME} ${INSTALL_NAME}
         i=$((${i}+1))
 
@@ -43,7 +43,7 @@ build_openthread()
         rm -rf build/
     fi
 
-    ./script/cmake-build posix -DOT_LIB_SHARED=ON -DOT_PLATFORM_NETIF=ON
+    ./script/cmake-build posix -DOT_MULTITHREAD=ON -DOT_PLATFORM_NETIF=ON
     if [ $? -eq 0 ];then
         echo "shared libraries are generated"
         install_openthread
