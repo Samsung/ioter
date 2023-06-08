@@ -75,7 +75,7 @@ class HumidWindow(QDialog):
             self.update_humidity_sensor)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
-        self.init_input_button()
+        self.init_spinbox()
         self.init_slider()
 
     ## Get UI component from common window ##
@@ -84,16 +84,11 @@ class HumidWindow(QDialog):
         self.horizontalSliderHumid = common_window.horizontalSliderHumid
         self.labelSliderPercent = common_window.labelSliderPercent
         self.doubleSpinBoxInput = common_window.doubleSpinBoxInput
-        self.pushButtonInput = common_window.pushButtonInput
         self.textBrowserLog = common_window.textBrowserLog
         self.labelStatePicture = common_window.labelDevicePicture
 
     ## Initialise UI Input Button ##
-    def init_input_button(self):
-        self.pushButtonInput.setCheckable(True)
-        self.pushButtonInput.setStyleSheet(
-            Utils.get_ui_style_toggle_btn(True))
-        self.pushButtonInput.clicked.connect(self.input_click)
+    def init_spinbox(self):
         self.doubleSpinBoxInput.installEventFilter(self)
 
     ## Initialise UI Slider ##
@@ -182,7 +177,6 @@ class HumidWindow(QDialog):
 
     ## Autotest event handler ##
     def autotest_event_handler(self, used_device):
-        self.pushButtonInput.setEnabled(not used_device)
         self.horizontalSliderHumid.setEnabled(not used_device)
 
     ## Read and update the humidity state based on value ##

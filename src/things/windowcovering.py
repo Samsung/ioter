@@ -97,10 +97,10 @@ class WindowcoveringWindow(QDialog):
         self.labelDevicePicture = common_window.labelDevicePicture
         self.horizontalSliderWindow = common_window.horizontalSliderWindow
         self.labelCoveringState = common_window.labelDevicePicture
-        self.labelSliderPercent = common_window.labelSliderPercent
         self.openButton = common_window.openButton
         self.closeButton = common_window.closeButton
         self.pauseButton = common_window.pauseButton
+        self.spinBoxWindow = common_window.spinBoxWindow
         self.textBrowserLog = common_window.textBrowserLog
 
     ## Update window covering icon image based on level ##
@@ -133,7 +133,15 @@ class WindowcoveringWindow(QDialog):
             self.labelCoveringState.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('windowcovering_8.png'), 70, 70))
 
-
+    ## UI event handler ##
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress and obj is self.spinBoxWindow:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                self.targetlevel = self.spinBoxWindow.value()
+                self.horizontalSliderWindow.setValue(self.targetlevel)
+                return True
+        return super().eventFilter(obj, event)
+            
     ## Initialise open button for window covering UI ##
     def init_open_button(self):
         self.openButton.setCheckable(True)
@@ -168,6 +176,11 @@ class WindowcoveringWindow(QDialog):
     def init_slider(self):
         self.horizontalSliderWindow.setRange(
             WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL)
+        self.spinBoxWindow.setRange(
+            WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL)
+        self.spinBoxWindow.setSingleStep(
+            self.common_window.get_slider_single_step(WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL))
+        self.spinBoxWindow.setValue(WC_INIT_LEVEL)
         self.horizontalSliderWindow.setSingleStep(1)
         self.horizontalSliderWindow.setValue(WC_INIT_LEVEL)
         self.horizontalSliderWindow.sliderPressed.connect(
@@ -176,15 +189,14 @@ class WindowcoveringWindow(QDialog):
             self.slider_released)
         self.horizontalSliderWindow.valueChanged.connect(
             self.value_changed)
-        self.labelSliderPercent.setText(
-            f'{WC_INIT_LEVEL}{WINDOWCOVERING_UNIT}')
         self.horizontalSliderWindow.setStyleSheet(
             Utils.get_ui_style_slider("COMMON"))
+        self.spinBoxWindow.installEventFilter(self)
 
     ## Set the window cover to target value ##
     def to_target(self):
         self.horizontalSliderWindow.setValue(self.targetlevel)
-        self.labelSliderPercent.setText(str(self.targetlevel)+'%')
+        self.spinBoxWindow.setValue(self.targetlevel)
         if self.targetlevel != self.currentlevel:
             self.send_target_value()
             self.set_direction()
@@ -275,7 +287,7 @@ class WindowcoveringWindow(QDialog):
                 self.target_update_from_remote = True
                 self.targetlevel = targetlevel
                 self.horizontalSliderWindow.setValue(self.targetlevel)
-                self.labelSliderPercent.setText(f"{self.targetlevel}%")
+                self.spinBoxWindow.setValue(self.targetlevel)
                 self.textBrowserLog.append(
                     f'[Recv target] {self.targetlevel}{WINDOWCOVERING_UNIT}')
                 self.timer.stop()

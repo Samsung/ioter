@@ -76,7 +76,7 @@ class LightsensorWindow(QDialog):
         self.common_window.add_initial_value_handler(self.send_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
-        self.init_input_button()
+        self.init_spinbox()
         self.init_slider()
         self.update_ui()
 
@@ -86,16 +86,11 @@ class LightsensorWindow(QDialog):
         self.horizontalSliderLightsensor = common_window.horizontalSliderLightsensor
         self.labelLightsensorLux = common_window.labelLightsensorLux
         self.spinBoxInput = common_window.spinBoxInput
-        self.pushButtonInput = common_window.pushButtonInput
         self.textBrowserLog = common_window.textBrowserLog
         self.labelStatePicture = common_window.labelDevicePicture
 
     ## Initialise UI input button ##
-    def init_input_button(self):
-        self.pushButtonInput.setCheckable(True)
-        self.pushButtonInput.setStyleSheet(
-            Utils.get_ui_style_toggle_btn(True))
-        self.pushButtonInput.clicked.connect(self.input_click)
+    def init_spinbox(self):
         self.spinBoxInput.installEventFilter(self)
 
     ## Initialise UI slider ##
@@ -182,7 +177,6 @@ class LightsensorWindow(QDialog):
 
     ## Autotest event handler ##
     def autotest_event_handler(self, used_device):
-        self.pushButtonInput.setEnabled(not used_device)
         self.horizontalSliderLightsensor.setEnabled(not used_device)
 
     ## Read and update the light sensor state based on value ##

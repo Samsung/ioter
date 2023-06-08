@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>454</height>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -151,49 +151,22 @@
              <number>6</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="3,1,3,3">
+             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,1,1,1">
               <property name="spacing">
-               <number>3</number>
+               <number>15</number>
               </property>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0">
-                <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_11">
-                  <item>
-                   <widget class="QLabel" name="labelDevicePicture">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>Coverstate</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0">
-                <property name="spacing">
+                <property name="topMargin">
+                 <number>5</number>
+                </property>
+                <property name="bottomMargin">
                  <number>10</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="openButton">
+                 <widget class="QLabel" name="labelDevicePicture">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -204,76 +177,31 @@
                     <height>0</height>
                    </size>
                   </property>
-                  <property name="font">
-                   <font>
-                    <family>맑은 고딕</family>
-                    <pointsize>8</pointsize>
-                   </font>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="text">
-                   <string>Open</string>
+                   <string>Coverstate</string>
                   </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="closeButton">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>맑은 고딕</family>
-                    <pointsize>8</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Close</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pauseButton">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>맑은 고딕</family>
-                    <pointsize>8</pointsize>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Pause</string>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_13" stretch="1,0">
+               <layout class="QVBoxLayout" name="verticalLayout_13" stretch="1,1">
+                <property name="spacing">
+                 <number>12</number>
+                </property>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,1,0">
+                  <property name="spacing">
+                   <number>4</number>
+                  </property>
                   <property name="topMargin">
-                   <number>10</number>
+                   <number>0</number>
                   </property>
                   <item>
                    <widget class="QLabel" name="labelDeviceWindow">
@@ -297,7 +225,23 @@ Covering</string>
                      <bool>true</bool>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                     <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="spinBoxWindow">
+                    <property name="minimumSize">
+                     <size>
+                      <width>74</width>
+                      <height>27</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>74</width>
+                      <height>27</height>
+                     </size>
                     </property>
                    </widget>
                   </item>
@@ -306,14 +250,14 @@ Covering</string>
                     <property name="maximumSize">
                      <size>
                       <width>16777215</width>
-                      <height>30</height>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="text">
-                     <string>- %</string>
+                     <string>%</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -335,9 +279,110 @@ Covering</string>
                </layout>
               </item>
               <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0">
+                <property name="spacing">
+                 <number>5</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="openButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>52</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>52</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>맑은 고딕</family>
+                    <pointsize>8</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Open</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="closeButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>52</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>52</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>맑은 고딕</family>
+                    <pointsize>8</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Close</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pauseButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>52</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>52</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>맑은 고딕</family>
+                    <pointsize>8</pointsize>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Pause</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
                <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1,1">
                 <property name="spacing">
-                 <number>0</number>
+                 <number>12</number>
                 </property>
                 <property name="topMargin">
                  <number>0</number>
@@ -433,10 +478,13 @@ Covering</string>
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Preferred</enum>
+                </property>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>5</width>
-                  <height>40</height>
+                  <height>30</height>
                  </size>
                 </property>
                </spacer>
@@ -461,7 +509,7 @@ Covering</string>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -471,7 +519,7 @@ Covering</string>
                </size>
               </property>
               <property name="text">
-               <string>Power On</string>
+               <string>Power on</string>
               </property>
              </widget>
             </item>
@@ -492,7 +540,7 @@ Covering</string>
             <item>
              <widget class="QPlainTextEdit" name="plainTextEditThreadVersion">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -500,7 +548,7 @@ Covering</string>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -528,7 +576,7 @@ Covering</string>
             <item>
              <widget class="QPlainTextEdit" name="plainTextEditComport">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -536,7 +584,7 @@ Covering</string>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -564,7 +612,7 @@ Covering</string>
             <item>
              <widget class="QPlainTextEdit" name="plainTextEditDebugLevel">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -572,7 +620,7 @@ Covering</string>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">

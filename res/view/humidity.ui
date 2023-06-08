@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>454</height>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -151,16 +151,22 @@
              <number>6</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,1,1,1">
+             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,1,1,0">
+              <property name="spacing">
+               <number>18</number>
+              </property>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1">
                 <item>
                  <widget class="QLabel" name="labelDevicePicture">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="text">
                    <string>Device</string>
@@ -170,28 +176,40 @@
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,1">
+               <layout class="QVBoxLayout" name="verticalLayout_9" stretch="0,0">
+                <property name="spacing">
+                 <number>12</number>
+                </property>
                 <item>
-                 <widget class="QLabel" name="labelDeviceHumid">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                 <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="1,0,0">
+                  <property name="spacing">
+                   <number>4</number>
                   </property>
-                  <property name="text">
-                   <string>Humidity</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="0,1">
+                  <item>
+                   <widget class="QLabel" name="labelDeviceHumid">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Humid</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item>
                    <widget class="QDoubleSpinBox" name="doubleSpinBoxInput">
                     <property name="minimumSize">
                      <size>
-                      <width>0</width>
-                      <height>40</height>
+                      <width>74</width>
+                      <height>27</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>74</width>
+                      <height>27</height>
                      </size>
                     </property>
                     <property name="maximum">
@@ -211,10 +229,6 @@
                   </item>
                  </layout>
                 </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0">
                 <item>
                  <widget class="QSlider" name="horizontalSliderHumid">
                   <property name="sizePolicy">
@@ -228,25 +242,12 @@
                   </property>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QPushButton" name="pushButtonInput">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>input</string>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_10" stretch="1,1">
+               <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0">
                 <property name="spacing">
-                 <number>0</number>
+                 <number>12</number>
                 </property>
                 <property name="topMargin">
                  <number>0</number>
@@ -308,6 +309,19 @@
                 </item>
                </layout>
               </item>
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>6</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </item>
            </layout>
@@ -342,10 +356,13 @@
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Preferred</enum>
+                </property>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>5</width>
-                  <height>40</height>
+                  <height>30</height>
                  </size>
                 </property>
                </spacer>
@@ -370,7 +387,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -380,7 +397,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Power On</string>
+               <string>Power on</string>
               </property>
              </widget>
             </item>
@@ -409,7 +426,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -445,7 +462,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -481,7 +498,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>34</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">

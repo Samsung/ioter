@@ -103,7 +103,7 @@ class CommonWindow(QMainWindow):
 
     ## Initialize Common Window icon ##
     def init_icon(self, icon_name):
-        self.labelDevicePicture.setMinimumSize(QSize(0, 90))
+        self.labelDevicePicture.setMinimumSize(QSize(0, 70))
         self.labelDevicePicture.setAlignment(Qt.AlignCenter)
         self.labelDevicePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path(icon_name), 70, 70))
@@ -111,6 +111,7 @@ class CommonWindow(QMainWindow):
     ## Initialize Common Window toggle button ##
     def init_toggle_button(self):
         self.pushButtonStatus.setMinimumSize(QSize(0, 30))
+        self.pushButtonStatus.setMaximumSize(QSize(180, 30))
         self.pushButtonStatus.setCheckable(True)
         self.pushButtonStatus.setStyleSheet(
             Utils.get_ui_style_toggle_btn(False))
@@ -122,18 +123,25 @@ class CommonWindow(QMainWindow):
 
     ## Initialize Common Window power button ##
     def init_power_button(self):
-        self.pushButtonDevicePower.setMinimumSize(QSize(0, 34))
+        self.pushButtonDevicePower.setMinimumSize(QSize(82, 30))
+        self.pushButtonDevicePower.setMaximumSize(QSize(82, 30))
         self.pushButtonDevicePower.setCheckable(True)
         self.pushButtonDevicePower.toggled.connect(self.power_onoff)
 
     ## Initialize Common Window information ui ##
     def init_information_ui(self, device_info):
-        self.plainTextEditThreadVersion.setMinimumSize(QSize(0, 34))
-        self.plainTextEditComport.setMinimumSize(QSize(0, 34))
-        self.pushButtonDevicePower.setMinimumSize(QSize(0, 34))
+        self.horizontalLayout.setContentsMargins(10, 10, 10, 10)
+        self.plainTextEditThreadVersion.setMinimumSize(QSize(82, 30))
+        self.plainTextEditThreadVersion.setMaximumSize(QSize(82, 30))
+        self.plainTextEditComport.setMinimumSize(QSize(82, 30))
+        self.plainTextEditComport.setMaximumSize(QSize(82, 30))
+        self.plainTextEditDebugLevel.setMinimumSize(QSize(82, 30))
+        self.plainTextEditDebugLevel.setMaximumSize(QSize(82, 30))
         self.progressBar.setMinimumSize(QSize(0, 35))
         self.plainTextEditPairingCode.setMinimumSize(QSize(0, 35))
         self.progressBar.setValue(0)
+        self.progressBar.setStyleSheet(
+            Utils.get_ui_style_progress())
         self.plainTextEditThreadVersion.setPlainText(
             device_info.get_thread_type())
         self.plainTextEditThreadVersion.setReadOnly(True)
@@ -143,11 +151,23 @@ class CommonWindow(QMainWindow):
         self.plainTextEditDebugLevel.setReadOnly(True)
         self.plainTextEditPairingCode.setPlainText("0")
         self.plainTextEditPairingCode.setReadOnly(True)
+        self.pushButtonDevicePower.setStyleSheet(
+            Utils.get_ui_style_power_btn(False))
+        self.plainTextEditPairingCode.setStyleSheet(
+            Utils.get_ui_style_textedit())
+        self.plainTextEditThreadVersion.setStyleSheet(
+            Utils.get_ui_style_textedit())
+        self.plainTextEditComport.setStyleSheet(
+            Utils.get_ui_style_textedit())
+        self.plainTextEditDebugLevel.setStyleSheet(
+            Utils.get_ui_style_textedit())
 
     def init_battery_ui(self):
         self.spinboxBattery.setRange(
             int(BATTERY_MIN_VAL), int(BATTERY_MAX_VAL))
         self.spinboxBattery.setValue(self.level)
+        self.spinboxBattery.setMinimumSize(QSize(74, 27))
+        self.spinboxBattery.setMaximumSize(QSize(74, 27))
 
         self.horizontalSliderBattery.setRange(
             int(BATTERY_MIN_VAL), int(BATTERY_MAX_VAL))
@@ -257,7 +277,9 @@ class CommonWindow(QMainWindow):
     @pyqtSlot(bool)
     def power_onoff(self, state):
         self.pushButtonDevicePower.setText(
-            {True: "Power Off", False: "Power On"}[state])
+            {True: "Power off", False: "Power on"}[state])
+        self.pushButtonDevicePower.setStyleSheet(
+            Utils.get_ui_style_power_btn(state))
         if state:
             self.stackedWidget.setCurrentIndex(0)
             self.ioter.launch_chip_all_clusters(self.device_info)
