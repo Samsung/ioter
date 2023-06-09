@@ -12,7 +12,7 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - **Automation:** Repeated testing through scripts can validate device stability and connection.
 
 ## Overview
-![ioter_overview](https://github.com/ejunu/ioter/assets/131251075/c9403271-ef84-4cfa-b199-d9376e245a00)
+![ioter_overview](https://github.com/Samsung/ioter/blob/main/res/doc/ioter_overview.png)
 
 ## Supporting Things (2023-04-27)
 
@@ -25,7 +25,7 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - Window Covering
 - Occupancy Sensor
 - OnOff Plugin
-![Supporting Things (2023-04-27)](https://github.com/ejunu/ioter/assets/131251075/56c74ffc-af74-4174-8906-6c261c247b85)
+![Supporting Things (2023-04-27).png](https://github.com/Samsung/ioter/blob/main/res/doc/Supporting%20Things%20(2023-04-27).png)
 
 ## Prepare tools
 - Bluetooth enabled desktop or laptop
@@ -33,12 +33,12 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - USB hub with power input (USB3.0 recommended)
 - Thread RCP usb dongle. We verified with this:
     1. **Nordic nrf52840** [OT RCP dongle guide](./docs/guides/README.md)   
-    ![nordic_nrf52840_dongle](https://github.com/Samsung/ioter/assets/131251075/fe4f9fc3-077f-4cf1-8de3-56a64af69efa)
+    ![nordic_nrf52840_dongle](https://github.com/Samsung/ioter/blob/main/res/doc/nordic_nrf52840_dongle.png)
     2. **Nordic nrf52840-DK board** [OT RCP board guide](https://openthread.io/codelabs/openthread-hardware#3)   
-    ![nrf52840dk](https://github.com/ejunu/ioter/assets/131251075/82652f07-59c1-4a4a-928e-97accabaf29e)
+    ![nrf52840dk](https://github.com/Samsung/ioter/blob/main/res/doc/nrf52840dk.png)
 
 - Samsung SmartThings with SmartThings hub or SmartThings Station / Apple Home app with Homepod2 or Homepod mini
-![sam_app](https://github.com/ejunu/ioter/assets/131251075/19aaf665-9814-4486-a4f6-fd6d5072b8bf)
+![sam_app](https://github.com/Samsung/ioter/blob/main/res/doc/sam_app.png)
 
 ## How to install and excute
 1. install
@@ -51,20 +51,20 @@ cd ioter
 cd ioter
 ./script/run
 ```
-Or you can use [**Docker image**](./docs/guides/DOCKER.md)
+Or you can use [**Docker image**](https://github.com/Samsung/ioter/blob/main/docs/guides/DOCKER.md)
 
 ## How to onboarding
-![guide1](https://github.com/ejunu/ioter/assets/131251075/91dd529f-4cf9-450f-80a2-8bb7175cd8f5)
+![guide1](https://github.com/Samsung/ioter/blob/main/res/doc/guide1.png)
 1. If you run the ioter with run script, the main window will appear, and if you press the start button, the device control window will appear.
 2. The power on button is the same as the power operation of the actual device.
 3. In the App, click the add device button in the upper right corner.
 
-![guide2](https://github.com/ejunu/ioter/assets/131251075/0d643c3e-e492-42c3-8ba5-9726a8b59684)
+![guide2](https://github.com/Samsung/ioter/blob/main/res/doc/guide2.png)
 
 4. And with scan qr code, device onboarding can be started. (It can also be started with other options like pairing code or scanning for nearby device.)
 5. When you click Power on (step 2), a QR code and a paring code are created. Use this to proceed with the onboarding procedure.
 
-![guide3](https://github.com/ejunu/ioter/assets/131251075/c851b54e-8769-45db-9e97-cd8816e35163)
+![guide3](https://github.com/Samsung/ioter/blob/main/res/doc/guide3.png)
 
 6. When onboarding is completed, device control is possible.
 
