@@ -139,6 +139,43 @@ class auto_onboardingWindow(QMainWindow):
         self.add(self.parent.deviceManager)
         self.init_ui_setting()
         QCoreApplication.processEvents()
+        self.progressBar.setValue(0)
+        self.onboarding_style_sheet = """
+        QProgressBar {
+            font-weight: bold;
+        }
+        QProgressBar::chunk {
+            background-color: #69F0AE;
+            width: 10px; 
+            margin: 0.5px;
+        }
+        """
+        self.remove_style_sheet = """
+        QProgressBar {
+            font-weight: bold;
+        }
+        QProgressBar::chunk {
+            background-color: #FF8A80;
+            width: 10px; 
+            margin: 0.5px;
+        }
+        """
+        self.repeat_style_sheet = """
+        QProgressBar {
+            font-weight: bold;
+        }
+        QProgressBar::chunk {
+            background-color: #40C4FF;
+            width: 10px; 
+            margin: 0.5px;
+        }
+        """
+        self.total_process = 0
+        self.current_process = 0
+        self.onboarding_state = 0
+        self.status_bar = self.statusBar()
+        self.status_label = QLabel("Select devices and button", self)
+        self.status_bar.addPermanentWidget(self.status_label)
 
     ## Toggle all check boxes ##
     def toggle_chkbox_all(self):
@@ -306,6 +343,7 @@ class auto_onboardingWindow(QMainWindow):
         self.test_category = MULTI_DEVICE
         self.order.clear()
         checked = False
+        self.init_progress_bar(self.onboarding_style_sheet, "auto_onboarding")
         for i in range(len(self.objs)):
             if self.objs[i].chkbox.isChecked():
                 checked = True
@@ -314,12 +352,15 @@ class auto_onboardingWindow(QMainWindow):
                         f"{self.objs[i].comport} / Device {self.parent.dialog[self.objs[i].comport].device_info.device_num} is already used")
                     continue
                 self.order.insert(0, self.objs[i].comport)
+                self.total_process += 1
                 self.load_device_window(i)
                 QTest.qWait(200)
         if checked:
             try:
                 comport = self.order.pop()
                 self.device_powerOnOff(comport, POWER_ON)
+                self.status_bar.showMessage("Onboarding... " + str(comport))
+                self.update_progress_label()
             except IndexError:
                 err = simpleDlg("No device is selected",
                                 "Check the device for onboarding")
@@ -334,6 +375,7 @@ class auto_onboardingWindow(QMainWindow):
         self.test_category = MULTI_DEVICE
         self.order.clear()
         checked = False
+        self.init_progress_bar(self.remove_style_sheet, "auto_removing")
         for i in range(len(self.objs)):
             if self.objs[i].chkbox.isChecked():
                 if not self.objs[i].comport in self.parent.dialog:
@@ -341,10 +383,14 @@ class auto_onboardingWindow(QMainWindow):
                     continue
                 checked = True
                 self.order.insert(0, self.objs[i].comport)
+                self.total_process += 1
+                self.update_progress_label()
         if checked:
             try:
                 comport = self.order.pop()
                 self.device_powerOnOff(comport, POWER_OFF)
+                self.status_bar.showMessage("Removing... " + str(comport))
+                self.update_progress_label()
             except IndexError:
                 err = simpleDlg("No device is selected",
                                 "Check the device for removing")
@@ -359,6 +405,7 @@ class auto_onboardingWindow(QMainWindow):
         self.test_category = SINGLE_REPEAT
         onlyOne = 0
         checkedIndex = 0
+        self.init_progress_bar(self.repeat_style_sheet, "repeat_onboarding")
         for i in range(len(self.objs)):
             if self.objs[i].chkbox.isChecked():
                 onlyOne += 1
@@ -366,8 +413,11 @@ class auto_onboardingWindow(QMainWindow):
         if onlyOne == 1:
             self.report.reset()
             self.report.total_count = self.repeat.value()
+            self.total_process = self.repeat.value()
+            self.update_progress_label()
             self.load_device_window(checkedIndex)
             comport = self.objs[checkedIndex].comport
+            self.status_bar.showMessage(f"{self.current_process+1}th try...")
             self.report.try_count += 1
             print(f"{self.report.try_count}th try...")
             self.device_powerOnOff(comport, POWER_ON)
@@ -376,6 +426,15 @@ class auto_onboardingWindow(QMainWindow):
                 "Wrong input", "Only one device can use Auto onboarding repeat test!!")
             print("only one device can use Auto onboarding repeat test!!")
             return
+
+    ## Progress label update ##
+    def update_progress_label(self):
+        if self.total_process > self.current_process :
+            status_text = f"{self.current_process} / {self.total_process}"
+        else:
+            status_text = "Complete"
+        self.progressBar.setFormat(status_text)
+        self.progressBar.setValue(int((self.current_process/self.total_process)*100))
 
     ## Load device window ##
     def load_device_window(self, i):
@@ -394,35 +453,43 @@ class auto_onboardingWindow(QMainWindow):
 
     ## multi device onboarding process ##
     def multi_device_process(self, index, value, comport, device_num):
+        self.current_process += 1
         # onboarding
         if value == STOnboardingResult.ONBOARDING_SUCCESS:  # success
             self.objs[index].status.setText(self.objs[index].device_name)
+            self.status_bar.showMessage("Onboarding success " + str(comport))
         elif value == STOnboardingResult.ONBOARDING_FAILURE:  # failed
             if comport in self.parent.dialog:
                 self.parent.dialog[comport].get_window().force_closeEvent()
             self.objs[index].status.setText("failed")
+            self.status_bar.showMessage("Onboarding failed " + str(comport))
         # removing
         elif value == STOnboardingResult.REMOVING_SUCCESS:  # success
             self.objs[index].status.setText("ready")
+            self.status_bar.showMessage("Removing success " + str(comport))
         elif value == STOnboardingResult.REMOVING_FAILURE:  # failed
             self.objs[index].status.setText(self.objs[index].device_name)
+            self.status_bar.showMessage("Removing failed " + str(comport))
         QCoreApplication.processEvents()
         time.sleep(1)
         if len(self.order) > 0 and value < 2:  # keep proceed multi onboarding
             next = self.order.pop()
             self.device_powerOnOff(next, POWER_ON)
+            self.status_bar.showMessage("Onboarding... " + str(next))
         elif value >= 2:  # keep proceed multi removing
             if comport in self.parent.dialog:
                 self.parent.dialog[comport].get_window().force_closeEvent()
             if len(self.order) > 0:
                 next = self.order.pop()
                 self.device_powerOnOff(next, POWER_OFF)
+                self.status_bar.showMessage("Removing... " + str(next))
 
     ## Single device onboarding process ##
     def single_repeat_process(self, index, value, comport, device_num):
         # onboarding
         if value == STOnboardingResult.ONBOARDING_SUCCESS:  # success
             self.objs[index].status.setText(self.objs[index].device_name)
+            self.status_bar.showMessage(f"{self.current_process+1}th try onboarding success ")
             self.report.success += 1
             # time.sleep(3)
             QCoreApplication.processEvents()
@@ -430,6 +497,8 @@ class auto_onboardingWindow(QMainWindow):
             # self.parent.dialog[comport].get_window().auto_remove()
         elif value == STOnboardingResult.ONBOARDING_FAILURE:  # failed
             self.objs[index].status.setText("failed")
+            self.current_process += 1
+            self.status_bar.showMessage(f"{self.current_process}th try onboarding failed")
             self.report.onboarding_failure += 1
             self.report.failure += 1
             self.report.try_count += 1
@@ -445,9 +514,11 @@ class auto_onboardingWindow(QMainWindow):
         # removing
         elif value == STOnboardingResult.REMOVING_SUCCESS:  # success
             self.objs[index].status.setText("ready")
+            self.status_bar.showMessage(f"{self.current_process+1}th try removing success")
             if comport in self.parent.dialog:
                 self.parent.dialog[comport].get_window().force_closeEvent()
             self.report.remove += 1
+            self.current_process += 1
             # self.report.try_count += 1
             if self.report.try_count >= self.report.total_count:
                 self.report.printResult()
@@ -461,7 +532,9 @@ class auto_onboardingWindow(QMainWindow):
             self.device_powerOnOff(comport, POWER_ON)
         elif value == STOnboardingResult.REMOVING_FAILURE:  # failed
             self.objs[index].status.setText(self.objs[index].device_name)
+            self.status_bar.showMessage(f"{self.current_process+1}th try removing failed")
             self.report.retry_remove += 1
+            self.current_process += 1
             if (self.report.retry_remove >= 3):  # ignore removing failure and proceed next step
                 self.report.retry_remove = 0
                 self.report.removing_failure += 1
@@ -481,6 +554,8 @@ class auto_onboardingWindow(QMainWindow):
             else:
                 if comport in self.parent.dialog:
                     self.parent.dialog[comport].get_window().auto_remove()
+        
+        self.status_bar.showMessage(f"{self.current_process+1}th try...")
 
     ## Update status ##
     @pyqtSlot(int, str, str)
@@ -495,6 +570,14 @@ class auto_onboardingWindow(QMainWindow):
             # single (repeat)
             elif self.test_category == SINGLE_REPEAT:
                 self.single_repeat_process(index, value, comport, device_num)
+            self.update_progress_label()
+    
+    ## Setting progress bar ##
+    def init_progress_bar(self, process_stylesheet, label_text):
+        self.total_process = 0
+        self.current_process = 0
+        self.progressBar.setStyleSheet(process_stylesheet)
+        self.status_label.setText(label_text)
 
     ## Get index from comport ##
     def get_index_from_comport(self, comport):
