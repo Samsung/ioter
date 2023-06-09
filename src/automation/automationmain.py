@@ -41,6 +41,7 @@ from automation.filedialog import FileDialog
 from automation.ProcessCmd import *
 from automation.logtrackscriptcntl import *
 from common.utils import Utils
+from common.device_command import *
 import os
 import xml.etree.ElementTree as Etree
 from datetime import datetime
@@ -149,6 +150,7 @@ class automationWindow(QtWidgets.QMainWindow):
             self.logwindow('File loaded :  "' +
                            str(openfile.fileName) + '" Successfully')
             self.testprogressBar.setValue(0)
+        openfile.close()
 
     ## Save File Event Handler ##
     def savefile(self, valid):
@@ -414,6 +416,13 @@ class automationWindow(QtWidgets.QMainWindow):
 
         self.currentOpenFile = filename
 
+    ## Displays the normal/abnormal status of cmd ##
+    def cmd_contition(self, x, normal):
+        if normal:
+            self.objs[x].layoutWidget.setStyleSheet('background-color: white;')
+        else:
+            self.objs[x].layoutWidget.setStyleSheet('background-color: red;')
+
     ## Validate All Fields ##
     def validatefield(self):
         valid = True
@@ -426,30 +435,42 @@ class automationWindow(QtWidgets.QMainWindow):
                 if self.objs[x]:
                     if self.objs[x].objectName == 'loopStart':
                         if self.objs[x].spinbox_count.value() <= 0:
-                            self.objs[x].layoutWidget.setStyleSheet(
-                                'background-color: red;')
-                            if valid == True:
-                                valid = False
+                            self.cmd_contition(x, False)
+                            valid = False
                         else:
-                            self.objs[x].layoutWidget.setStyleSheet('')
+                            self.cmd_contition(x, True)
                     elif self.objs[x].objectName == 'sleep':
                         if self.objs[x].spinbox_interval.value() <= 0:
-                            self.objs[x].layoutWidget.setStyleSheet(
-                                'background-color:  red;')
-                            if valid == True:
-                                valid = False
+                            self.cmd_contition(x, False)
+                            valid = False
                         else:
-                            self.objs[x].layoutWidget.setStyleSheet('')
+                            self.cmd_contition(x, True)
                     elif self.objs[x].objectName == 'cmd':
-                        devtype = self.objs[x].comboBox_devicetype.currentText(
-                        )
+                        devtype = self.objs[x].comboBox_devicetype.currentText()
+                        cmdtype = self.objs[x].comboBox_cmd.currentText()
                         if devtype == 'Device Type':
-                            self.objs[x].layoutWidget.setStyleSheet(
-                                'background-color:  red;')
-                            if valid == True:
+                            self.cmd_contition(x, False)
+                            valid = False
+                        elif (LIGHTSENSOR_DEVICE_TYPE in devtype) and ("Level Control lux" in cmdtype):
+                            try:
+                                input = int(
+                                    self.objs[x].comboBox_value.currentText())
+                            except ValueError:
+                                self.cmd_contition(x, False)
                                 valid = False
+                            else:
+                                if input < LIGHTSENSOR_MIN_VAL or input > LIGHTSENSOR_MAX_VAL:
+                                    self.cmd_contition(x, False)
+                                    self.errorbox(
+                                        f'{LIGHTSENSOR_MIN_VAL} &lt; Light Sensor &gt; {LIGHTSENSOR_MAX_VAL}')
+                                    valid = False
+                                else:
+                                    measured_value = Utils.findMeasuredValue(input)
+                                    convert_illum = Utils.toIlluminance(measured_value)
+                                    self.objs[x].comboBox_value.setCurrentText(str(convert_illum))
+                                    self.cmd_contition(x, True)
                         else:
-                            self.objs[x].layoutWidget.setStyleSheet('')
+                            self.cmd_contition(x, True)
             except Exception as e:
                 print(f'validatefield error {e}')
         if valid == False:
@@ -491,16 +512,23 @@ class automationWindow(QtWidgets.QMainWindow):
             self.testprogressBar.setValue(0)
             self.logwindow('Clean all')
 
+    def silentToggleBtnRun(self):
+        self.btn_Run.setCheckable(False)
+        self.btn_Run.toggle()
+        self.btn_Run.setCheckable(True)
+
     ## Run Test Script ##
     @QtCore.pyqtSlot(bool)
     def run(self, state):
         if state:
             if not self.validatefield():
                 print('Validation Failed')
+                self.silentToggleBtnRun()
                 return
             else:
                 if self.currentOpenFile == None:
                     if self.savefile(1) == False:
+                        self.silentToggleBtnRun()
                         self.errorbox('Please Save a file before Run')
                         return
                 else:

@@ -71,7 +71,6 @@ class TempWindow(QDialog):
         self.level = 0
         self.is_slider_pressed = False
         # device specific handler
-        self.common_window.add_pipe_event_handler(self.event_handler)
         self.common_window.add_initial_value_handler(
             self.update_temparature_sensor)
         self.common_window.add_autotest_event_handler(
@@ -121,9 +120,8 @@ class TempWindow(QDialog):
             return
         if not self.is_slider_pressed:
             level = self.horizontalSliderTemp.value()/100
-            # print(f'valueChanged : old ({self.level}), new ({level})')
             if self.level != level:
-                self.update_temparature_sensor()
+                self.update_temparature_sensor(level)
 
     ## Set slider state to pressed ##
     def sliderPressed(self):
@@ -134,7 +132,7 @@ class TempWindow(QDialog):
         self.is_slider_pressed = False
         level = self.horizontalSliderTemp.value()/100
         if self.level != level:
-            self.update_temparature_sensor()
+            self.update_temparature_sensor(level)
 
     ## Read and update input value ##
     def input_click(self):
@@ -142,12 +140,8 @@ class TempWindow(QDialog):
         self.update_temparature_sensor(level)
 
     ## Set temperature level ##
-    def set_temparature_level(self, level=None):
-        if level is not None:
-            self.level = level
-        else:
-            self.level = self.horizontalSliderTemp.value()/100
-        self.level = max(min(self.level, TEMPERATURE_MAX_VAL),
+    def set_temparature_level(self, level):
+        self.level = max(min(level, TEMPERATURE_MAX_VAL),
                          TEMPERATURE_MIN_VAL)
 
     ## Update temperature window UI based on level ##
@@ -156,14 +150,13 @@ class TempWindow(QDialog):
         self.doubleSpinBoxInput.setValue(self.level)
 
     ## Update temperature UI and device based on level ##
-    def update_temparature_sensor(self, level=None, need_command=True):
+    def update_temparature_sensor(self, level):
         self.set_temparature_level(level)
         self.update_ui()
         self.set_state()
-        if need_command:
-            TempCommand.set_temp(self.device_info.device_num, self.level)
-            self.textBrowserLog.append(
-                f'[Send] {self.level}{TEMPERATURE_UNIT}')
+        TempCommand.set_temp(self.device_info.device_num, self.level)
+        self.textBrowserLog.append(
+            f'[Send] {self.level}{TEMPERATURE_UNIT}')
 
     ## Update thermometer icon image based on level ##
     def set_state(self):
@@ -176,12 +169,6 @@ class TempWindow(QDialog):
         elif 0 <= self.level <= 100:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('thermometer_medium.png'), 70, 70))
-
-    ## pipeThread event handler ##
-    def event_handler(self, event):
-        if 'temp' in event:
-            level = event.split(":")[1]
-            self.update_temparature_sensor(int(level)/100, False)
 
     ## UI event handler ##
     def eventFilter(self, obj, event):
@@ -198,7 +185,7 @@ class TempWindow(QDialog):
 
     ## Read and update the temperature based on value ##
     def setTemperatureValue(self, value):
-        self.horizontalSliderTemp.setValue(int(value)*100)
+        self.horizontalSliderTemp.setValue(int(float(value)*100))
 
     ## Get temperature ##
     def getTemperatureValue(self):

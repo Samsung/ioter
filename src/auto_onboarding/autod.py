@@ -334,7 +334,8 @@ class autoDevice(QThread):
                     self.screenshot()
                     err2 = self.get_obj(
                         str(ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE))
-                    err2.touch()
+                    if err2:
+                        err2.touch()
                     QTest.qWait(1000)
                     self.vc.device.press("BACK")
                     if self.debug == True:

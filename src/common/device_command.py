@@ -32,7 +32,6 @@
 # File : device_command.py
 # Description: Device commands and operations
 import os
-import math
 
 
 # Device Commands Table
