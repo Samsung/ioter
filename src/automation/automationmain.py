@@ -50,7 +50,6 @@ from PyQt5 import QtWidgets, uic, QtCore
 class automationWindow(QtWidgets.QMainWindow):
     dialog_closed = QtCore.pyqtSignal(str)
     send_used_list = QtCore.pyqtSignal(dict)
-    STR_TKN = ' : '
 
     ## Set Up Automation window ##
     def __init__(self, parent):
