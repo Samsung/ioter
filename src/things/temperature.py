@@ -150,7 +150,7 @@ class TempWindow(QDialog):
         self.doubleSpinBoxInput.setValue(self.level)
 
     ## Update temperature UI and device based on level ##
-    def update_temparature_sensor(self, level):
+    def update_temparature_sensor(self, level = 0):
         self.set_temparature_level(level)
         self.update_ui()
         self.set_state()

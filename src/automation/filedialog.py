@@ -71,9 +71,15 @@ class FileDialog(QWidget):
 
     ## Save XML Files ##
     def saveFileDialog(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        self.fileName, _ = QFileDialog.getSaveFileName(
-            self, "Save XML File", ProcessCmd.mScriptFilePath, "XML Files (*.xml)", options=options)
-        if self.fileName:
+        fd = QFileDialog(self, "Save XML File", ProcessCmd.mScriptFilePath, "XML Files (*.xml)")
+        fd.setDefaultSuffix("xml")
+        fd.setOptions(QFileDialog.DontUseNativeDialog)
+        fd.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+        fd.exec()
+        if fd.selectedFiles()[0] == fd.directory().absolutePath():
+            print("File is not selected")
+            self.fileName = ""
+        else:
             print(self.fileName)
+            self.fileName = fd.selectedFiles()[0]
+

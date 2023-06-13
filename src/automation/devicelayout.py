@@ -35,8 +35,9 @@
 
 from common.device_command import *
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-import xml.etree.ElementTree as Etree
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 
 class Ui_Device(object):
@@ -44,7 +45,6 @@ class Ui_Device(object):
 
     ## Setup Device command Layout ##
     def setupUi(self, parent):
-        self.range = dict()
         self.objectName = 'cmd'
         self.layoutWidget = QtWidgets.QWidget(parent.scrollAreaWidgetContents)
         self.layoutWidget.setGeometry(QtCore.QRect(
@@ -54,36 +54,48 @@ class Ui_Device(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
+
         self.comboBox_devicetype = QtWidgets.QComboBox(self.layoutWidget)
         self.comboBox_devicetype.setStyleSheet(
             "background-color: rgb(255, 163, 72);")
         self.comboBox_devicetype.setObjectName("devicetype")
         self.comboBox_devicetype.addItem("Device Type")
+        self.commandList = parent.commandList
         self.comboBox_devicetype.currentIndexChanged.connect(
-            lambda: self.changecomboBox_devicetype(parent))
+            self.changecomboBox_devicetype)
         self.horizontalLayout.addWidget(self.comboBox_devicetype)
+
         self.comboBox_cmd = QtWidgets.QComboBox(self.layoutWidget)
         self.comboBox_cmd.setObjectName("cmd")
         self.comboBox_cmd.addItem("")
         self.comboBox_cmd.currentIndexChanged.connect(self.changecomboBox_cmd)
         self.horizontalLayout.addWidget(self.comboBox_cmd)
+
+        self.spinBox_value = QtWidgets.QSpinBox(self.layoutWidget)
+        self.spinBox_value.setObjectName("spin_value")
+        self.spinBox_value.hide()
+        self.horizontalLayout.addWidget(self.spinBox_value)
+
         self.comboBox_value = QtWidgets.QComboBox(self.layoutWidget)
         self.comboBox_value.setObjectName("value")
-        self.comboBox_value.currentIndexChanged.connect(
-            self.changecomboBox_value)
+        self.comboBox_value.hide()
         self.horizontalLayout.addWidget(self.comboBox_value)
+
         self.btn_remove = QtWidgets.QToolButton(self.layoutWidget)
         self.btn_remove.setObjectName("remove")
         self.btn_remove.clicked.connect(lambda: self.deleteSelf(parent))
         self.horizontalLayout.addWidget(self.btn_remove)
+
         self.btn_insert = QtWidgets.QToolButton(self.layoutWidget)
         self.btn_insert.setObjectName("insert")
         self.btn_insert.clicked.connect(lambda: self.addnew(parent))
         self.horizontalLayout.addWidget(self.btn_insert)
+
         self.btn_up = QtWidgets.QToolButton(self.layoutWidget)
         self.btn_up.setObjectName("UP")
         self.btn_up.clicked.connect(lambda: self.move_up_down("UP", parent))
         self.horizontalLayout.addWidget(self.btn_up)
+
         self.btn_down = QtWidgets.QToolButton(self.layoutWidget)
         self.btn_down.setObjectName("Down")
         self.btn_down.clicked.connect(
@@ -107,59 +119,69 @@ class Ui_Device(object):
             if device.get_commissioning_state():
                 num = device.get_device_num()
                 self.comboBox_devicetype.addItem(
-                    CommandUtil. get_device_type_by_device_id(device. get_device_id())+'-'+num)
+                    CommandUtil.get_device_type_by_device_id(device.get_device_id())+'-'+num)
 
-    ## Show Device Type And respective Commands ##
-    def changecomboBox_devicetype(self, parent):
-        self.comboBox_cmd.clear()
+    ## Get ['Device name', 'Device number']
+    def getDeviceType(self):
         devicetype = self.comboBox_devicetype.currentText()
         if devicetype == 'Device Type':
-            return
-        devicenum = devicetype.split('-')[1]
-        cmdlist = parent.commandList[devicenum]
-        for cmd in cmdlist:
+            return ["", -1]
+        return devicetype.split('-')
+
+    ## Get command list for current device
+    def getCmdList(self):
+        devicenum = self.getDeviceType()[1]
+        if devicenum == -1:
+            return []
+        return self.commandList[devicenum]
+
+    ## Show Device Type And respective Commands ##
+    def changecomboBox_devicetype(self):
+        self.comboBox_cmd.clear()
+        for cmd in self.getCmdList():
             if 'val' in cmd.keys():
                 self.comboBox_cmd.addItem(cmd['Name'], cmd['val'])
             elif 'range' in cmd.keys():
-                data = []
-                numbers = range(int(cmd['range'][0]), int(cmd['range'][1])+1)
-                if len(numbers) <= 10001 :
-                    for x in numbers:
-                        data.append(str(x))
-                else:
-                    data.append(f"Range {cmd['range'][0]} ~ {cmd['range'][1]}")
-                self.comboBox_cmd.addItem(cmd['Name'], data)
-        self.comboBox_cmd.show()
+                minmax = (int(cmd['range'][0]), int(cmd['range'][1]))
+                self.comboBox_cmd.addItem(cmd['Name'], minmax)
 
     ## Change Combo Box Command ##
     def changecomboBox_cmd(self, index):
-        self.comboBox_value.clear()
         if index == -1:
             return
-        cmds = self.comboBox_cmd.itemData(index)
-        index = self.comboBox_cmd.currentIndex()
-        self.range[index] = cmds[0]
-        self.comboBox_value.addItems(cmds)
-        self.comboBox_value.show()
+        data = self.comboBox_cmd.itemData(index)
+        if type(data) is tuple:
+            self.changeSpinBox_value(self.comboBox_cmd.itemText(index), data[0], data[1])
+        else:
+            self.changecomboBox_value(data)
+
+    ## Test if the item name is color control ##
+    def isColorControl(self, color_control):
+        cmdlist = self.getCmdList()
+        if color_control == cmdlist[3]["Name"]:
+            return True
+        return False
+
+    ## Change Spin Box Value ##
+    def changeSpinBox_value(self, item_text, min, max):
+        self.spinBox_value.setRange(min, max)
+        device_name = self.getDeviceType()[0]
+        if device_name == LIGHTSENSOR_DEVICE_TYPE:
+            self.spinBox_value.setSuffix(LIGHTSENSOR_UNIT)
+        if device_name == LIGHTBULB_DEVICE_TYPE:
+            if self.isColorControl(item_text):
+                self.spinBox_value.setSuffix(LIGHTBULB_COLOR_TEMP_UNIT)
+                self.spinBox_value.setSingleStep(100)
+        self.spinBox_value.setToolTip(f"Range {min} ~ {max}")
+        self.spinBox_value.show()
+        self.comboBox_value.hide()
 
     ## Change Combo Box Value ##
-    def changecomboBox_value(self, index):
-        index = self.comboBox_cmd.currentIndex()
-        count = self.comboBox_value.count()
-        self.comboBox_value.setToolTip("")
-        msg = self.range.get(index, None)
-        if count <= 1 and msg:
-            self.comboBox_value.setToolTip(msg)
-            self.comboBox_value.setEditable(True)
-            try:
-                int(self.comboBox_value.currentText())
-            except:
-                self.comboBox_value.clear()
-        elif count > 2:
-            self.comboBox_value.setEditable(True)
-            self.comboBox_value.setEditable(False)
-        else:
-            self.comboBox_value.setEditable(False)
+    def changecomboBox_value(self, items):
+        self.comboBox_value.clear()
+        self.comboBox_value.addItems(items)
+        self.comboBox_value.show()
+        self.spinBox_value.hide()
 
     ## Removing Objects ##
     def deleteSelf(self, parent):

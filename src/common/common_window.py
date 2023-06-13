@@ -223,6 +223,7 @@ class CommonWindow(QMainWindow):
     ## Initial value handler ##
     def add_initial_value_handler(self, handler):
         self.initial_value_handler = handler
+
     ## Autotest event handler ##
     def add_autotest_event_handler(self, handler):
         self.autotest_event_handler = handler
