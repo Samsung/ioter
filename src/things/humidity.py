@@ -149,7 +149,7 @@ class HumidWindow(QDialog):
         self.doubleSpinBoxInput.setValue(self.level)
 
     ## Update humidity window UI and device based on level ##
-    def update_humidity_sensor(self, level):
+    def update_humidity_sensor(self, level = 0):
         self.set_humidity_level(level)
         self.update_ui()
         self.set_state()

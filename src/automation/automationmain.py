@@ -50,6 +50,7 @@ from PyQt5 import QtWidgets, uic, QtCore
 class automationWindow(QtWidgets.QMainWindow):
     dialog_closed = QtCore.pyqtSignal(str)
     send_used_list = QtCore.pyqtSignal(dict)
+    STR_TKN = ' : '
 
     ## Set Up Automation window ##
     def __init__(self, parent):
@@ -328,7 +329,13 @@ class automationWindow(QtWidgets.QMainWindow):
                             "devType", self.objs[x].comboBox_devicetype.currentText())
                         c.set(
                             "cmdName", self.objs[x].comboBox_cmd.currentText())
-                        c.set("val", self.objs[x].comboBox_value.currentText())
+                        if self.objs[x].comboBox_value.isVisible():
+                            v = self.objs[x].comboBox_value.currentText()
+                        elif self.objs[x].spinBox_value.isVisible():
+                            v = str(self.objs[x].spinBox_value.value())
+                        else:
+                            print("CMD value error")
+                        c.set("val", v)
                         current.append(c)
             except Exception as e:
                 print(f'save error {e}')
@@ -376,19 +383,22 @@ class automationWindow(QtWidgets.QMainWindow):
                     else:
                         self.addDev(-1)
                         index = len(self.objs) - 1
-                        if self.objs[index].comboBox_devicetype.findText(cmd.attrib['devType']) > -1:
-                            self.objs[index].comboBox_devicetype.setCurrentText(
-                                cmd.attrib['devType'])
+                        dt = cmd.attrib['devType']
+                        if self.objs[index].comboBox_devicetype.findText(dt) > -1:
+                            self.objs[index].comboBox_devicetype.setCurrentText(dt)
                             self.objs[index].comboBox_cmd.setCurrentText(
                                 cmd.attrib['cmdName'])
-                            self.objs[index].comboBox_value.setCurrentText(
-                                cmd.attrib['val'])
+                            if self.objs[index].spinBox_value.isVisible():
+                                self.objs[index].spinBox_value.setValue(int(
+                                    cmd.attrib['val']))
+                            else:
+                                self.objs[index].comboBox_value.setCurrentText(
+                                    cmd.attrib['val'])
                         else:
-                            if cmd.attrib['devType'] not in unavaildevice:
-                                unavaildevice.append(cmd.attrib['devType'])
+                            if dt not in unavaildevice:
+                                unavaildevice.append(dt)
                                 print('---------', unavaildevice)
-                                self.errorbox(
-                                    cmd.attrib['devType']+" is not onboarded!")
+                                self.errorbox(dt + " is not onboarded!")
 
                 self.btn_LoopStartEnd.setChecked(False)
                 self.addLoopStartEnd()
@@ -453,8 +463,7 @@ class automationWindow(QtWidgets.QMainWindow):
                             valid = False
                         elif (LIGHTSENSOR_DEVICE_TYPE in devtype) and ("Level Control lux" in cmdtype):
                             try:
-                                input = int(
-                                    self.objs[x].comboBox_value.currentText())
+                                input = self.objs[x].spinBox_value.value()
                             except ValueError:
                                 self.cmd_contition(x, False)
                                 valid = False
@@ -467,7 +476,7 @@ class automationWindow(QtWidgets.QMainWindow):
                                 else:
                                     measured_value = Utils.findMeasuredValue(input)
                                     convert_illum = Utils.toIlluminance(measured_value)
-                                    self.objs[x].comboBox_value.setCurrentText(str(convert_illum))
+                                    self.objs[x].spinBox_value.setValue(convert_illum)
                                     self.cmd_contition(x, True)
                         else:
                             self.cmd_contition(x, True)
@@ -670,3 +679,4 @@ class automationWindow(QtWidgets.QMainWindow):
     def check_device_number(self, element, used_device_dict):
         device_number = element.get('devType').split("-")[1]
         used_device_dict[device_number] = True
+
