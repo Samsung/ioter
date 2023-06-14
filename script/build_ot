@@ -5,12 +5,11 @@ cd "$(dirname "$0")/.."
 CONFIG_SCRIPT="./script/_config"
 test -r ${CONFIG_SCRIPT} && . ${CONFIG_SCRIPT}
 
-PARAM="$1"
+RELEASE_PARAM="$1"
 DEVICE_TYPE=("fed" "med" "sed")
 OPENTHREAD_DIR=${IOTER_DIR}"/third_party/openthread/ot-samsung"
 OPENTHREAD_LIB_TYPE=("ftd" "mtd" "mtd")
 OPENTHREAD_VER="1.3"
-LOCAL_BUILD="-build"
 
 _install()
 {
@@ -29,7 +28,7 @@ _install()
 install_openthread()
 {
     # for release
-    if [ "-r" = "$PARAM" ]; then
+    if [ "-r" = "${RELEASE_PARAM}" ]; then
         LOCAL_BUILD=""
     fi
 
@@ -39,7 +38,11 @@ install_openthread()
 build_openthread()
 {
     cd "${OPENTHREAD_DIR}"
-    rm -rf build/
+
+    if [ "-r" = "${RELEASE_PARAM}" ]; then
+        rm -rf build/
+    fi
+
     ./script/cmake-build posix -DOT_LIB_SHARED=ON -DOT_PLATFORM_NETIF=ON
     if [ $? -eq 0 ];then
         echo "shared libraries are generated"
