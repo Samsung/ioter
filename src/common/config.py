@@ -47,6 +47,7 @@ class Config:
         cls.thread_debug_level = 4
         cls.default_thread_type = 'fed'
         cls.auto_onboarding_debug_mode = False
+        cls.version = ""
 
     ## Load config ##
     def load(cls):
@@ -57,6 +58,7 @@ class Config:
             cls.thread_debug_level = config_data['thread_debug_level']
             cls.default_thread_type = config_data['default_thread_type']
             cls.auto_onboarding_debug_mode = config_data['auto_onboarding_debug_mode']
+            cls.version = config_data['version']
         except Exception:
             cls.init_config_data()
     ## Save config ##
@@ -65,8 +67,8 @@ class Config:
             'option_menu_shown': cls.option_menu_shown,
             'thread_debug_level': cls.thread_debug_level,
             'default_thread_type': cls.default_thread_type,
-            'auto_onboarding_debug_mode': cls.auto_onboarding_debug_mode
-        }
+            'auto_onboarding_debug_mode': cls.auto_onboarding_debug_mode,
+            'version': cls.version        }
         try:
             with open(Utils.get_config_path(), 'w') as f:
                 json.dump(config_data, f, indent=4)
