@@ -308,9 +308,9 @@ class Utils():
 
     ## Get ioter version ##
     def get_version():
-        ver = "UNKNOWN"
+        ver = None
         try:
-            ver = subprocess.check_output(['git', 'describe', '--tags']).decode()
+            ver = subprocess.check_output(['git', 'describe', '--tags']).decode().rstrip()
         except:
             pass
         return ver

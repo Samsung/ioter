@@ -36,17 +36,21 @@ from common.utils import Utils
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import *
-
+from PyQt5.QtGui import QTextCursor
 from typing import Final
 
 GITHUB_LINK: Final = "<a href=\"https://github.com/Samsung/ioter\">https://github.com/Samsung/ioter</a>"
 
 ## Help Window class ##
 class HelpWindow(QDialog):
-    def __init__(self, parent, title):
+    def __init__(self, parent, title, version):
         super(HelpWindow, self).__init__()
         uic.loadUi(Utils.get_view_path('main_help.ui'), self)
         self.setWindowTitle("About" + " " + title)
-        self.titleLabel.setText("Version" + " " + Utils.get_version())
-        self.githubLabel.setText(GITHUB_LINK)
+        self.titleLabel.setText("Version" + " " + version)
+        self.githubLabel.setText("Home: " + GITHUB_LINK)
         self.githubLabel.setOpenExternalLinks(True)
+        with open(Utils.get_base_path() + 'LICENSE', encoding='utf8') as f:
+            for line in f:
+                self.licenseBrowser.append(line)
+        self.licenseBrowser.moveCursor(QTextCursor.Start)

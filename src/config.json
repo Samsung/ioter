@@ -2,5 +2,6 @@
     "option_menu_shown": false,
     "thread_debug_level": 4,
     "default_thread_type": "fed",
-    "auto_onboarding_debug_mode": false
+    "auto_onboarding_debug_mode": false,
+    "version": "0.2.0"
 }

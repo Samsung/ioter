@@ -53,6 +53,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from packaging import version
 
 sys.path.append('automation')
 
@@ -196,9 +197,31 @@ class MainWindow(QMainWindow,
         self.auto_onboarding = self.create_dialog(self.auto_onboarding, auto_onboardingWindow)
         self.send_msg_about_onboarding.connect(self.auto_onboarding.update_status)
 
+    def compare_version(self):
+        git_ver = Utils.get_version()
+        if not git_ver:
+            return
+        std_ver = git_ver.split('-')[0]
+        saved_std_ver = self.default_config.version.split('-')[0]
+        if version.parse(std_ver) > version.parse(saved_std_ver):
+            self.default_config.version = git_ver
+        elif std_ver == saved_std_ver:
+            x = git_ver.split('-')
+            y = self.default_config.version.split('-')
+            std_ver_len = len(x)
+            saved_std_ver_len = len(y)
+            if std_ver_len > 1 and saved_std_ver_len > 1:
+                ahead = x[1]
+                save_ahead = y[1]
+                if ahead > save_ahead:
+                     self.default_config.version = git_ver
+            elif std_ver_len > 1:
+                self.default_config.version = git_ver
+
     ## Start help ##
     def start_help(self):
-        self.help = HelpWindow(self, IOTER_NAME)
+        self.compare_version()
+        self.help = HelpWindow(self, IOTER_NAME, self.default_config.version)
         self.help.show()
 
     ## Set logo ##
