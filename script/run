@@ -1,5 +1,32 @@
-#!/bin/sh
+#!/bin/bash
 
 cd "$(dirname "$0")/.."
-MAIN_FILE="src/main.py"
-sudo python3 ${MAIN_FILE}
+
+kill_allprocess()
+{
+    PROCESS_NAME=("main.py" "script/start" "chip-all-clusters-app")
+
+    i=0
+    while [ ${i} -le 2 ]; do
+        PID=$(ps -ef | grep -e "${PROCESS_NAME[i]}" | awk '$1 == "root" {print $2}')
+        if [ -n "${PID}" ]; then
+            echo "kill ${PROCESS_NAME[i]} : ${PID}"
+            sudo kill -9 ${PID}
+        fi
+        i=$((${i}+1))
+    done
+}
+
+run_ioter()
+{
+    MAIN_FILE="src/main.py"
+    sudo python3 ${MAIN_FILE}
+}
+
+main()
+{
+    kill_allprocess
+    run_ioter
+}
+
+main
