@@ -6,6 +6,8 @@ export IOTER_LIB_DIR=${IOTER_DIR}"/lib"
 export IOTER_TMP_DIR=${IOTER_DIR}"/tmp"
 export IOTER_RES_DIR=${IOTER_DIR}"/res"
 
+export LOCAL_BUILD="-build"
+
 echo "IOTER_DIR     : ${IOTER_DIR}"
 echo "IOTER_BIN_DIR : ${IOTER_BIN_DIR}"
 echo "IOTER_LIB_DIR : ${IOTER_LIB_DIR}"
