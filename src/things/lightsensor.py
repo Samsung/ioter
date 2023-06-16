@@ -111,10 +111,10 @@ class LightsensorWindow(QDialog):
 
     ## Update light sensor icon image based on level ##
     def set_state(self):
-        if Utils.toIlluminance(self.measured_value) >= 50000:
+        if Utils.toIlluminance(self.measured_value) >= LIGHTSENSOR_BRIGHTNESS_LEVEL[1]:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('lightsensor_high.png'), 70, 70))
-        elif 10000 <= Utils.toIlluminance(self.measured_value) < 50000:
+        elif LIGHTSENSOR_BRIGHTNESS_LEVEL[0] <= Utils.toIlluminance(self.measured_value) < LIGHTSENSOR_BRIGHTNESS_LEVEL[1]:
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('lightsensor_medium.png'), 70, 70))
         else:
