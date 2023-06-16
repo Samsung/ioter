@@ -46,13 +46,13 @@ UNLOCKED = 2
 ## Doorlock device class ##
 class DoorlockWindow(QDialog):
 
-    toogle_text = {
+    toggle_text = {
         True: 'Lock',
         False: 'UnLock',
     }
     toggle_icon = {
-        True: 'doorlock_on.png',
-        False: 'doorlock_off.png',
+        True: 'lock_lock.png',
+        False: 'lock_unlock.png',
     }
 
     ## Initialise doorlock window and device info ##
@@ -75,7 +75,7 @@ class DoorlockWindow(QDialog):
     ## UI setup for doorlock window ##
     def pre_setup_window(self, window_class, window_manager):
         self.common_window = window_class(
-            'doorlock.ui', 'doorlock_on.png', self.device_info, self, window_manager)
+            'doorlock.ui', 'lock_lock.png', self.device_info, self, window_manager)
         self.get_ui_component_from_common_window(self.common_window)
 
     ## Event handlers registration for doorlock window ##
@@ -113,8 +113,8 @@ class DoorlockWindow(QDialog):
     ## Update doorlock window UI based on event ##
     def update_ui(self):
         self.pushButtonStatus.setStyleSheet(
-            Utils.get_ui_style_toggle_btn(not self.state))
-        self.pushButtonStatus.setText(self.toogle_text.get(not self.state))
+            Utils.get_ui_style_toggle_btn(self.state))
+        self.pushButtonStatus.setText(self.toggle_text.get(not self.state))
         self.labelStatePicture.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path(self.toggle_icon.get(self.state)), 70, 70))
 
@@ -122,7 +122,7 @@ class DoorlockWindow(QDialog):
     def send_doorlock_command(self):
         DoorlockCommand.lockUnlock(self.device_info.device_num, self.state)
         self.textBrowserLog.append(
-            f'[Send] {self.toogle_text.get(self.state)}')
+            f'[Send] {self.toggle_text.get(self.state)}')
 
     ## Verify the doorlock state for UI update ##
     def is_need_toggle(self, lock_state):
@@ -137,7 +137,7 @@ class DoorlockWindow(QDialog):
     def update_doorlock(self, lock_state):
         if self.is_need_toggle(lock_state):
             self.textBrowserLog.append(
-                f'[Recv] {self.toogle_text.get(self.state)}')
+                f'[Recv] {self.toggle_text.get(self.state)}')
             self.toggle_update_from_remote = True
             self.pushButtonStatus.toggle()
 
@@ -159,7 +159,7 @@ class DoorlockWindow(QDialog):
 
     ## Get door lock state ##
     def getDoorLockState(self):
-        return self.toogle_text.get(self.pushButtonStatus.isChecked())
+        return self.toggle_text.get(self.pushButtonStatus.isChecked())
 
     ## Read and update the door lock power state based on value ##
     def setPowerOnOff(self, value):
