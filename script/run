@@ -17,6 +17,11 @@ kill_allprocess()
     done
 }
 
+kill_otbr()
+{
+    sudo systemctl stop otbr-agent
+}
+
 run_ioter()
 {
     MAIN_FILE="src/main.py"
@@ -25,6 +30,7 @@ run_ioter()
 
 main()
 {
+    kill_otbr
     kill_allprocess
     run_ioter
 }
