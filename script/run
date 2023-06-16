@@ -19,7 +19,7 @@ kill_allprocess()
 
 kill_otbr()
 {
-    sudo systemctl stop otbr-agent
+    sudo systemctl stop otbr-agent 2>/dev/null
 }
 
 run_ioter()
