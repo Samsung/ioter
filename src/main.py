@@ -330,8 +330,6 @@ class MainWindow(QMainWindow,
 
     ## Create device window ##
     def create_device_window(self, deviceNum, discriminator, threadType, comPort, debugLevel, device_type):
-        print(
-            f"create_device_window - device number : {deviceNum} com port : {comPort}")
         ioterName = None
 
         if comPort in self.dialog:
@@ -430,7 +428,7 @@ class MainWindow(QMainWindow,
         if event.key() == Qt.Key_Escape:
             self.close()
 
-    ## Save position ##
+    ## Save current position ##
     def savePos(self):
         self.cur_pos = self.frameGeometry()
 
@@ -456,9 +454,8 @@ class MainWindow(QMainWindow,
         if self.timer and not self.timer.isActive():
             return
         if self.frameGeometry() == self.cur_pos:
+            # Window stopped to move
             self.timer.stop()
-            print('Window stopped moving', self.frameGeometry())
-
             self.winRemove()
             self.winMove(self.frameGeometry().x(), self.frameGeometry().y())
             self.savePos()
