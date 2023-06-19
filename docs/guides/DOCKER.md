@@ -44,4 +44,4 @@ python3 ioter/src/main.py
 ```
 - HOST_IOTER_PATH: Path of ioter repository on host pc
 - DEVICE_NODE_PATH: Path of device node. For example, most devices starts with 'dev/ttyACM'
-- VERSION: ioter image version such as '0.1.0'. You can find details from https://hub.docker/repository/docker/spdkimo/ioter/
+- VERSION: ioter image version such as '0.1.0'. You can find details from https://hub.docker.com/r/spdkimo/ioter/tags
