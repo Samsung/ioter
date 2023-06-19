@@ -82,7 +82,6 @@ class HumidWindow(QDialog):
     def get_ui_component_from_common_window(self, common_window):
         # device specific ui component
         self.horizontalSliderHumid = common_window.horizontalSliderHumid
-        self.labelSliderPercent = common_window.labelSliderPercent
         self.doubleSpinBoxInput = common_window.doubleSpinBoxInput
         self.textBrowserLog = common_window.textBrowserLog
         self.labelStatePicture = common_window.labelDevicePicture
@@ -90,12 +89,16 @@ class HumidWindow(QDialog):
     ## Initialise UI Input Button ##
     def init_spinbox(self):
         self.doubleSpinBoxInput.installEventFilter(self)
+        self.doubleSpinBoxInput.valueChanged.connect(self.spin_value_changed)
+        self.doubleSpinBoxInput.setSingleStep(1)
+        self.doubleSpinBoxInput.setDecimals(2)
+
 
     ## Initialise UI Slider ##
     def init_slider(self):
         self.horizontalSliderHumid.setRange(HUMIDITY_MIN_VAL, HUMIDITY_MAX_VAL)
-        self.horizontalSliderHumid.setSingleStep(
-            self.common_window.get_slider_single_step(HUMIDITY_MIN_VAL, HUMIDITY_MAX_VAL))
+        self.horizontalSliderHumid.setSingleStep(1000)
+        self.horizontalSliderHumid.setPageStep(1000)
         self.horizontalSliderHumid.setValue(self.level)
         self.horizontalSliderHumid.sliderPressed.connect(
             self.sliderPressed)
@@ -106,6 +109,12 @@ class HumidWindow(QDialog):
         self.horizontalSliderHumid.setStyleSheet(
             Utils.get_ui_style_slider("COMMON"))
 
+    ## Handle spin box
+    def spin_value_changed(self):
+        level = max(min(self.doubleSpinBoxInput.value(), HUMIDITY_MAX_VAL/100),
+                         HUMIDITY_MIN_VAL/100)
+        self.horizontalSliderHumid.setValue(int(level*100))
+        
     ## Handle slider events ##
     def valueChanged(self):
         if self.is_slider_pressed:

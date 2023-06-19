@@ -92,13 +92,14 @@ class LightsensorWindow(QDialog):
     ## Initialise UI input button ##
     def init_spinbox(self):
         self.spinBoxInput.installEventFilter(self)
-
+        self.spinBoxInput.setSingleStep(100)
+        self.spinBoxInput.valueChanged.connect(self.spin_value_changed)
+        self.spinBoxInput.setRange(LIGHTSENSOR_MIN_VAL, LIGHTSENSOR_MAX_VAL)
     ## Initialise UI slider ##
     def init_slider(self):
-        self.horizontalSliderLightsensor.setRange(
-            MEASURED_VALUE_MIN, MEASURED_VALUE_MAX)
-        self.horizontalSliderLightsensor.setSingleStep(
-            self.common_window.get_slider_single_step(MEASURED_VALUE_MIN, MEASURED_VALUE_MAX))
+        self.horizontalSliderLightsensor.setRange(MEASURED_VALUE_MIN, MEASURED_VALUE_MAX)
+        self.horizontalSliderLightsensor.setSingleStep(1000)
+        self.horizontalSliderLightsensor.setPageStep(1000)
         self.horizontalSliderLightsensor.setValue(self.measured_value)
         self.horizontalSliderLightsensor.sliderPressed.connect(
             self.sliderPressed)
@@ -121,7 +122,13 @@ class LightsensorWindow(QDialog):
             self.labelStatePicture.setPixmap(Utils.get_icon_img(
                 Utils.get_icon_path('lightsensor_low.png'), 70, 70))
 
-
+    ## Handle spin box
+    def spin_value_changed(self):
+        measured_value = Utils.findMeasuredValue(self.spinBoxInput.value())
+        illuminance = Utils.toIlluminance(measured_value)
+        self.spinBoxInput.setValue(illuminance)
+        self.horizontalSliderLightsensor.setValue(measured_value)
+        
     ## Handle slider events ##
     def sliderValueChanged(self):
         if self.is_slider_pressed:

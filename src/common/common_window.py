@@ -172,11 +172,13 @@ class CommonWindow(QMainWindow):
         self.spinboxBattery.setValue(self.level)
         self.spinboxBattery.setMinimumSize(QSize(74, 27))
         self.spinboxBattery.setMaximumSize(QSize(74, 27))
+        self.spinboxBattery.valueChanged.connect(
+            self.spin_value_changed)
 
         self.horizontalSliderBattery.setRange(
             int(BATTERY_MIN_VAL), int(BATTERY_MAX_VAL))
         self.horizontalSliderBattery.setSingleStep(
-            self.get_slider_single_step(BATTERY_MIN_VAL, BATTERY_MAX_VAL))
+            self.get_slider_single_step(BATTERY_MIN_VAL, BATTERY_MAX_VAL)*10)
         self.horizontalSliderBattery.setValue(int(self.level))
         self.horizontalSliderBattery.sliderPressed.connect(
             self.sliderPressed)
@@ -198,6 +200,11 @@ class CommonWindow(QMainWindow):
             if self.level != level:
                 self.update_battery_sensor()
 
+    def spin_value_changed(self):
+        level = max(min(self.spinboxBattery.value(), BATTERY_MAX_VAL),
+                         BATTERY_MIN_VAL)
+        self.horizontalSliderBattery.setValue(int(level))
+        
     def sliderPressed(self):
         self.is_slider_pressed = True
 

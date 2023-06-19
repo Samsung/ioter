@@ -99,6 +99,7 @@ class LightWindow(QDialog):
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
         self.init_dim_slider()
+        self.init_spinbox()
         self.update_ui()
 
     ## Get UI component from Common window ##
@@ -111,16 +112,24 @@ class LightWindow(QDialog):
         self.labelStatePicture = common_window.labelDevicePicture
         self.stackedWidget = common_window.stackedWidget
 
+    ## Initialise UI input button ##
+    def init_spinbox(self):
+        self.spinboxDimming.installEventFilter(self)
+        self.spinboxDimming.valueChanged.connect(self.spin_dim_value_changed)
+        self.spinboxDimming.setSingleStep(
+            self.common_window.get_slider_single_step(LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL))
+        self.spinboxDimming.setValue(self.dimming_level)
+        self.spinboxDimming.setRange(LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL)
+        
+        
     ## Initialise UI Slider for dimming functionality##
     def init_dim_slider(self):
         self.horizontalSliderDimming.setRange(
             LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL)
-        self.spinboxDimming.setRange(
-            LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL)
         self.horizontalSliderDimming.setSingleStep(
-            self.common_window.get_slider_single_step(LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL))
-        self.spinboxDimming.setSingleStep(
-            self.common_window.get_slider_single_step(LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL))
+            self.common_window.get_slider_single_step(LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL)*10)
+        self.horizontalSliderDimming.setPageStep(
+            self.common_window.get_slider_single_step(LIGHTBULB_DIM_MIN_VAL, LIGHTBULB_DIM_MAX_VAL)*10)
         self.horizontalSliderDimming.setValue(self.dimming_level)
         self.spinboxDimming.setValue(self.dimming_level)
         self.horizontalSliderDimming.sliderReleased.connect(self.sliderReleased)
@@ -128,8 +137,15 @@ class LightWindow(QDialog):
         self.horizontalSliderDimming.sliderPressed.connect(self.sliderPressed)
         self.horizontalSliderDimming.setStyleSheet(
             Utils.get_ui_style_slider("DIMMING"))
-        self.spinboxDimming.installEventFilter(self)
 
+
+    ## Handle spin box dim
+    def spin_dim_value_changed(self):
+        level = max(min(self.spinboxDimming.value(), LIGHTBULB_DIM_MAX_VAL),
+                         LIGHTBULB_DIM_MIN_VAL)
+        self.horizontalSliderDimming.setValue(int(level))
+        
+        
     ## Handle slider events for dimming ##
     def valueChanged(self):
         if self.is_slider_pressed:

@@ -89,14 +89,16 @@ class TempWindow(QDialog):
     ## Initialise UI input button ##
     def init_spinbox(self):
         self.doubleSpinBoxInput.installEventFilter(self)
+        self.doubleSpinBoxInput.valueChanged.connect(self.spin_value_changed)
+        self.doubleSpinBoxInput.setSingleStep(1)
+        self.doubleSpinBoxInput.setDecimals(2)
 
     ## Initialise UI slider ##
     def init_slider(self):
         self.horizontalSliderTemp.setRange(
             int(TEMPERATURE_MIN_VAL*100), int(TEMPERATURE_MAX_VAL*100))
-        self.doubleSpinBoxInput.setDecimals(2)
-        self.horizontalSliderTemp.setSingleStep(
-            self.common_window.get_slider_single_step(TEMPERATURE_MIN_VAL, TEMPERATURE_MAX_VAL))
+        self.horizontalSliderTemp.setSingleStep(1000)
+        self.horizontalSliderTemp.setPageStep(1000)
         self.horizontalSliderTemp.setValue(int(self.level*100))
         self.horizontalSliderTemp.sliderPressed.connect(
             self.sliderPressed)
@@ -107,6 +109,12 @@ class TempWindow(QDialog):
         self.horizontalSliderTemp.setStyleSheet(
             Utils.get_ui_style_slider("COMMON"))
 
+    ## Handle spin box
+    def spin_value_changed(self):
+        level = max(min(self.doubleSpinBoxInput.value(), TEMPERATURE_MAX_VAL),
+                         TEMPERATURE_MIN_VAL)
+        self.horizontalSliderTemp.setValue(int(level*100))
+        
     ## Handle slider events ##
     def valueChanged(self):
         if self.is_slider_pressed:
