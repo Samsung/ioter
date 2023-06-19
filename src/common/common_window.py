@@ -272,6 +272,10 @@ class CommonWindow(QMainWindow):
         elif step == 80 and self.device_info.get_commissioning_state():
             self.stackedWidget.setCurrentIndex(1)
             self.progressBar.setValue(100)
+        elif step == 200:
+            re = QMessageBox.information(self, "Exit", "The device was removed from App.")
+            if re == QMessageBox.Ok:
+                self.force_closeEvent()
 
     ## Set Power state On/off ##
     @pyqtSlot(bool)
@@ -324,7 +328,7 @@ class CommonWindow(QMainWindow):
                 self.pushButtonDevicePower.toggle()
                 self.occur_abort.emit(self.device_info.com_port)
         else:
-            if self.pipe_event_handler is not None:
+            if self.pipe_event_handler and self.device_info.get_commissioning_state():
                 self.pipe_event_handler(str)
 
     # Handle close event ##
