@@ -419,11 +419,9 @@ class CommonWindow(QMainWindow):
     def winSet(self, w, h):
         x, y = self.window_manager.add(w, h)
         if x is not None:
-            print("MOVE to", x, y)
             self.move(x, y)
         else:
             print("Cannot find a empty space", self.frameGeometry())
-        print('winSet()', self.frameGeometry())
 
     ## Save window postion ##
     def savePos(self):
@@ -450,9 +448,8 @@ class CommonWindow(QMainWindow):
         if self.timer is not None and not self.timer.isActive():
             return
         if self.frameGeometry() == self.cur_pos:
+            # Window stopped to move
             self.timer.stop()
-            print('Window stopped moving', self.frameGeometry())
-
             self.winMove(self.frameGeometry().x(), self.frameGeometry().y())
             self.savePos()
         else:
