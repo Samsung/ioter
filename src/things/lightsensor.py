@@ -158,7 +158,7 @@ class LightsensorWindow(QDialog):
     def send_command(self):
         LightsensorCommand.set_lightsensor(
             self.device_info.device_num, self.measured_value)
-        self.textBrowserLog.append(f'[Send] {self.spinBoxInput.value()}{LIGHTSENSOR_UNIT}')
+        self.get_window().appendTextBrowserLog(f'[Send] {self.spinBoxInput.value()}{LIGHTSENSOR_UNIT}')
 
     ## Update light sensor UI and device based on level ##
     def update_light_sensor(self, measured_value):

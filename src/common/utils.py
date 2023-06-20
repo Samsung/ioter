@@ -32,6 +32,9 @@
 # File : utils.py
 # Description: Utilities APIs
 
+from common.device_command import *
+from common.log import Log
+
 import os
 import sys
 import math
@@ -41,7 +44,6 @@ import subprocess
 from pathlib import Path
 from PyQt5.QtGui import *
 from random import Random
-from common.device_command import *
 
 ## Utility class ##
 class Utils():
@@ -137,7 +139,7 @@ class Utils():
     def isnumeric(s_data):
         arr = s_data.split(".", maxsplit=1)
         for item in arr:
-            print("isnumeric item val : " + item)
+            Log.print("isnumeric item val : " + item)
             if not item.isnumeric():
                 return False
         return True
@@ -158,19 +160,19 @@ class Utils():
     ## Kill the child process ##
     def killChildren(pid):
         if pid == -1:
-            print(
+            Log.print(
                 "Don't need to terminate process tree because current pid is invalid (-1)")
             return
 
-        print("terminateProcessTree : starting pid : " + str(pid))
+        Log.print("terminateProcessTree : starting pid : " + str(pid))
         parent = psutil.Process(pid)
         for child in parent.children(True):
             try:
                 if child.is_running():
-                    # print("try to terminate ", child.pid)
+                    # Log.print("try to terminate ", child.pid)
                     child.terminate()
             except Exception as e:
-                print("exception : ", e)
+                Log.print("exception : ", e)
 
     ## Generate random discriminator ##
     def generate_random_discriminator():
@@ -384,9 +386,9 @@ class Utils():
         command = f"sudo ip -6 route add default dev {interface} metric {priority}"
         try:
             subprocess.run(command, shell=True, check=True)
-            print(f"Route added for {interface} with priority {priority}.")
+            Log.print(f"Route added for {interface} with priority {priority}.")
         except subprocess.CalledProcessError as e:
-            print("Error executing command:", e)
+            Log.print("Error executing command:", e)
 
 
 ## Singleton ##

@@ -40,7 +40,8 @@ from common.manage_device import *
 from common.manage_usb import UsbMonitor
 from common.utils import Utils
 from common.config import Config
-from common.help_window import *
+from common.help_window import HelpWindow
+from common.log import Log
 from automation.automationmain import automationWindow
 from auto_onboarding.autod import *
 from auto_onboarding.auto_onboardingmain import auto_onboardingWindow
@@ -151,13 +152,13 @@ class MainWindow(QMainWindow,
         if self.option_menu_click_count >= 10:
             if self.default_config.option_menu_shown == False:
                 self.menuOption.menuAction().setVisible(True)
-                print("Option menu OPEN in menubar")
+                Log.print("Option menu OPEN in menubar")
                 self.default_config.option_menu_shown = True
                 QMessageBox.about(self,'Option menu','Option menu is now available.')
                 self.option_menu_click_count = 0
             else:
                 self.menuOption.menuAction().setVisible(False)
-                print("Option menu CLOSE in menubar")
+                Log.print("Option menu CLOSE in menubar")
                 self.default_config.option_menu_shown = False
                 QMessageBox.about(self,'Option menu','Option menu is closed.')
                 self.option_menu_click_count = 0
@@ -170,7 +171,7 @@ class MainWindow(QMainWindow,
             self.force_close.connect(obj.force_closeEvent)
             obj.show()
         else:
-            print("Already Opened")
+            Log.print("Already Opened")
         return obj
 
     ## Start Automation ##
@@ -187,13 +188,13 @@ class MainWindow(QMainWindow,
             self.automation.send_used_list.connect(self.autotest_used_list)
             self.removed_usb.connect(self.automation.removed_device)
         else:
-            print('No Devices are Connected/Onboarded')
+            Log.print('No Devices are Connected/Onboarded')
             automationWindow.errorbox('No Devices are Connected/Onboarded')
 
     ## Emit auto onboarding state  ##
     @pyqtSlot(int, str, str)
     def auto_onboarding_state(self, state, comPort, device_num):
-        print(f'state {state} comport {comPort} device_num {device_num}')
+        Log.print(f'state {state} comport {comPort} device_num {device_num}')
         self.send_msg_about_onboarding.emit(state, comPort, device_num)
 
     ## Start auto onboarding ##
@@ -306,7 +307,7 @@ class MainWindow(QMainWindow,
             self, 'Select binary', 'Select the chip-all-clusters-app', items)
 
         if ok:
-            print('ioterName :' + item_data)
+            Log.print('ioterName :' + item_data)
             return item_data
         else:
             return None
@@ -323,7 +324,7 @@ class MainWindow(QMainWindow,
         debugLevel = self.comboBoxDebug.currentText()
         device_type = self.comboBoxDevice.currentText()
 
-        print(f"dev : {self.comboBoxCom.currentText()}")
+        Log.print(f"dev : {self.comboBoxCom.currentText()}")
         if self.create_device_window(deviceNum, discriminator, threadType, comPort, debugLevel, device_type):
             if self.auto_onboarding is not None:
                 self.auto_onboarding.remove_device(comPort)
@@ -333,7 +334,7 @@ class MainWindow(QMainWindow,
         ioterName = None
 
         if comPort in self.dialog:
-            print(comPort + " is already in use")
+            Log.print(comPort + " is already in use")
             return False
 
         if self.actionDeveloper.isChecked() or "build" in threadType:
@@ -347,7 +348,8 @@ class MainWindow(QMainWindow,
             self.use_test_window = False
 
         device_info = DeviceInfo(
-            deviceNum, discriminator, threadType, comPort, debugLevel, ioterName, self.deviceManager, CommandUtil.get_device_id_by_device_type(device_type), self.auto)
+            deviceNum, discriminator, threadType, comPort, debugLevel, ioterName,self.deviceManager,
+                CommandUtil.get_device_id_by_device_type(device_type), self.auto)
         self.dialog[comPort] = get_device_window_by_device_type(
             device_type, device_info, self.use_test_window, self.window_manager)
         if (self.dialog[comPort] is None):
@@ -361,7 +363,7 @@ class MainWindow(QMainWindow,
         self.send_msg_about_onboarding.connect(
             self.dialog[comPort].get_window().auto_onboarding_state)
         if self.deviceManager.set_used_device(comPort, device_info) is None:
-            print("set_used_device is fail")
+            Log.print("set_used_device is fail")
         self.display_comport()
         self.spinBoxDiscriminator.setValue((discriminator+1) & 0xFFF)
         return True
@@ -369,7 +371,7 @@ class MainWindow(QMainWindow,
     ## Handle exit events ##
     @pyqtSlot(str)
     def exit_dialog(self, comPort):
-        print('exit_dialog : ' + comPort)
+        Log.print('exit_dialog : ' + comPort)
         if comPort == "Automation":
             if self.automation:
                 del self.automation
@@ -390,7 +392,7 @@ class MainWindow(QMainWindow,
                 self.auto_onboarding.add_device(
                     comPort, self.deviceManager.get_device_vendor(comPort))
         else:
-            print("set_unused_device is fail")
+            Log.print("set_unused_device is fail")
 
     ## List devices used in autotest ##
     @pyqtSlot(dict)
@@ -404,13 +406,13 @@ class MainWindow(QMainWindow,
     ## Reset USB devices ##
     @pyqtSlot(str)
     def reset_usb(self, comPort):
-        print('reset_usb :' + comPort)
+        Log.print('reset_usb :' + comPort)
         self.deviceManager.reset_device(comPort)
 
     ## Stop auto onboarding ##
     # must not rename closeEvent
     def closeEvent(self, event):
-        # print('closeEvent : ')
+        # Log.print('closeEvent : ')
         re = QMessageBox.question(self, "Exit", "Do you want to exit?",
                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if re == QMessageBox.Yes:
@@ -488,10 +490,11 @@ if __name__ == '__main__':
     # QApplication.setAttribute(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     app = QApplication(sys.argv)
     app.setStyleSheet('''
-    QWidget {
-      font-size: 15px;
-    }
-  ''')
+        QWidget {
+        font-size: 15px;
+        }
+    ''')
+    ioter_log = Log(Utils.get_tmp_path(), IOTER_NAME)
     screen = QDesktopWidget().availableGeometry()
     wm = window_manager.WindowManager(
         screen.x(), screen.y(), screen.width(), screen.height())
@@ -501,4 +504,4 @@ if __name__ == '__main__':
     try:
         sys.exit(app.exec_())
     except SystemExit:
-        print('Closing Window...')
+        Log.print('Closing Window...')

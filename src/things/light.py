@@ -183,12 +183,12 @@ class LightWindow(QDialog):
     def send_command(self, event_type=EVENT_TOGGLE):
         if event_type is EVENT_TOGGLE:
             LightCommand.onOff(self.device_info.device_num, self.state)
-            self.textBrowserLog.append(
+            self.get_window().appendTextBrowserLog(
                 f'[Send] {self.toggle_text.get(self.state)}')
         elif event_type is EVENT_DIMMING or event_type is EVENT_SPINBOX_DIMMING:
             LightCommand.dimming(
                 self.device_info.device_num, self.dimming_level)
-            self.textBrowserLog.append(
+            self.get_window().appendTextBrowserLog(
                 f'[Send] {self.dimming_level}{LIGHTBULB_DIM_UNIT}')
 
     ## Update light bulb UI and device based on state/level ##
@@ -196,19 +196,19 @@ class LightWindow(QDialog):
         # set value
         if event_type is EVENT_TOGGLE:
             if value is not None and bool(value) != self.state:
-                self.textBrowserLog.append(
+                self.get_window().appendTextBrowserLog(
                     f'[Recv] {self.log_text.get(event_type)} {self.toggle_text.get(bool(value))}')
                 self.toggle_update_from_remote = True
                 self.pushButtonStatus.toggle()
         elif event_type is EVENT_DIMMING:
             if value is not None and value != self.dimming_level:
-                self.textBrowserLog.append(
+                self.get_window().appendTextBrowserLog(
                     f'[Recv] {self.log_text.get(event_type)} {round(value/LIGHTBULB_DIM_ST_CONVERT*100)}{LIGHTBULB_DIM_UNIT}')
             self.dimming_level = round(
                 value/LIGHTBULB_DIM_ST_CONVERT*100) if value else self.horizontalSliderDimming.value()
         elif event_type is EVENT_SPINBOX_DIMMING:
             if value is not None and value != self.dimming_level:
-                self.textBrowserLog.append(
+                self.get_window().appendTextBrowserLog(
                     f'[Recv] {self.log_text.get(event_type)} {round(value/LIGHTBULB_DIM_ST_CONVERT*100)}{LIGHTBULB_DIM_UNIT}')
             self.dimming_level = self.spinboxDimming.value()
         else:
@@ -230,7 +230,7 @@ class LightWindow(QDialog):
             elif 'level' in event:
                 event_type = EVENT_DIMMING
         except (IndexError, ValueError):
-            self.textBrowserLog.append(
+            self.get_window().appendTextBrowserLog(
                 'Error: Invalid event format - ' + event)
         if event_type:
             value = event.split(":")[1]

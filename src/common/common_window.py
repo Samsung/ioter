@@ -34,6 +34,7 @@
 
 from common.utils import Utils
 from common.device_command import *
+from common.log import Log
 from common.manage_device import *
 from common.process_controller import *
 from common.ioterPipe import PipeThread
@@ -78,6 +79,7 @@ class CommonWindow(QMainWindow):
 
         self.show()
         self.savePos()
+
     ## Initialize Common Window UX component ##
     def init_ui_component(self, view_name, icon_name, device_info):
         self.ui = uic.loadUi(Utils.get_view_path(view_name), self)
@@ -190,7 +192,7 @@ class CommonWindow(QMainWindow):
             return
         if not self.is_slider_pressed:
             level = self.horizontalSliderBattery.value()
-            # print(f'valueChanged : old ({self.level}), new ({level})')
+            # Log.print(f'valueChanged : old ({self.level}), new ({level})')
             if self.level != level:
                 self.update_battery_sensor()
 
@@ -215,13 +217,17 @@ class CommonWindow(QMainWindow):
         self.horizontalSliderBattery.setValue(int(self.level))
         self.spinboxBattery.setValue(self.level)
 
+    def appendTextBrowserLog(self, msg):
+        self.textBrowserLog.append(msg)
+        Log.print(msg)
+
     def update_battery_sensor(self, level=None, need_command=True):
         self.set_battery_level(level)
         self.update_ui()
         # self.set_state()
         if need_command:
             BatteryCommand.remain(self.device_info.device_num, self.level)
-            self.textBrowserLog.append(
+            self.appendTextBrowserLog(
                 f'[Send] {self.level}{BATTERY_UNIT}')
             
     def eventFilter(self, obj, event):
@@ -256,7 +262,7 @@ class CommonWindow(QMainWindow):
     def update_progress(self, step, msg):
         self.progressBar.setValue(int(step))
         if not self.device_info.get_commissioning_state():
-            self.textBrowserLog.append(msg)
+            self.appendTextBrowserLog(msg)
         if step == 100:  # commissioning complete
             self.stackedWidget.setCurrentIndex(1)
             self.device_info.set_commissioning_state(True)
@@ -287,7 +293,7 @@ class CommonWindow(QMainWindow):
         if state:
             self.stackedWidget.setCurrentIndex(0)
             self.ioter.launch_chip_all_clusters(self.device_info)
-            self.textBrowserLog.append("=== Matter Commissioning ===")
+            self.appendTextBrowserLog("=== Matter Commissioning ===")
 
             self.pipeThread = PipeThread(self.device_info.device_num)
             # custom signal from PipeThread to main thread
@@ -295,8 +301,7 @@ class CommonWindow(QMainWindow):
             self.pipeThread.start()
         else:
             self.pushButtonDevicePower.setEnabled(False)
-            self.textBrowserLog.append("=== Power off takes 10 sec ===")
-            print("=== Power off takes 10 sec ===")
+            self.appendTextBrowserLog("=== Power off takes 10 sec ===")
             QCoreApplication.processEvents()
             if self.device_info.get_commissioning_state():
                 self.ioter.terminate_chip_all_clusters(self.device_info, False)
@@ -324,7 +329,7 @@ class CommonWindow(QMainWindow):
             # logging.info(str)
             isPowerOn = self.pushButtonDevicePower.isChecked()
             if isPowerOn and not self.force_quit:
-                self.textBrowserLog.append(str)
+                self.appendTextBrowserLog(str)
                 self.pushButtonDevicePower.toggle()
                 self.occur_abort.emit(self.device_info.com_port)
         else:
@@ -356,7 +361,7 @@ class CommonWindow(QMainWindow):
     ## Handle force close event ##
     def force_closeEvent(self, device=ForceClose.DEVICES):
         if (device & ForceClose.DEVICES) and not self.force_quit:
-            print('quit deviceNumber: %s port:%s' %
+            Log.print('quit deviceNumber: %s port:%s' %
                 (self.device_info.device_num, self.device_info.com_port))
             self.dialog_closed.emit(self.device_info.com_port)
             self.auto.disconnect_device(self.device_info.device_num)
@@ -378,7 +383,7 @@ class CommonWindow(QMainWindow):
     ## Verify auto onboarding request ##
     def auto_go(self):
         if not self.auto.request_onboarding(self.device_info.com_port, self.device_info.device_num, self.plainTextEditPairingCode.toPlainText(), self.device_info.device_id):
-            self.textBrowserLog.append("Can't work auto-onboarding")
+            self.appendTextBrowserLog("Can't work auto-onboarding")
             self.chkbox_auto.toggle()
             self.pushButtonDevicePower.toggle()
 
@@ -402,7 +407,7 @@ class CommonWindow(QMainWindow):
         if state == STOnboardingResult.ONBOARDING_FAILURE:
             if self.device_info.device_num == device_num:
                 self.device_info.set_commissioning_state(False)
-                self.textBrowserLog.append("=== Onboarding failed ===")
+                self.appendTextBrowserLog("=== Onboarding failed ===")
         elif state == STOnboardingResult.REMOVED_PHONE:
             if self.chkbox_auto.isChecked():
                 self.chkbox_auto.toggle()
@@ -425,7 +430,7 @@ class CommonWindow(QMainWindow):
         if x is not None:
             self.move(x, y)
         else:
-            print("Cannot find a empty space", self.frameGeometry())
+            Log.print("Cannot find a empty space", self.frameGeometry())
 
     ## Save window postion ##
     def savePos(self):

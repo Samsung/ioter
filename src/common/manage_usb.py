@@ -31,7 +31,8 @@
 # Description: Manage usb devices and operations
 # e.g. current usb list, usb detect (add/remove), reset usb device
 
-#!/usr/bin/env python
+from common.log import Log
+
 import os
 import fcntl
 import pyudev
@@ -77,7 +78,7 @@ class UsbManager():
         # for usb_device in self.usb_devices:
         # usb_device.item_display()
         if len(self.usb_devices) == 0:
-            print('No USB Serial devices detected.')
+            Log.print('No USB Serial devices detected.')
 
     ## Check if phone device is connected ##
     def connected_phone_device(self):
@@ -110,7 +111,7 @@ class UsbManager():
                 # usb_device.item_display()
                 if "SAMSUNG" in usb_device.vendor_name:
                     usb_device.set_phone()
-                    print(f'phone is {usb_device.comPort}')
+                    Log.print(f'phone is {usb_device.comPort}')
                 elif path is not None:
                     return usb_device.comPort
         return None
@@ -139,7 +140,7 @@ class UsbManager():
         for usb_device in self.usb_devices:
             if usb_device.vendor_name == new_device.vendor_name:
                 num.remove(usb_device.devnum)
-        # print('set devnum : %d - %s' %(num[0], new_device.comPort))
+        # Log.print('set devnum : %d - %s' %(num[0], new_device.comPort))
         new_device.set_devnum(num[0])
 
     ## Get USB device list ##
@@ -148,10 +149,10 @@ class UsbManager():
 
     ## Reset USB device ##
     def reset_device(self, comPort):
-        print('manage reset usb device :' + comPort)
+        Log.print('manage reset usb device :' + comPort)
         for usb_device in self.usb_devices:
             if usb_device.comPort == comPort:
-                print('find usb device :' + comPort)
+                Log.print('find usb device :' + comPort)
                 usb_device.reset_device()
                 break
 
@@ -195,9 +196,9 @@ class UsbDevice:
         try:
             f = open(self.usbpath, 'w', os.O_WRONLY)
             fcntl.ioctl(f, USBDEVFS_RESET, 0)
-            print('Successfully reset %s : %s' % (self.usbpath, self.comPort))
+            Log.print('Successfully reset %s : %s' % (self.usbpath, self.comPort))
         except Exception as ex:
-            print('Failed to reset device! Error: %s' % ex)
+            Log.print('Failed to reset device! Error: %s' % ex)
 
     ## Set device bumber ##
     def set_devnum(self, devnum):
@@ -209,12 +210,12 @@ class UsbDevice:
 
     ## Display device information ##
     def item_display(self):
-        print('comPort = ' + self.comPort)
-        print('devpath = ' + self.devpath)
-        print('serial = ' + self.serial)
-        print('vendor_name = ' + self.vendor_name)
-        print('usbpath = ' + self.usbpath)
-        print('devnum = ', self.devnum)
+        Log.print('comPort = ' + self.comPort)
+        Log.print('devpath = ' + self.devpath)
+        Log.print('serial = ' + self.serial)
+        Log.print('vendor_name = ' + self.vendor_name)
+        Log.print('usbpath = ' + self.usbpath)
+        Log.print('devnum = ', self.devnum)
 
 # def main():
 #    test = Usb_manager(10)

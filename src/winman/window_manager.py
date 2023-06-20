@@ -34,6 +34,7 @@
 # Handles UI : Window Manager
 
 from winman.guider import Guider
+from common.log import Log
 from common.utils import singleton
 
 DEBUG = False
@@ -96,7 +97,7 @@ class WindowManager():
         p = Position(args[0], args[1], self.screen_width, self.screen_height)
         self.free_rectangles = [p]
         self.used_positions = []
-        print("WindowManager init(): Screen", self.free_rectangles[0])
+        Log.print("WindowManager init(): Screen", self.free_rectangles[0])
 
     ## Get Center Position ##
     def getCenterPosition(self):
@@ -130,7 +131,7 @@ class WindowManager():
     def addWithPosition(self, x, y, width, height):
         p = Position(x, y, width, height)
         if DEBUG is True:
-            print("addWithPosition(): ", p)
+            Log.print("addWithPosition(): ", p)
         self.used_positions.append(p)
         prev_rectangles = []
         subtract_rectangles = []
@@ -154,7 +155,7 @@ class WindowManager():
         # Find a best position to put rectangle
         selected = self.find_position(self.free_rectangles, width, height)
         if DEBUG is True:
-            print("add(): ", selected)
+            Log.print("add(): ", selected)
         # Failed to find (No room for rectagle)
         if selected.x == -1:
             return self.getCenterPosition()
@@ -166,11 +167,11 @@ class WindowManager():
     def remove(self, x, y, width, height):
         p = Position(x, y, width, height)
         if DEBUG is True:
-            print("remove()", p)
+            Log.print("remove()", p)
         for item in self.used_positions:
             if p.x == item.x and p.y == item.y and p.w == item.w and p.h == item.h:
                 if DEBUG is True:
-                    print("removed", item)
+                    Log.print("removed", item)
                 self.used_positions.remove(item)
                 self.free_rectangles.append(item)
                 self.free_rectangles = self.joinRectangles(
@@ -181,20 +182,20 @@ class WindowManager():
 
     ## Print Rectangles ##
     def dumpRectangles(self):
-        print("==DUMP=========")
-        print("Free rectangles")
+        Log.print("==DUMP=========")
+        Log.print("Free rectangles")
         i = 1
         for item in self.free_rectangles:
-            print(i, item)
+            Log.print(i, item)
             i += 1
-        print("===============")
+        Log.print("===============")
 
-        print("Used rectangles")
+        Log.print("Used rectangles")
         i = 1
         for item in self.used_positions:
-            print(i, item)
+            Log.print(i, item)
             i += 1
-        print("==========END==")
+        Log.print("==========END==")
 
     ## Join Two Rectangles ##
     def join(self, r1, r2):

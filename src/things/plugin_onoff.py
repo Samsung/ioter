@@ -120,13 +120,13 @@ class OnoffPlugin(QDialog):
     ## Send command to onoff plugin device ##
     def send_plugin_command(self):
         OnOffPluginCommand.onOff(self.device_info.device_num, self.state)
-        self.textBrowserLog.append(
+        self.get_window().appendTextBrowserLog(
             f'[Send] {self.toggle_text.get(self.state)}')
 
     ## Update onoff plugin UI and device based on state ##
     def update_plugin(self, onoff):
         if onoff != self.state:
-            self.textBrowserLog.append(f'[Recv] {self.toggle_text.get(onoff)}')
+            self.get_window().appendTextBrowserLog(f'[Recv] {self.toggle_text.get(onoff)}')
             self.toggle_update_from_remote = True
             self.pushButtonStatus.toggle()
 
