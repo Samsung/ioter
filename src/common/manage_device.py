@@ -32,8 +32,10 @@
 # File : manage_device.py
 # Description: Manage device properties and informations
 
-from common.manage_usb import UsbManager
 from common.device_command import *
+from common.log import Log
+from common.manage_usb import UsbManager
+
 
 '''
 device number 
@@ -99,7 +101,7 @@ class DeviceManager():
         comPort = self.usb_manager.add_device(path)
         if (comPort is not None) and (comPort not in self.all_device_dict):
             self.all_device_dict[comPort] = -1
-#            print('add device list')
+#            Log.print('add device list')
             return comPort
         return None
 
@@ -109,7 +111,7 @@ class DeviceManager():
         if (comPort is not None) and (comPort in self.all_device_dict):
             self.set_unused_device(comPort)
             del (self.all_device_dict[comPort])
-#            print('remove device list')
+#            Log.print('remove device list')
         return comPort
 
     ## Get device number ##
@@ -129,7 +131,7 @@ class DeviceManager():
 
     ## Reset device ##
     def reset_device(self, comPort):
-        print('manage reset device')
+        Log.print('manage reset device')
         self.usb_manager.reset_device(comPort)
 
 
@@ -168,7 +170,7 @@ class DeviceInfo():
     def set_vid_pid(self, device_id):
         self.vid = self.VID
         self.pid = self.PID.get(device_id, 4105)
-        print(f'vid {self.vid}, pid {self.pid}')
+        Log.print(f'vid {self.vid}, pid {self.pid}')
 
     ## Set commissioning state ##
     def set_commissioning_state(self, state):

@@ -32,7 +32,9 @@
 # File : config.py
 # Description: Initialize, save and load ioter main window configutation
 
+from common.log import Log
 from common.utils import Utils
+
 import json
 
 ## Main Config Class ##
@@ -73,4 +75,4 @@ class Config:
             with open(Utils.get_config_path(), 'w') as f:
                 json.dump(config_data, f, indent=4)
         except Exception:
-            print("failed to save config data")
+            Log.print("failed to save config data")

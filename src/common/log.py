@@ -29,43 +29,26 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #
 ###########################################################################
-# File : ioterPipe.py
-# Description: Manage linux pipes for device commands
+# File : log.py
+# Description: Save logs to file
 
-from common.log import Log
-
-import os.path
-import time
-from PyQt5.QtCore import *
 from datetime import datetime
 
-## Main pipe class ##
-class PipeThread(QThread):
-    msg_changed = pyqtSignal(str)
-    state_updated = pyqtSignal(bool)
-    setup_code = pyqtSignal(str)
-    received_qrcode = pyqtSignal(str)
+class Log():
+    file = None
 
-    ## Initiate Pipe class thread ##
-    def __init__(self, deviceNum):
-        super().__init__()
-        self.deviceNum = deviceNum
+    ## Init class ##
+    def __init__(self, path, name):
+        try:
+            Log.file = open(path+name+"_"+datetime.now().strftime("%y%m%d-%H%M")+".log", "w")
+        except Exception as e:
+            print("exception : ", e)
 
-    ## Create Pipe with device number ##
-    def run(self):
-        FIFO_FILENAME = '/tmp/chip_pipe_device' + self.deviceNum
-        if not os.path.exists(FIFO_FILENAME):
-            os.mkfifo(FIFO_FILENAME)
-        fp_fifo = open(FIFO_FILENAME, "r")
-
-        while True:
-            data = fp_fifo.readline().rstrip('\n')
-            if data:
-                now = datetime.now()
-                Log.print("[%s][%s] %s" % (str(now), self.deviceNum, data))
-                self.msg_changed.emit(data)  # send to main thread
-
-    ## Stopr pipe thread ##
-    def stop(self):
-        self.quit()
-        time.sleep(1)
+    ## Print log to stdout and print to the file as well ##
+    @classmethod
+    def print(cls, *args, **kwargs):
+        print(*args, **kwargs)
+        if cls.file:
+            kwargs["file"] = cls.file
+            print(*args, **kwargs)
+            cls.file.flush()

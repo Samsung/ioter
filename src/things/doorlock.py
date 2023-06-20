@@ -121,7 +121,7 @@ class DoorlockWindow(QDialog):
     ## Send command to doorlock device ##
     def send_doorlock_command(self):
         DoorlockCommand.lockUnlock(self.device_info.device_num, self.state)
-        self.textBrowserLog.append(
+        self.get_window().appendTextBrowserLog(
             f'[Send] {self.toggle_text.get(self.state)}')
 
     ## Verify the doorlock state for UI update ##
@@ -136,7 +136,7 @@ class DoorlockWindow(QDialog):
     ## Update doorlock window UI based on event ##
     def update_doorlock(self, lock_state):
         if self.is_need_toggle(lock_state):
-            self.textBrowserLog.append(
+            self.get_window().appendTextBrowserLog(
                 f'[Recv] {self.toggle_text.get(self.state)}')
             self.toggle_update_from_remote = True
             self.pushButtonStatus.toggle()

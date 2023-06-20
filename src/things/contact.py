@@ -112,7 +112,7 @@ class ContactWindow(QDialog):
     ## Send command to contact sensor device ##
     def send_contact_command(self):
         ContactSensorCommand.closeOpen(self.device_info.device_num, self.state)
-        self.textBrowserLog.append(
+        self.get_window().appendTextBrowserLog(
             f'[Send] {self.toggle_text.get(self.state)}')
 
     ## Autotest event handler ##

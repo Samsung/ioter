@@ -150,7 +150,7 @@ class TempWindow(QDialog):
         self.update_ui()
         self.set_state()
         TempCommand.set_temp(self.device_info.device_num, self.level)
-        self.textBrowserLog.append(
+        self.get_window().appendTextBrowserLog(
             f'[Send] {self.level}{TEMPERATURE_UNIT}')
 
     ## Update thermometer icon image based on level ##

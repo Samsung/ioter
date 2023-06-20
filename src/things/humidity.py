@@ -149,7 +149,7 @@ class HumidWindow(QDialog):
         self.update_ui()
         self.set_state()
         HumidCommand.set_humid(self.device_info.device_num, self.level)
-        self.textBrowserLog.append(
+        self.get_window().appendTextBrowserLog(
             f'[Send] {self.level}{HUMIDITY_UNIT}')
 
     ## Update humidity icon image based on level ##

@@ -30,6 +30,7 @@
 # File : process_controller.py
 # Description: Control chip-all-cluster-app process
 
+from common.log import Log
 from common.utils import Utils
 
 import signal
@@ -50,12 +51,12 @@ class ProcessController():
 
     ## Get PID ##
     def get_pid(self):
-        # print("current pid : " + str(self.pid))
+        # Log.print("current pid : " + str(self.pid))
         return self.pid
 
     ## Set PID ##
     def set_pid(self, pid):
-        print("PID change from " + str(self.pid) + " to " + str(pid))
+        Log.print("PID change from " + str(self.pid) + " to " + str(pid))
         self.pid = pid
 
     ## Launch chip all clusters process ##
@@ -92,21 +93,21 @@ class ProcessController():
 
     ## Terminate process tree ##
     def terminate_process_tree(self):
-        print("terminateProcessTree : starting pid : " + str(self.pid))
+        Log.print("terminateProcessTree : starting pid : " + str(self.pid))
         children = Process(self.pid).children(True)
         children.reverse()
         for child in children:
-            print("get child pid : ", child.pid)
+            Log.print("get child pid : ", child.pid)
             try:
                 if child.is_running():
-                    print("try to terminate : ", child.pid)
+                    Log.print("try to terminate : ", child.pid)
                     child.send_signal(signal.SIGTERM)
                     child.wait(timeout=10)
             except TimeoutExpired as e:
-                print(f"Timeout expired; exiting.", flush=True)
+                Log.print(f"Timeout expired; exiting.", flush=True)
                 child.kill()
             except Exception as e:
-                print("exception : ", e)
+                Log.print("exception : ", e)
         self.subProcess.terminate()
         self.subProcess.poll()
         self.set_pid(-1)

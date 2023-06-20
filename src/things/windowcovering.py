@@ -235,7 +235,7 @@ class WindowcoveringWindow(QDialog):
         # pos = 10000 - (self.targetlevel * 100)
         WindowCoveringCommand.set_target_position(
             self.device_info.device_num, self.targetlevel)
-        self.textBrowserLog.append(
+        self.get_window().appendTextBrowserLog(
             f'[Send target] {self.targetlevel}{WINDOWCOVERING_UNIT}')
 
     ## Send command to window cover device with current value ##
@@ -243,7 +243,7 @@ class WindowcoveringWindow(QDialog):
         # pos = 10000 - (self.currentlevel * 100)
         WindowCoveringCommand.set_current_postion(
             self.device_info.device_num, self.currentlevel)
-        self.textBrowserLog.append(
+        self.get_window().appendTextBrowserLog(
             f'[Send current] {self.currentlevel}{WINDOWCOVERING_UNIT}')
 
     ## Handle opening of the window cover ##
@@ -280,7 +280,7 @@ class WindowcoveringWindow(QDialog):
 
     ## pipeThread event handler ##
     def event_handler(self, event):
-        # self.textBrowserLog.append(event)
+        # self.get_window().appendTextBrowserLog(event)
         if 'go-to-percentage' in event:
             targetlevel = int((10000 - int(event.split(":")[1])) / 100)
             if self.targetlevel != targetlevel:
@@ -288,7 +288,7 @@ class WindowcoveringWindow(QDialog):
                 self.targetlevel = targetlevel
                 self.horizontalSliderWindow.setValue(self.targetlevel)
                 self.spinBoxWindow.setValue(self.targetlevel)
-                self.textBrowserLog.append(
+                self.get_window().appendTextBrowserLog(
                     f'[Recv target] {self.targetlevel}{WINDOWCOVERING_UNIT}')
                 self.timer.stop()
                 self.to_target()

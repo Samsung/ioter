@@ -116,7 +116,7 @@ class OccupancyWindow(QDialog):
     def send_occupancy_command(self):
         OccupancyCommand.occupiedUnoccupied(
             self.device_info.device_num, self.state)
-        self.textBrowserLog.append(
+        self.get_window().appendTextBrowserLog(
             f'[Send] {self.toggle_text.get(self.state)}')
 
     ## Autotest event handler ##
