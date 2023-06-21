@@ -335,7 +335,7 @@ class CommonWindow(QMainWindow):
     # must not rename closeEvent ##
     def closeEvent(self, event):
         if not self.force_quit:
-            re = QMessageBox.question(self, "Exit", "Do you remove this device?",
+            re = QMessageBox.question(self, "Exit", "Do you want to remove this device?",
                                             QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
             if re == QMessageBox.Yes:
                 self.timer = None
