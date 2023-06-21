@@ -155,23 +155,12 @@ class Ui_Device(object):
         else:
             self.changecomboBox_value(data)
 
-    ## Test if the item name is color control ##
-    def isColorControl(self, color_control):
-        cmdlist = self.getCmdList()
-        if color_control == cmdlist[3]["Name"]:
-            return True
-        return False
-
     ## Change Spin Box Value ##
     def changeSpinBox_value(self, item_text, min, max):
         self.spinBox_value.setRange(min, max)
         device_name = self.getDeviceType()[0]
         if device_name == LIGHTSENSOR_DEVICE_TYPE:
             self.spinBox_value.setSuffix(LIGHTSENSOR_UNIT)
-        if device_name == LIGHTBULB_DEVICE_TYPE:
-            if self.isColorControl(item_text):
-                self.spinBox_value.setSuffix(LIGHTBULB_COLOR_TEMP_UNIT)
-                self.spinBox_value.setSingleStep(100)
         self.spinBox_value.setToolTip(f"Range {min} ~ {max}")
         self.spinBox_value.show()
         self.comboBox_value.hide()

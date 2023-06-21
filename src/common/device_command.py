@@ -38,7 +38,7 @@ import os
 # -----------------------------------------------------------------------------------
 # Device Type         | Device ID     | Commands
 # -----------------------------------------------------------------------------------
-# Light Bulb          | 269           | 'on', 'off', 'dimming', 'colortemp'
+# Dimmable Light      | 257           | 'on', 'off', 'dimming'
 # Door Lock           | 10            | 'lock', 'unlock'
 # Contact Sensor      | 21            | 'open', 'close'
 # Temperature         | 770           | 'set_temp'
@@ -49,17 +49,13 @@ import os
 # On Off Plugin       | 266(0x10A)    | 'on', 'off'
 # -----------------------------------------------------------------------------------
 
-LIGHTBULB_DEVICE_TYPE = 'Light Bulb'
-LIGHTBULB_DEVICE_ID = '268'
+LIGHTBULB_DEVICE_TYPE = 'Dimmable Light'
+LIGHTBULB_DEVICE_ID = '257'
 LIGHTBULB_DIM_MIN_VAL = 0
 LIGHTBULB_DIM_MAX_VAL = 100
 LIGHTBULB_DIM_DEFAULT = 100
 LIGHTBULB_DIM_ST_CONVERT = 254
-LIGHTBULB_COLOR_TEMP_MIN_VAL = 1
-LIGHTBULB_COLOR_TEMP_MAX_VAL = 65279
-LIGHTBULB_COLOR_TEMP_DEFAULT = 4000
 LIGHTBULB_DIM_UNIT = '%'
-LIGHTBULB_COLOR_TEMP_UNIT = 'K'
 
 DOORLOCK_DEVICE_TYPE = 'Door Lock'
 DOORLOCK_DEVICE_ID = '10'
@@ -177,14 +173,6 @@ class LightCommand():
 
         light_level_command = "echo '{\"Name\":\"Level\",\"level\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = light_level_command % (value, device_num)
-        os.popen(command)
-
-    ## Set color tempareture ##
-    def colortemp(device_num, level):
-        value = int(round(1000000/int(level), 0))   # 1 < value < 65279
-
-        colortemp_command = "echo '{\"Name\":\"Colortemp\",\"colortemp\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
-        command = colortemp_command % (value, device_num)
         os.popen(command)
 
 ## Door lock commands set operation ##
