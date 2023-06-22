@@ -32,23 +32,33 @@
 # File : log.py
 # Description: Save logs to file
 
-from datetime import datetime
+import io
+
+class LogFile(io.TextIOWrapper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def write(self, *args, **kwargs):
+        print(args[0], end='')
+        super().write(*args, **kwargs)
 
 class Log():
     file = None
 
     ## Init class ##
-    def __init__(self, path, name):
-        try:
-            Log.file = open(path+name+"_"+datetime.now().strftime("%y%m%d-%H%M")+".log", "w")
-        except Exception as e:
-            print("exception : ", e)
+    def __init__(self, f):
+        Log.file = f
 
     ## Print log to stdout and print to the file as well ##
     @classmethod
     def print(cls, *args, **kwargs):
-        print(*args, **kwargs)
         if cls.file:
             kwargs["file"] = cls.file
+            kwargs["flush"] = True
             print(*args, **kwargs)
-            cls.file.flush()
+        else:
+            print(*args, **kwargs)
+
+    def close(self):
+        if Log.file:
+            Log.file.close()

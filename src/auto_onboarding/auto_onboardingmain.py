@@ -37,6 +37,7 @@ from auto_onboarding.auto_devicelayout import auto_device
 from auto_onboarding.autod import *
 from common.device_command import *
 from common.device_window import *
+from common.log import Log
 from common.manage_device import *
 from common.utils import Utils
 
@@ -89,13 +90,13 @@ class report(QDialog):
 
     ## Print results of auto-onboarding ##
     def printResult(self):
-        print(f"Total count   : {self.total_count}")
-        print(f"Success       : {self.success}")
-        print(f"- Onboarding  : {self.success}")
-        print(f"- Removing    : {self.remove}")
-        print(f"Failure       : {self.failure}")
-        print(f"- Onboarding  : {self.onboarding_failure}")
-        print(f"- Removing    : {self.removing_failure}")
+        Log.print(f"Total count   : {self.total_count}")
+        Log.print(f"Success       : {self.success}")
+        Log.print(f"- Onboarding  : {self.success}")
+        Log.print(f"- Removing    : {self.remove}")
+        Log.print(f"Failure       : {self.failure}")
+        Log.print(f"- Onboarding  : {self.onboarding_failure}")
+        Log.print(f"- Removing    : {self.removing_failure}")
         self.lbl_total_count.setText(str(self.total_count))
         self.lbl_success.setText(str(self.success))
         self.lbl_onboarding_success.setText(str(self.success))
@@ -348,7 +349,7 @@ class auto_onboardingWindow(QMainWindow):
             if self.objs[i].chkbox.isChecked():
                 checked = True
                 if self.objs[i].comport in self.parent.dialog:
-                    print(
+                    Log.print(
                         f"{self.objs[i].comport} / Device {self.parent.dialog[self.objs[i].comport].device_info.device_num} is already used")
                     continue
                 self.order.insert(0, self.objs[i].comport)
@@ -364,11 +365,11 @@ class auto_onboardingWindow(QMainWindow):
             except IndexError:
                 err = simpleDlg("No device is selected",
                                 "Check the device for onboarding")
-                print("Error: No device is selected for onboarding.")
+                Log.print("Error: No device is selected for onboarding.")
         else:
             err = simpleDlg("No device is selected",
                             "Check the device for onboarding")
-            print("Error: No device is selected for onboarding.")
+            Log.print("Error: No device is selected for onboarding.")
 
     ## Auto multiple remove ##
     def auto_multi_removing(self):
@@ -379,7 +380,7 @@ class auto_onboardingWindow(QMainWindow):
         for i in range(len(self.objs)):
             if self.objs[i].chkbox.isChecked():
                 if not self.objs[i].comport in self.parent.dialog:
-                    print(f"{self.objs[i].comport} is not onboarded")
+                    Log.print(f"{self.objs[i].comport} is not onboarded")
                     continue
                 checked = True
                 self.order.insert(0, self.objs[i].comport)
@@ -394,11 +395,11 @@ class auto_onboardingWindow(QMainWindow):
             except IndexError:
                 err = simpleDlg("No device is selected",
                                 "Check the device for removing")
-                print("Error: No device is selected for removing.")
+                Log.print("Error: No device is selected for removing.")
         else:
             err = simpleDlg("No device is selected",
                             "Check the device for removing")
-            print("Error: No device is selected for removing..")
+            Log.print("Error: No device is selected for removing..")
 
     ## Single device can use Auto onboarding repeat test ##
     def auto_single_repeat(self):
@@ -419,12 +420,12 @@ class auto_onboardingWindow(QMainWindow):
             comport = self.objs[checkedIndex].comport
             self.status_bar.showMessage(f"{self.current_process+1}th try...")
             self.report.try_count += 1
-            print(f"{self.report.try_count}th try...")
+            Log.print(f"{self.report.try_count}th try...")
             self.device_powerOnOff(comport, POWER_ON)
         else:
             err = simpleDlg(
                 "Wrong input", "Only one device can use Auto onboarding repeat test!!")
-            print("only one device can use Auto onboarding repeat test!!")
+            Log.print("only one device can use Auto onboarding repeat test!!")
             return
 
     ## Progress label update ##
@@ -446,7 +447,7 @@ class auto_onboardingWindow(QMainWindow):
         device_type = self.objs[i].combo_device_type.currentText()
         self.objs[i].device_name = f'{device_type}-{deviceNum}'
 
-        print(f'load_device_window comPort {comPort}')
+        Log.print(f'load_device_window comPort {comPort}')
         if self.parent.create_device_window(deviceNum, discriminator, threadType, comPort, debugLevel, device_type):
             if not self.parent.dialog[comPort].get_window().chkbox_auto.isChecked():
                 self.parent.dialog[comPort].get_window().chkbox_auto.toggle()
@@ -502,7 +503,7 @@ class auto_onboardingWindow(QMainWindow):
             self.report.onboarding_failure += 1
             self.report.failure += 1
             self.report.try_count += 1
-            print(
+            Log.print(
                 f"{self.report.onboarding_failure} onboarding failed.. \n{self.report.try_count}th try...")
             if comport in self.parent.dialog:
                 self.parent.dialog[comport].get_window().force_closeEvent()
@@ -524,7 +525,7 @@ class auto_onboardingWindow(QMainWindow):
                 self.report.printResult()
                 return
             self.report.try_count += 1
-            print(f"{self.report.try_count}th try...")
+            Log.print(f"{self.report.try_count}th try...")
             QTest.qWait(5000)
             self.load_device_window(index)
             # time.sleep(1)
@@ -547,7 +548,7 @@ class auto_onboardingWindow(QMainWindow):
                     return
                 self.report.try_count += 1
                 # removing failed.. but still remain next onboarding test. keep going.
-                print(f"{self.report.try_count}th try...")
+                Log.print(f"{self.report.try_count}th try...")
                 QTest.qWait(5000)
                 self.load_device_window(index)
                 self.device_powerOnOff(comport, POWER_ON)
@@ -597,7 +598,7 @@ class auto_onboardingWindow(QMainWindow):
                     diff -= 1
                     self.axis_y -= 30
             except Exception as e:
-                print(e)
+                Log.print(e)
         self.adjust_geometry()
         self.scrollAreaWidgetContents.setMinimumSize(
             QSize(self.axis_y, self.axis_y))
@@ -612,7 +613,7 @@ class auto_onboardingWindow(QMainWindow):
                     self.objs[x].layoutWidget.move(0, axis_y)
                     axis_y += 30
             except Exception as e:
-                print(x, e)
+                Log.print(x, e)
         self.scrollAreaWidgetContents.setMinimumSize(
             QSize(self.axis_y, self.axis_y))
 
@@ -640,6 +641,6 @@ class auto_onboardingWindow(QMainWindow):
     ## Quit Auto Onboarding ##
     def force_closeEvent(self, device):
         if (device & ForceClose.AUTO_ONBOARDING) and not self.force_quit:
-            print('quit Auto Onboarding')
+            Log.print('quit Auto Onboarding')
             self.force_quit = True
             self.close()

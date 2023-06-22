@@ -41,7 +41,7 @@ from common.manage_usb import UsbMonitor
 from common.utils import Utils
 from common.config import Config
 from common.help_window import HelpWindow
-from common.log import Log
+from common.log import Log, LogFile
 from automation.automationmain import automationWindow
 from auto_onboarding.autod import *
 from auto_onboarding.auto_onboardingmain import auto_onboardingWindow
@@ -50,6 +50,7 @@ from winman import window_manager
 
 import sys
 import os
+from datetime import datetime
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
 from PyQt5.QtCore import *
@@ -484,6 +485,13 @@ class MainWindow(QMainWindow,
         if not os.path.isdir(Utils.get_screenshot_path()):
             os.mkdir(Utils.get_screenshot_path())
 
+## stdout and stderr stream are saved to log file ##
+def init_log():
+    log_file_name = Utils.get_tmp_path()+datetime.now().strftime("%y%m%d-%H%M")+"-"+IOTER_NAME+".log"
+    print("Log file:", log_file_name)
+    lf = LogFile(open(log_file_name, "w").detach())
+    sys.stderr = lf
+    return Log(lf)
 
 if __name__ == '__main__':
     # don't auto scale when drag app to a different monitor.
@@ -494,7 +502,7 @@ if __name__ == '__main__':
         font-size: 15px;
         }
     ''')
-    ioter_log = Log(Utils.get_tmp_path(), IOTER_NAME)
+    ioter_log = init_log()
     screen = QDesktopWidget().availableGeometry()
     wm = window_manager.WindowManager(
         screen.x(), screen.y(), screen.width(), screen.height())
@@ -505,3 +513,4 @@ if __name__ == '__main__':
         sys.exit(app.exec_())
     except SystemExit:
         Log.print('Closing Window...')
+    ioter_log.close()
