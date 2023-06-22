@@ -33,8 +33,9 @@
 # Description:
 # Supports Auto onboarding of devices
 
-from common.utils import Utils
 from common.device_command import CommandUtil
+from common.log import Log
+from common.utils import Utils
 
 import os
 import time
@@ -116,7 +117,7 @@ class autoDevice(QThread):
         self.device_num = None
         self.is_request = dict()
         self.debug = False
-        # print("autoDevice")
+        # Log.print("autoDevice")
 
     ## Run autodevice ##
     def run(self):
@@ -166,7 +167,7 @@ class autoDevice(QThread):
             err = simpleDlg(
                 "Error", "Can't work auto-onboarding because the phone is not connected")
             err.setWindowModality(Qt.NonModal)
-            print("Can't work auto-onboarding because the phone is not connected")
+            Log.print("Can't work auto-onboarding because the phone is not connected")
             return False
 
     ## Check device running state ##
@@ -182,9 +183,9 @@ class autoDevice(QThread):
                 self.vc = ViewClient(self.device, self.serialno)
                 self.device.reconnect = True
             except RuntimeError as e:
-                print("connect connect error", e)
+                Log.print("connect connect error", e)
             else:
-                print("adb is connected")
+                Log.print("adb is connected")
                 result = True
         return result
 
@@ -198,10 +199,10 @@ class autoDevice(QThread):
     ## Request onboarding ##
     def request_onboarding(self, comport, device_num, code, device_id):
         if self.step != AutoDeviceState.IDLE:
-            print(f'working on something else  step : {self.step}')
+            Log.print(f'working on something else  step : {self.step}')
             return False
         if True in self.is_request.values():
-            print(f'working on something else is_request {self.is_request}')
+            Log.print(f'working on something else is_request {self.is_request}')
             return False
         self.is_request[device_num] = True
         self.comport = comport
@@ -219,12 +220,12 @@ class autoDevice(QThread):
         self.device_name = f"{CommandUtil.get_device_type_by_device_id(self.device_id)}-{self.device_num}"
         self.count = 0
         if self.auto_onboarding():
-            print("onboarding success!")
+            Log.print("onboarding success!")
             self.update_onboarding_state.emit(
                 STOnboardingResult.ONBOARDING_SUCCESS, self.comport, self.device_num)
             self.is_request[self.device_num] = False
         else:
-            print("onboarding failed..")
+            Log.print("onboarding failed..")
             self.update_onboarding_state.emit(
                 STOnboardingResult.ONBOARDING_FAILURE, self.comport, self.device_num)
             if self.device_num in self.is_request:
@@ -235,7 +236,7 @@ class autoDevice(QThread):
         start_time = time.time()
         stair = ONBOARDING_ADD_BUTTON
         while self.running:
-            # print(f"auto_onboarding step {self.step} device_num {self.device_num}")
+            # Log.print(f"auto_onboarding step {self.step} device_num {self.device_num}")
             if True not in self.is_request.values():
                 return False
             obj = self.get_obj(str(stair))
@@ -243,7 +244,7 @@ class autoDevice(QThread):
                 if obj.getText() in [self.get_smartthings_view_id(ADD_DEVICE_KOR),
                                      self.get_smartthings_view_id(ADD_DEVICE_ENG)]:
                     if self.debug == True:
-                        print(
+                        Log.print(
                             f"stair::ONBOARDING_ADDITIONAL_ADD_BUTTON, obj={obj}")
                     obj.touch()
                     stair += 1
@@ -251,7 +252,7 @@ class autoDevice(QThread):
                 obj = self.get_obj(str(stair), True)
                 if obj:
                     if self.debug == True:
-                        print(
+                        Log.print(
                             f"stair::ONBOARDING_ADDITIONAL_ADD_BUTTON, obj={obj}")
                     obj.touch()
                     stair += 1
@@ -260,30 +261,30 @@ class autoDevice(QThread):
                         str(ONBOARDING_MANUAL_PAIRING_CODE_BOTTON))
                     if obj:
                         if self.debug == True:
-                            print(
+                            Log.print(
                                 f"stair::ONBOARDING_MANUAL_PAIRING_CODE_BOTTON, obj={obj}")
                         obj.touch()
                         stair += 2
             elif obj and stair == ONBOARDING_MANUAL_PAIRING_CODE_TEXTBOX:
                 if self.debug == True:
-                    print(
+                    Log.print(
                         f"stair::ONBOARDING_MANUAL_PAIRING_CODE_TEXTBOX, obj={obj}")
                 obj.type(self.pairing_code)
                 stair += 1
             elif obj and stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE:
                 if self.debug == True:
-                    print(
+                    Log.print(
                         f"stair::ONBOARDING_MATTER_DEVICE_NAME_CHANGE, obj={obj}")
                 obj.setText(self.device_name)
                 stair += 1
             elif obj and stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE:
                 if self.debug == True:
-                    print(
+                    Log.print(
                         f"stair::ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE, obj={obj}")
                 if self.device.isKeyboardShown():
                     self.device.press("BACK")
                     if self.debug == True:
-                        print(
+                        Log.print(
                             f"stair::ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE, keyboard down")
                     QTest.qWait(2000)
                 obj.touch()
@@ -291,35 +292,35 @@ class autoDevice(QThread):
                 stair += 1
             elif stair == ONBOARDING_DONE_BACK_TO_FIRST_SCREEN:
                 if self.debug == True:
-                    print("stair::ONBOARDING_DONE_BACK_TO_FIRST_SCREEN")
+                    Log.print("stair::ONBOARDING_DONE_BACK_TO_FIRST_SCREEN")
                 obj = self.get_obj("text:" + self.device_name, True)
                 if obj or self.count >= 3:
                     if self.debug == True:
-                        print(f"obj={obj}")
+                        Log.print(f"obj={obj}")
                     self.vc.device.press("BACK")
                     QTest.qWait(3000)
                     if self.debug == True:
-                        print("press BACK")
+                        Log.print("press BACK")
                     return True
                 else:
                     if self.debug == True:
-                        print(
+                        Log.print(
                             f"stair::ONBOARDING_DONE_BACK_TO_FIRST_SCREEN {self.device_name} not found")
                     self.count += 1
             elif obj:
                 if self.debug == True:
-                    print(f"stair::{stair}, obj={obj}")
+                    Log.print(f"stair::{stair}, obj={obj}")
                 obj.touch()
                 QTest.qWait(1000)
                 stair += 1
             elif not obj:
                 if stair == ONBOARDING_MATTER_DEVICE_NAME_CHANGE:
                     if self.debug == True:
-                        print("waiting download plugin in SmartThings...")
+                        Log.print("waiting download plugin in SmartThings...")
                     self.view_dump(5)
                 else:
                     if self.debug == True:
-                        print(f"not found stair::{stair}'s obj")
+                        Log.print(f"not found stair::{stair}'s obj")
                     self.view_dump()
 
             if True not in self.is_request.values():
@@ -330,7 +331,7 @@ class autoDevice(QThread):
                 if err.getText() in [self.get_smartthings_view_id(ERROR_OCCUR_KOR),
                                      self.get_smartthings_view_id(ERROR_OCCUR_ENG)]:
                     if self.debug == True:
-                        print(err)
+                        Log.print(err)
                     self.screenshot()
                     err2 = self.get_obj(
                         str(ONBOARDING_MATTER_DEVICE_NAME_CHANGE_DONE))
@@ -339,13 +340,13 @@ class autoDevice(QThread):
                     QTest.qWait(1000)
                     self.vc.device.press("BACK")
                     if self.debug == True:
-                        print("press BACK")
+                        Log.print("press BACK")
                     return False
 
             # screenshot when too much delay occurred during onboarding and return error
             now_time = time.time()
             if now_time - start_time > ONBOARDING_TIMEOUT:
-                print(
+                Log.print(
                     f"Too much time {ONBOARDING_TIMEOUT}s goes on for onboarding... it is failed!")
                 self.vc.device.press("BACK")
                 while self.running:
@@ -353,14 +354,14 @@ class autoDevice(QThread):
                     if ti:
                         self.screenshot()
                         if self.debug == True:
-                            print(ti)
+                            Log.print(ti)
                         ti.touch()
                         break
                 QTest.qWait(1000)
                 self.vc.device.press("BACK")
                 QTest.qWait(1000)
                 if self.debug == True:
-                    print("press BACK")
+                    Log.print("press BACK")
                 return False
 
     ## Disconnect device ##
@@ -372,10 +373,10 @@ class autoDevice(QThread):
     ## Remove request ##
     def request_remove(self, comport, device_num, device_id):
         if self.step != AutoDeviceState.IDLE:
-            print(f'working on something else  step : {self.is_request}')
+            Log.print(f'working on something else  step : {self.is_request}')
             return
         if True in self.is_request.values():
-            print(f'working on something else is_request : {self.is_request}')
+            Log.print(f'working on something else is_request : {self.is_request}')
             return
         if not device_num in self.is_request:
             return
@@ -389,12 +390,12 @@ class autoDevice(QThread):
     def auto_remove_device(self):
         self.device_name = f"{CommandUtil.get_device_type_by_device_id(self.device_id)}-{self.device_num}"
         if self.remove_device():
-            print("removing success!")
+            Log.print("removing success!")
             self.update_onboarding_state.emit(
                 STOnboardingResult.REMOVING_SUCCESS, self.comport, self.device_num)
             self.vc.sleep(1)
         else:
-            print("removing failed!")
+            Log.print("removing failed!")
             self.update_onboarding_state.emit(
                 STOnboardingResult.REMOVING_FAILURE, self.comport, self.device_num)
             self.vc.sleep(1)
@@ -403,7 +404,7 @@ class autoDevice(QThread):
 
     ## Remove device ##
     def remove_device(self):
-        print(f"{self.device_name} will be removed ...")
+        Log.print(f"{self.device_name} will be removed ...")
         start_time = time.time()
         stair = REMOVE_START
         while self.running:
@@ -411,14 +412,14 @@ class autoDevice(QThread):
                 obj = self.get_obj("text:" + self.device_name, True)
                 if obj:
                     if self.debug == True:
-                        print(obj)
+                        Log.print(obj)
                     (x, y) = obj.getCenter()
                     self.device.drag((x, y), (x, y), 2000, 1)
                     stair = stair + 1
                 else:
-                    print(f"can't find {self.device_name}")
+                    Log.print(f"can't find {self.device_name}")
                     if time.time() - start_time > REMOVING_TIMEOUT:
-                        print(f"can't not find {self.device_name} anymore")
+                        Log.print(f"can't not find {self.device_name} anymore")
                         return False
                     continue
             elif stair >= REMOVE_BUTTON and stair <= REMOVE_DONE:
@@ -430,17 +431,17 @@ class autoDevice(QThread):
                     obj = self.get_obj(str(stair))
                 if obj:
                     if self.debug == True:
-                        print(obj)
+                        Log.print(obj)
                     obj.touch()
                     stair = stair + 1
                 else:
                     if stair == REMOVE_BUTTON:
-                        print(f"can't not find edit button")
+                        Log.print(f"can't not find edit button")
                     elif stair == REMOVE_DONE:
-                        print(f"can't find remove device button")
+                        Log.print(f"can't find remove device button")
                     continue
             else:
-                print("exit removing device")
+                Log.print("exit removing device")
                 return True
 
     ## Take screen shot ##
@@ -451,7 +452,7 @@ class autoDevice(QThread):
         self.view_dump()
         self.device.takeSnapshot(reconnect=True).save(
             f"{screenshot_path}error_{self.device_name}_{time.strftime('%Y_%m_%d-%H_%M_%S')}.png", "PNG")
-        print("error screenshot done")
+        Log.print("error screenshot done")
 
     ## Get object ##
     def get_obj(self, key, request_dump=False):
