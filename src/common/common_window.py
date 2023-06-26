@@ -60,6 +60,7 @@ class CommonWindow(QMainWindow):
         self.force_quit = False
         self.pipeThread = 0
         self.exitMsgBox = None
+        self.exitMsgBox_enable = True
         self.pipe_event_handler = None
         self.initial_value_handler = None
         self.autotest_event_handler = None
@@ -288,7 +289,7 @@ class CommonWindow(QMainWindow):
         elif step == 80 and self.device_info.get_commissioning_state():
             self.stackedWidget.setCurrentIndex(1)
             self.progressBar.setValue(100)
-        elif step == 200 and not self.chkbox_auto.isChecked():
+        elif step == 200 and self.exitMsgBox_enable:
             self.display_exit_msg_box()
             self.force_closeEvent()
 
@@ -393,10 +394,12 @@ class CommonWindow(QMainWindow):
 
     ## Verify auto onboarding request ##
     def auto_go(self):
+        self.exitMsgBox_enable = False
         if not self.auto.request_onboarding(self.device_info.com_port, self.device_info.device_num, self.plainTextEditPairingCode.toPlainText(), self.device_info.device_id):
             self.appendTextBrowserLog("Can't work auto-onboarding")
             self.chkbox_auto.toggle()
             self.pushButtonDevicePower.toggle()
+            self.exitMsgBox_enable = True
 
     ## Check if device is used in Automation ##
     def autotest_used(self, use):
