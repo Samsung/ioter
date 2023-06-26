@@ -58,6 +58,7 @@ class CommonWindow(QMainWindow):
         self.ioter = ProcessController()
         self.force_quit = False
         self.pipeThread = 0
+        self.exitMsgBox = None
         self.pipe_event_handler = None
         self.initial_value_handler = None
         self.autotest_event_handler = None
@@ -252,6 +253,15 @@ class CommonWindow(QMainWindow):
     def get_slider_single_step(self, min, max):
         return int((max - min) / 100)
 
+    def display_exit_msg_box(self):
+        self.exitMsgBox = QMessageBox(self)
+        self.exitMsgBox.setWindowTitle("Exit")
+        self.exitMsgBox.setText("The device was removed from App.")
+        self.exitMsgBox.setIcon(QMessageBox.Information)
+        self.exitMsgBox.setStandardButtons(QMessageBox.Ok)
+        self.exitMsgBox.setWindowModality(Qt.WindowModal)
+        self.exitMsgBox.exec_()
+
     ## Update progress bar ##
     def update_progress(self, step, msg):
         self.progressBar.setValue(int(step))
@@ -272,10 +282,9 @@ class CommonWindow(QMainWindow):
         elif step == 80 and self.device_info.get_commissioning_state():
             self.stackedWidget.setCurrentIndex(1)
             self.progressBar.setValue(100)
-        elif step == 200:
-            re = QMessageBox.information(self, "Exit", "The device was removed from App.")
-            if re == QMessageBox.Ok:
-                self.force_closeEvent()
+        elif step == 200 and not self.chkbox_auto.isChecked():
+            self.display_exit_msg_box()
+            self.force_closeEvent()
 
     ## Set Power state On/off ##
     @pyqtSlot(bool)
@@ -364,6 +373,8 @@ class CommonWindow(QMainWindow):
             if self.pipeThread:
                 self.pipeThread.stop()
             self.force_quit = True
+            if self.exitMsgBox:
+                self.exitMsgBox.done(0)
             self.close()
             self.parent.close()
 
