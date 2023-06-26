@@ -390,6 +390,12 @@ class Utils():
         except subprocess.CalledProcessError as e:
             Log.print("Error executing command:", e)
 
+    ## Check Directory ##
+    def checkDir():
+        if not os.path.isdir(Utils.get_tmp_path()):
+            os.mkdir(Utils.get_tmp_path())
+        if not os.path.isdir(Utils.get_screenshot_path()):
+            os.mkdir(Utils.get_screenshot_path())
 
 ## Singleton ##
 def singleton(cls_):
