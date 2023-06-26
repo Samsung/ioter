@@ -74,7 +74,6 @@ class MainWindow(QMainWindow,
 
         # Pre Main
         Utils.remove_data_files()
-        self.checkDir()
 
         # Start Main
         self.setupUi(self)
@@ -478,12 +477,6 @@ class MainWindow(QMainWindow,
             self.window_manager.showGuide()
             self.window_manager.dumpRectangles()
 
-    ## Check Directory ##
-    def checkDir(self):
-        if not os.path.isdir(Utils.get_tmp_path()):
-            os.mkdir(Utils.get_tmp_path())
-        if not os.path.isdir(Utils.get_screenshot_path()):
-            os.mkdir(Utils.get_screenshot_path())
 
 ## stdout and stderr stream are saved to log file ##
 def init_log():
@@ -502,6 +495,7 @@ if __name__ == '__main__':
         font-size: 15px;
         }
     ''')
+    Utils.checkDir()
     ioter_log = init_log()
     screen = QDesktopWidget().availableGeometry()
     wm = window_manager.WindowManager(
