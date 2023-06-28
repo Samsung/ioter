@@ -85,6 +85,7 @@ class WindowcoveringWindow(QDialog):
         self.init_open_button()
         self.init_close_button()
         self.init_pause_button()
+        self.init_spinbox()
         self.init_slider()
 
         self.timer = QTimer(self)  # Create a timer object
@@ -172,6 +173,15 @@ class WindowcoveringWindow(QDialog):
         elif self.targetlevel < self.currentlevel:
             self.direction = WC_MOVE_DOWN
 
+
+    ## Initialise UI Input Button ##
+    def init_spinbox(self):
+        self.spinBoxWindow.installEventFilter(self)
+        self.spinBoxWindow.valueChanged.connect(self.spin_value_changed)
+        self.spinBoxWindow.setSingleStep(1)
+        self.spinBoxWindow.wheelEvent = lambda event : None
+        
+        
     ## Initialise UI slider ##
     def init_slider(self):
         self.horizontalSliderWindow.setRange(
@@ -191,27 +201,35 @@ class WindowcoveringWindow(QDialog):
             self.value_changed)
         self.horizontalSliderWindow.setStyleSheet(
             Utils.get_ui_style_slider("COMMON"))
-        self.spinBoxWindow.installEventFilter(self)
 
     ## Set the window cover to target value ##
-    def to_target(self):
+    def to_target(self, prev_targetlevel = 0):
         self.horizontalSliderWindow.setValue(self.targetlevel)
         self.spinBoxWindow.setValue(self.targetlevel)
         if self.targetlevel != self.currentlevel:
             self.send_target_value()
             self.set_direction()
-            self.timer.start(50)
+            if abs(self.targetlevel - prev_targetlevel) > 1:
+                self.timer.start(50)
+            else:
+                self.update_current_value()
+
+    ## Handle spin box
+    def spin_value_changed(self):
+        level = self.spinBoxWindow.value()
+        self.horizontalSliderWindow.setValue(int(level))
 
     ## Handle slider events ##
     def value_changed(self):
         if not self.is_slider_pressed:
             self.timer.stop()
             level = self.horizontalSliderWindow.value()
+            prev_targetlevel = self.targetlevel
             if level != self.targetlevel and level != self.currentlevel:
                 self.targetlevel = level
             print(
                 f'value_changed : target ({self.targetlevel}), current ({self.currentlevel})')
-            self.to_target()
+            self.to_target(prev_targetlevel)
 
     ## Set slider state to pressed ##
     def slider_pressed(self):
