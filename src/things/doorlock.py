@@ -136,8 +136,12 @@ class DoorlockWindow(QDialog):
     ## Update doorlock window UI based on event ##
     def update_doorlock(self, lock_state):
         if self.is_need_toggle(lock_state):
+            if lock_state == LOCKED:
+                lock_state = True
+            elif lock_state == UNLOCKED:
+                lock_state = False
             self.get_window().appendTextBrowserLog(
-                f'[Recv] {self.toggle_text.get(self.state)}')
+                f'[Recv] {self.toggle_text.get(lock_state)}')
             self.toggle_update_from_remote = True
             self.pushButtonStatus.toggle()
 
