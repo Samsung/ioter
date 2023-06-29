@@ -475,7 +475,7 @@ class CommonWindow(QMainWindow):
 
     ## Check window postion ##
     def checkPosition(self):
-        if self.timer is not None and not self.timer.isActive():
+        if self.timer is None or not self.timer.isActive():
             return
         if self.frameGeometry() == self.cur_pos:
             # Window stopped to move
