@@ -71,6 +71,7 @@ class report(QDialog):
         uic.loadUi(Utils.get_view_path('reportDialog.ui'), self)
         self.reset()
         self.btn_quit.clicked.connect(self.dlg_quit)
+        self.btn_save_and_quit.setVisible(False)
         self.setWindowTitle("Onboarding Report")
 
     ## Quit report dialog ##
