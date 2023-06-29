@@ -401,12 +401,11 @@ class CommonWindow(QMainWindow):
 
     ## Verify auto onboarding request ##
     def auto_go(self):
-        self.exitMsgBox_enable = False
-        if not self.auto.request_onboarding(self.device_info.com_port, self.device_info.device_num, self.plainTextEditPairingCode.toPlainText(), self.device_info.device_id):
+        if not self.auto.request_onboarding(self.device_info.com_port, self.device_info.device_num,
+                self.plainTextEditPairingCode.toPlainText(), self.device_info.device_id):
             self.appendTextBrowserLog("Can't work auto-onboarding")
             self.chkbox_auto.toggle()
             self.pushButtonDevicePower.toggle()
-            self.exitMsgBox_enable = True
 
     ## Check if device is used in Automation ##
     def autotest_used(self, use):
