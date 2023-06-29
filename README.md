@@ -40,6 +40,8 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
     ![Silabs_thunderBoardSense2](https://github.com/Samsung/ioter/blob/main/res/doc/silabs_thunderBoardSense2.png)
     4. **Silabs efr32-mighty-gecko-zigbee-and-thread-kit** [OT RCP Silabs build&flash guide](https://docs.silabs.com/matter/2.0.0/matter-thread/matter-rcp)   
     ![Silabs_efr32-mighty-gecko-zigbee-and-thread-kit](https://github.com/Samsung/ioter/blob/main/res/doc/efr32-mighty-gecko-starter-kit.png)
+    5. **ESP32-H2-DevkitM-1** [OT RCP ESP build&run guide](https://docs.espressif.com/projects/esp-thread-br/en/latest/esp32/dev-guide/build_and_run.html)   
+    ![ESP_esp32-h2-devkitm-1](https://github.com/Samsung/ioter/blob/main/res/doc/esp32-h2-devkitm-1.png)
 
 - Samsung SmartThings with SmartThings hub or SmartThings Station / Apple Home app with Homepod2 or Homepod mini
 ![sam_app](https://github.com/Samsung/ioter/blob/main/res/doc/sam_app.png)
