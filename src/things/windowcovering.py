@@ -41,7 +41,7 @@ from PyQt5.QtCore import *
 
 WC_MOVE_DOWN = -1
 WC_MOVE_UP = 1
-WC_INIT_LEVEL = 50
+WC_INIT_LEVEL = WINDOWCOVERING_MAX_VAL
 
 ## Window covering device class ##
 class WindowcoveringWindow(QDialog):
@@ -142,7 +142,7 @@ class WindowcoveringWindow(QDialog):
                 self.horizontalSliderWindow.setValue(self.targetlevel)
                 return True
         return super().eventFilter(obj, event)
-            
+
     ## Initialise open button for window covering UI ##
     def init_open_button(self):
         self.openButton.setCheckable(True)
@@ -157,14 +157,12 @@ class WindowcoveringWindow(QDialog):
             Utils.get_ui_style_toggle_btn(True))
         self.closeButton.clicked.connect(self.close_click)
 
-
     ## Initialise pause button for window covering UI ##
     def init_pause_button(self):
         self.pauseButton.setCheckable(True)
         self.pauseButton.setStyleSheet(
             Utils.get_ui_style_toggle_btn(True))
         self.pauseButton.clicked.connect(self.pause_click)
-
 
     ## Set window cover direction based on current level ##
     def set_direction(self):
@@ -173,24 +171,21 @@ class WindowcoveringWindow(QDialog):
         elif self.targetlevel < self.currentlevel:
             self.direction = WC_MOVE_DOWN
 
-
     ## Initialise UI Input Button ##
     def init_spinbox(self):
         self.spinBoxWindow.installEventFilter(self)
         self.spinBoxWindow.valueChanged.connect(self.spin_value_changed)
-        self.spinBoxWindow.setSingleStep(1)
-        self.spinBoxWindow.wheelEvent = lambda event : None
-        
-        
-    ## Initialise UI slider ##
-    def init_slider(self):
-        self.horizontalSliderWindow.setRange(
-            WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL)
         self.spinBoxWindow.setRange(
             WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL)
         self.spinBoxWindow.setSingleStep(
             self.common_window.get_slider_single_step(WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL))
         self.spinBoxWindow.setValue(WC_INIT_LEVEL)
+        self.spinBoxWindow.wheelEvent = lambda event : None
+
+    ## Initialise UI slider ##
+    def init_slider(self):
+        self.horizontalSliderWindow.setRange(
+            WINDOWCOVERING_MIN_VAL, WINDOWCOVERING_MAX_VAL)
         self.horizontalSliderWindow.setSingleStep(1)
         self.horizontalSliderWindow.setValue(WC_INIT_LEVEL)
         self.horizontalSliderWindow.sliderPressed.connect(
@@ -203,33 +198,35 @@ class WindowcoveringWindow(QDialog):
             Utils.get_ui_style_slider("COMMON"))
 
     ## Set the window cover to target value ##
-    def to_target(self, prev_targetlevel = 0):
+    def to_target(self):
         self.horizontalSliderWindow.setValue(self.targetlevel)
         self.spinBoxWindow.setValue(self.targetlevel)
         if self.targetlevel != self.currentlevel:
             self.send_target_value()
             self.set_direction()
-            if abs(self.targetlevel - prev_targetlevel) > 1:
+            if abs(self.targetlevel - self.currentlevel) > 1:
                 self.timer.start(50)
             else:
                 self.update_current_value()
 
     ## Handle spin box
     def spin_value_changed(self):
-        level = self.spinBoxWindow.value()
-        self.horizontalSliderWindow.setValue(int(level))
+        level = max(min(self.spinBoxWindow.value(), WINDOWCOVERING_MAX_VAL),
+                         WINDOWCOVERING_MIN_VAL)
+        if level != self.horizontalSliderWindow.value():
+            self.targetlevel = level
+            self.to_target()
 
     ## Handle slider events ##
     def value_changed(self):
         if not self.is_slider_pressed:
             self.timer.stop()
             level = self.horizontalSliderWindow.value()
-            prev_targetlevel = self.targetlevel
             if level != self.targetlevel and level != self.currentlevel:
                 self.targetlevel = level
             print(
                 f'value_changed : target ({self.targetlevel}), current ({self.currentlevel})')
-            self.to_target(prev_targetlevel)
+            self.to_target()
 
     ## Set slider state to pressed ##
     def slider_pressed(self):
