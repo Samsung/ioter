@@ -222,7 +222,6 @@ class autoDevice(QThread):
         if self.auto_onboarding():
             Log.print("onboarding success!")
             self.update_onboarding_state.emit(
-
                 STOnboardingResult.ONBOARDING_SUCCESS, self.comport, self.device_num)
             self.is_request[self.device_num] = False
         else:
