@@ -382,7 +382,7 @@ class Utils():
     # Add thread interface to routing table
     def add_route_with_device_num(device_num):
         interface = f"wpan{device_num}"
-        priority = 256 - device_num
+        priority = 65534 - device_num
         command = f"sudo ip -6 route add default dev {interface} metric {priority}"
         try:
             subprocess.run(command, shell=True, check=True)
