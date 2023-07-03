@@ -183,7 +183,7 @@ class autoDevice(QThread):
                 self.vc = ViewClient(self.device, self.serialno)
                 self.device.reconnect = True
             except RuntimeError as e:
-                Log.print("connect connect error", e)
+                Log.print("connect error", e)
             else:
                 Log.print("adb is connected")
                 result = True
@@ -222,6 +222,7 @@ class autoDevice(QThread):
         if self.auto_onboarding():
             Log.print("onboarding success!")
             self.update_onboarding_state.emit(
+
                 STOnboardingResult.ONBOARDING_SUCCESS, self.comport, self.device_num)
             self.is_request[self.device_num] = False
         else:
@@ -513,7 +514,8 @@ class autoDevice(QThread):
         self.removed_phone()
         self.running = False
         self.is_request.clear()
-        self.update_onboarding_state.emit(
-            STOnboardingResult.REMOVED_PHONE, self.comport, self.device_num)
+        if self.step == AutoDeviceState.ONBOARDING:
+            self.update_onboarding_state.emit(
+                STOnboardingResult.REMOVED_PHONE, self.comport, self.device_num)
         self.quit()
         self.wait(1000)

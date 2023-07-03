@@ -329,15 +329,15 @@ class auto_onboardingWindow(QMainWindow):
 
     ## Device power on/off ##
     def device_powerOnOff(self, comport, Onoff):
-        if comport not in self.parent.dialog:
+        if comport not in self.parent.dialogs:
             return
         if Onoff:  # power on
-            if not self.parent.dialog[comport].get_window().pushButtonDevicePower.isChecked():
-                self.parent.dialog[comport].get_window(
+            if not self.parent.dialogs[comport].get_window().pushButtonDevicePower.isChecked():
+                self.parent.dialogs[comport].get_window(
                 ).pushButtonDevicePower.toggle()
         else:
-            if self.parent.dialog[comport].get_window().pushButtonDevicePower.isChecked():
-                self.parent.dialog[comport].get_window(
+            if self.parent.dialogs[comport].get_window().pushButtonDevicePower.isChecked():
+                self.parent.dialogs[comport].get_window(
                 ).pushButtonDevicePower.toggle()
 
     ## Auto multiple onboarding ##
@@ -349,9 +349,9 @@ class auto_onboardingWindow(QMainWindow):
         for i in range(len(self.objs)):
             if self.objs[i].chkbox.isChecked():
                 checked = True
-                if self.objs[i].comport in self.parent.dialog:
+                if self.objs[i].comport in self.parent.dialogs:
                     Log.print(
-                        f"{self.objs[i].comport} / Device {self.parent.dialog[self.objs[i].comport].device_info.device_num} is already used")
+                        f"{self.objs[i].comport} / Device {self.parent.dialogs[self.objs[i].comport].device_info.device_num} is already used")
                     continue
                 self.order.insert(0, self.objs[i].comport)
                 self.total_process += 1
@@ -380,7 +380,7 @@ class auto_onboardingWindow(QMainWindow):
         self.init_progress_bar(self.remove_style_sheet, "auto_removing")
         for i in range(len(self.objs)):
             if self.objs[i].chkbox.isChecked():
-                if not self.objs[i].comport in self.parent.dialog:
+                if not self.objs[i].comport in self.parent.dialogs:
                     Log.print(f"{self.objs[i].comport} is not onboarded")
                     continue
                 checked = True
@@ -450,8 +450,8 @@ class auto_onboardingWindow(QMainWindow):
 
         Log.print(f'load_device_window comPort {comPort}')
         if self.parent.create_device_window(deviceNum, discriminator, threadType, comPort, debugLevel, device_type):
-            if not self.parent.dialog[comPort].get_window().chkbox_auto.isChecked():
-                self.parent.dialog[comPort].get_window().chkbox_auto.toggle()
+            if not self.parent.dialogs[comPort].get_window().chkbox_auto.isChecked():
+                self.parent.dialogs[comPort].get_window().chkbox_auto.toggle()
 
     ## multi device onboarding process ##
     def multi_device_process(self, index, value, comport, device_num):
@@ -461,8 +461,8 @@ class auto_onboardingWindow(QMainWindow):
             self.objs[index].status.setText(self.objs[index].device_name)
             self.status_bar.showMessage("Onboarding success " + str(comport))
         elif value == STOnboardingResult.ONBOARDING_FAILURE:  # failed
-            if comport in self.parent.dialog:
-                self.parent.dialog[comport].get_window().force_closeEvent()
+            if comport in self.parent.dialogs:
+                self.parent.dialogs[comport].get_window().force_closeEvent()
             self.objs[index].status.setText("failed")
             self.status_bar.showMessage("Onboarding failed " + str(comport))
         # removing
@@ -479,8 +479,8 @@ class auto_onboardingWindow(QMainWindow):
             self.device_powerOnOff(next, POWER_ON)
             self.status_bar.showMessage("Onboarding... " + str(next))
         elif value >= 2:  # keep proceed multi removing
-            if comport in self.parent.dialog:
-                self.parent.dialog[comport].get_window().force_closeEvent()
+            if comport in self.parent.dialogs:
+                self.parent.dialogs[comport].get_window().force_closeEvent()
             if len(self.order) > 0:
                 next = self.order.pop()
                 self.device_powerOnOff(next, POWER_OFF)
@@ -496,7 +496,7 @@ class auto_onboardingWindow(QMainWindow):
             # time.sleep(3)
             QCoreApplication.processEvents()
             self.device_powerOnOff(comport, POWER_OFF)
-            # self.parent.dialog[comport].get_window().auto_remove()
+            # self.parent.dialogs[comport].get_window().auto_remove()
         elif value == STOnboardingResult.ONBOARDING_FAILURE:  # failed
             self.objs[index].status.setText("failed")
             self.current_process += 1
@@ -506,8 +506,8 @@ class auto_onboardingWindow(QMainWindow):
             self.report.try_count += 1
             Log.print(
                 f"{self.report.onboarding_failure} onboarding failed.. \n{self.report.try_count}th try...")
-            if comport in self.parent.dialog:
-                self.parent.dialog[comport].get_window().force_closeEvent()
+            if comport in self.parent.dialogs:
+                self.parent.dialogs[comport].get_window().force_closeEvent()
             QTest.qWait(5000)
             self.load_device_window(index)
             # time.sleep(1)
@@ -517,8 +517,8 @@ class auto_onboardingWindow(QMainWindow):
         elif value == STOnboardingResult.REMOVING_SUCCESS:  # success
             self.objs[index].status.setText("ready")
             self.status_bar.showMessage(f"{self.current_process+1}th try removing success")
-            if comport in self.parent.dialog:
-                self.parent.dialog[comport].get_window().force_closeEvent()
+            if comport in self.parent.dialogs:
+                self.parent.dialogs[comport].get_window().force_closeEvent()
             self.report.remove += 1
             self.current_process += 1
             # self.report.try_count += 1
@@ -541,9 +541,9 @@ class auto_onboardingWindow(QMainWindow):
                 self.report.retry_remove = 0
                 self.report.removing_failure += 1
                 # self.report.try_count += 1
-                if comport in self.parent.dialog:
-                    self.parent.dialog[comport].get_window().force_closeEvent()
-                # self.parent.dialog[comport].get_window().dialog_closed.emit(self.parent.dialog[comport].get_window().device_info.com_port)
+                if comport in self.parent.dialogs:
+                    self.parent.dialogs[comport].get_window().force_closeEvent()
+                # self.parent.dialogs[comport].get_window().dialog_closed.emit(self.parent.dialogs[comport].get_window().device_info.com_port)
                 if self.report.try_count > self.report.total_count:
                     self.report.printResult()
                     return
@@ -554,8 +554,8 @@ class auto_onboardingWindow(QMainWindow):
                 self.load_device_window(index)
                 self.device_powerOnOff(comport, POWER_ON)
             else:
-                if comport in self.parent.dialog:
-                    self.parent.dialog[comport].get_window().auto_remove()
+                if comport in self.parent.dialogs:
+                    self.parent.dialogs[comport].get_window().auto_remove()
         
         self.status_bar.showMessage(f"{self.current_process+1}th try...")
 
