@@ -65,6 +65,8 @@ class help(QDialog):
 
 ## Auto-Onboarding report class ##
 class report(QDialog):
+    _title = "Onboarding Report"
+
     ## Init report dialog  ##
     def __init__(self):
         super(report, self).__init__()
@@ -72,7 +74,7 @@ class report(QDialog):
         self.reset()
         self.btn_quit.clicked.connect(self.dlg_quit)
         self.btn_save_and_quit.setVisible(False)
-        self.setWindowTitle("Onboarding Report")
+        self.setWindowTitle(self._title)
 
     ## Quit report dialog ##
     def dlg_quit(self):
@@ -90,7 +92,9 @@ class report(QDialog):
         self.retry_remove = 0
 
     ## Print results of auto-onboarding ##
-    def printResult(self):
+    def printResult(self, stop = False):
+        if stop:
+            self.setWindowTitle(self._title + " (forced stop)")
         Log.print(f"Total count   : {self.total_count}")
         Log.print(f"Success       : {self.success}")
         Log.print(f"- Onboarding  : {self.success}")
@@ -178,6 +182,7 @@ class auto_onboardingWindow(QMainWindow):
         self.status_bar = self.statusBar()
         self.status_label = QLabel("Select devices and button", self)
         self.status_bar.addPermanentWidget(self.status_label)
+        self.phone_connected = self.set_phone_connected(Utils.check_connectable())
 
     ## Toggle all check boxes ##
     def toggle_chkbox_all(self):
@@ -474,11 +479,11 @@ class auto_onboardingWindow(QMainWindow):
             self.status_bar.showMessage("Removing failed " + str(comport))
         QCoreApplication.processEvents()
         time.sleep(1)
-        if len(self.order) > 0 and value < 2:  # keep proceed multi onboarding
+        if len(self.order) > 0 and STOnboardingResult.is_onboarding_result(value):  # keep proceed multi onboarding
             next = self.order.pop()
             self.device_powerOnOff(next, POWER_ON)
             self.status_bar.showMessage("Onboarding... " + str(next))
-        elif value >= 2:  # keep proceed multi removing
+        elif STOnboardingResult.is_removing_result(value):  # keep proceed multi removing
             if comport in self.parent.dialogs:
                 self.parent.dialogs[comport].get_window().force_closeEvent()
             if len(self.order) > 0:
@@ -556,6 +561,9 @@ class auto_onboardingWindow(QMainWindow):
             else:
                 if comport in self.parent.dialogs:
                     self.parent.dialogs[comport].get_window().auto_remove()
+        elif value == STOnboardingResult.REMOVED_PHONE:
+            self.report.printResult(True)
+            return
         
         self.status_bar.showMessage(f"{self.current_process+1}th try...")
 
@@ -645,3 +653,8 @@ class auto_onboardingWindow(QMainWindow):
             Log.print('quit Auto Onboarding')
             self.force_quit = True
             self.close()
+
+    def set_phone_connected(self, connected):
+        self.phone_connected = connected
+        msg = str("Phone " +  ("connected" if connected else "disconnected"))
+        self.status_bar.showMessage(msg, 3000)

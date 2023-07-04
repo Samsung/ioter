@@ -81,6 +81,17 @@ class STOnboardingResult():
     REMOVING_SUCCESS = 3
     REMOVED_PHONE = 4
 
+    @classmethod
+    def is_onboarding_result(cls, r):
+        if r == cls.ONBOARDING_FAILURE or r == cls.ONBOARDING_SUCCESS:
+            return True
+        return False
+
+    @classmethod
+    def is_removing_result(cls, r):
+        if r == cls.REMOVING_FAILURE or r == cls.REMOVING_SUCCESS:
+            return True
+        return False
 
 class AutoDeviceState():
     IDLE = 0
@@ -138,30 +149,9 @@ class autoDevice(QThread):
                 self.step = AutoDeviceState.IDLE
             QTest.qWait(1000)
 
-    ## Get number of adb devices ##
-    def get_number_of_adb_devices(self):
-        sh_process = os.popen("adb devices")
-        res = sh_process.read()
-        list = res.split("\n")
-        while "" in list:
-            list.remove("")
-        while "List of devices attached" in list:
-            list.remove("List of devices attached")
-        sh_process.close()
-        return len(list)
-
-    ## Check adb connections ##
-    def check_connectable(self):
-        adb_num = self.get_number_of_adb_devices()
-        if adb_num > 0:
-            os.system("adb root")
-            return True
-        else:
-            return False
-
     ## Check device available for auto-onboarding ##
     def check_auto_available(self):
-        if self.check_connectable():
+        if Utils.check_connectable():
             return True
         else:
             err = simpleDlg(
@@ -225,9 +215,12 @@ class autoDevice(QThread):
                 STOnboardingResult.ONBOARDING_SUCCESS, self.comport, self.device_num)
             self.is_request[self.device_num] = False
         else:
-            Log.print("onboarding failed..")
-            self.update_onboarding_state.emit(
-                STOnboardingResult.ONBOARDING_FAILURE, self.comport, self.device_num)
+            if not self.is_connected():
+                Log.print("onboarding failed due to adb problem")
+            else:
+                Log.print("onboarding failed..")
+                self.update_onboarding_state.emit(
+                    STOnboardingResult.ONBOARDING_FAILURE, self.comport, self.device_num)
             if self.device_num in self.is_request:
                 del self.is_request[self.device_num]
 
@@ -322,7 +315,7 @@ class autoDevice(QThread):
                     if self.debug == True:
                         Log.print(f"not found stair::{stair}'s obj")
                     self.view_dump()
-
+            print(self.is_request.values())
             if True not in self.is_request.values():
                 return False
             # screenshot when error occurs
@@ -510,11 +503,11 @@ class autoDevice(QThread):
 
     ## Stop Onboarding ##
     def stop(self):
+        if not self.running:
+            return
         self.removed_phone()
         self.running = False
-        self.is_request.clear()
-        if self.step == AutoDeviceState.ONBOARDING:
-            self.update_onboarding_state.emit(
-                STOnboardingResult.REMOVED_PHONE, self.comport, self.device_num)
+        self.update_onboarding_state.emit(
+            STOnboardingResult.REMOVED_PHONE, self.comport, self.device_num)
         self.quit()
         self.wait(1000)
