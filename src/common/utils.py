@@ -397,6 +397,27 @@ class Utils():
         if not os.path.isdir(Utils.get_screenshot_path()):
             os.mkdir(Utils.get_screenshot_path())
 
+    ## Get number of adb devices ##
+    def get_number_of_adb_devices():
+        sh_process = os.popen("adb devices")
+        res = sh_process.read()
+        list = res.split("\n")
+        while "" in list:
+            list.remove("")
+        while "List of devices attached" in list:
+            list.remove("List of devices attached")
+        sh_process.close()
+        return len(list)
+
+    ## Check adb connections ##
+    def check_connectable():
+        adb_num = Utils.get_number_of_adb_devices()
+        if adb_num > 0:
+            os.system("adb root")
+            return True
+        else:
+            return False
+
 ## Singleton ##
 def singleton(cls_):
     class class_w(cls_):

@@ -257,6 +257,8 @@ class MainWindow(QMainWindow,
                 self.auto_onboarding.add_device(
                     comPort, self.deviceManager.get_device_vendor(comPort))
             if self.deviceManager.usb_manager.connected_phone_device():
+                if self.auto_onboarding:
+                    self.auto_onboarding.set_phone_connected(True)
                 if not self.auto_onboarding_thread.is_running():
                     self.auto_onboarding_thread.start()
         elif action == 'remove':
@@ -270,6 +272,8 @@ class MainWindow(QMainWindow,
             if self.auto_onboarding:
                 self.auto_onboarding.remove_device(comPort)
             if not self.deviceManager.usb_manager.connected_phone_device():
+                if self.auto_onboarding:
+                    self.auto_onboarding.set_phone_connected(False)
                 if self.auto_onboarding_thread.is_running():
                     self.auto_onboarding_thread.stop()
         comport_list = self.deviceManager.get_unused_devices()
