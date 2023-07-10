@@ -315,7 +315,6 @@ class autoDevice(QThread):
                     if self.debug == True:
                         Log.print(f"not found stair::{stair}'s obj")
                     self.view_dump()
-            print(self.is_request.values())
             if True not in self.is_request.values():
                 return False
             # screenshot when error occurs
