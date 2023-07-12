@@ -43,7 +43,7 @@ class ProcessController():
     "--device-id %s --discriminator %s --thread "\
     "--thread-version %s --com-port %s "\
     "--thread-debug %s --device-num %s "\
-    "--vendor-id %s --product-id %s "
+    "--vendor-id %s --product-id %s --ble-device %s"
 
     ## Init class ##
     def __init__(self):
@@ -65,7 +65,7 @@ class ProcessController():
             device_info.device_id, device_info.discriminator,
             device_info.thread_type, device_info.com_port,
             device_info.debug_level, device_info.device_num,
-            device_info.vid, device_info.pid)
+            device_info.vid, device_info.pid, device_info.device_num)
 
         if device_info.get_ioter_name() is not None:
             device_type = device_info.get_ioter_name()

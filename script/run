@@ -2,6 +2,12 @@
 
 cd "$(dirname "$0")/.."
 
+bluetooth_restart() {
+    echo "bluetooth restart"
+    sudo service bluetooth restart
+    sleep 1
+}
+
 kill_allprocess()
 {
     PROCESS_NAME=("main.py" "script/start" "chip-all-clusters-app")
@@ -30,6 +36,7 @@ run_ioter()
 
 main()
 {
+    bluetooth_restart
     kill_otbr
     kill_allprocess
     run_ioter
