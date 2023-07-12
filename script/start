@@ -15,12 +15,6 @@ DEVICE_ID_STR="${DEVICE_ID_STR:-"lightbulb"}"
 
 ##############################################################################################
 
-bluetooth_restart() {
-    echo "bluetooth restart"
-    sudo service bluetooth restart
-    sleep 1
-}
-
 get_param() {
 #    IFS=' ' read -r -a params <<< "${RUN_PARAM}"
     params=(${RUN_PARAM// / })
@@ -76,7 +70,6 @@ ioter_restart() {
 }
 
 main() {
-    bluetooth_restart
     ioter_restart
 }
 
