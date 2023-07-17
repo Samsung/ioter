@@ -98,6 +98,7 @@ class ProcessCmd(QThread):
         super().__init__()
         print('ProcessCmd init')
         self.parent = parent
+        self.commandList = parent.loadCommandList()
         self.scriptFilePath = aFilePath
 
         self.exec_stop = False
@@ -164,7 +165,7 @@ class ProcessCmd(QThread):
                             self.setSleep(sleepInterval)
                         else:
                             print(child.tag, child.attrib)
-                            ExecuteCmd(self.parent.commandList, child.get('devType'), child.get(
+                            ExecuteCmd(self.commandList, child.get('devType'), child.get(
                                 'cmdName'), child.get('val')).execCmd()
                             self.setSleep(1)
                     print('Current Loop Count->', curCnt)
@@ -175,7 +176,7 @@ class ProcessCmd(QThread):
                 self.send_highlight(uiIdx)
                 uiIdx += 1
             else:
-                ExecuteCmd(self.parent.commandList, element.get('devType'), element.get(
+                ExecuteCmd(self.commandList, element.get('devType'), element.get(
                     'cmdName'), element.get('val')).execCmd()
                 self.send_highlight(uiIdx)
                 uiIdx += 1

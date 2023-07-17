@@ -69,7 +69,6 @@ class automationWindow(QtWidgets.QMainWindow):
         self.force_quit = False
         self.currentOpenFile = None
         self.devMgrObj = parent.deviceManager
-        self.commandList = dict()
         uic.loadUi(Utils.get_view_path('automationwindow.ui'), self)
         self.resize(600, 700)
         self.setWindowTitle('Automation')
@@ -104,13 +103,14 @@ class automationWindow(QtWidgets.QMainWindow):
         self.actionExit.triggered.connect(self.close)
         self.testprogressBar.setMinimum(0)
         self.show()
-        self.loadCommandList()
 
     ## Load Commands ##
     def loadCommandList(self):
+        cmdLst = dict()
         for device in self.devMgrObj.get_used_devices():
             if device.get_commissioning_state():
-                self.commandList[device.device_num] = self.parent.dialog[device.com_port]._return_command()
+                cmdLst[device.device_num] = self.parent.dialog[device.com_port]._return_command()
+        return cmdLst
 
     ## Handle scroll bar to bootom##
     def scrollToBottom(self, minVal=None, maxVal=None):
