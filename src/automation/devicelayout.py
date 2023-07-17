@@ -60,7 +60,7 @@ class Ui_Device(object):
             "background-color: rgb(255, 163, 72);")
         self.comboBox_devicetype.setObjectName("devicetype")
         self.comboBox_devicetype.addItem("Device Type")
-        self.commandList = parent.commandList
+        self.commandList = parent.loadCommandList()
         self.comboBox_devicetype.currentIndexChanged.connect(
             self.changecomboBox_devicetype)
         self.horizontalLayout.addWidget(self.comboBox_devicetype)
