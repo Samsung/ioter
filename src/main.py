@@ -136,12 +136,7 @@ class MainWindow(QMainWindow,
         self.default_thread_type = conf.default_thread_type if conf.default_thread_type in ['fed','med','sed'] else 'fed'
         self.default_set_thread_type(self.comboBoxThread)
         self.multi_bt_mode = conf.multi_bt_mode if conf.multi_bt_mode else False
-        if self.multi_bt_mode:
-            if not self.actionMulti_BT_mode.isChecked():
-                self.actionMulti_BT_mode.toggle()
-        else:
-            if self.actionMulti_BT_mode.isChecked():
-                self.actionMulti_BT_mode.toggle()
+        self.actionMulti_BT_mode.setChecked(self.multi_bt_mode)
 
     ## Set default thread debug level ##
     def default_set_thread_debug_level(self, comboBoxObj):
