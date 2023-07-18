@@ -1,4 +1,9 @@
-[!ioter-banner](/res/doc/ioter-banner.png)
+<img
+ src={require('./res/doc/ioter-banner.png').default}
+ alt="ioter banner" class="centered"
+ style="width: 80%; height: auto; display: block;
+ margin-left: auto; margin-right: auto;"
+/>
 
 ## Get started with ioter
 
@@ -87,7 +92,7 @@ Use Automations to validate the connectivity and stability of various IoT device
 
 Automation scrips are saved in XML format and can be loaded on demand. Once executed, the progress bar shows the current completion percentage.
 
-[!reference](/res/doc/references.png)
+[!reference](/res/doc/reference.png)
 
 1. Starts/ends the loop.
 2. Add a command for the the onboarded device.
