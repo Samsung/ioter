@@ -50,6 +50,7 @@ class Config:
         cls.default_thread_type = 'fed'
         cls.auto_onboarding_debug_mode = False
         cls.version = ""
+        cls.multi_bt_mode = False
 
     ## Load config ##
     def load(cls):
@@ -61,6 +62,8 @@ class Config:
             cls.default_thread_type = config_data['default_thread_type']
             cls.auto_onboarding_debug_mode = config_data['auto_onboarding_debug_mode']
             cls.version = config_data['version']
+            cls.multi_bt_mode = config_data['multi_bt_mode']
+
         except Exception:
             cls.init_config_data()
     ## Save config ##
@@ -70,7 +73,8 @@ class Config:
             'thread_debug_level': cls.thread_debug_level,
             'default_thread_type': cls.default_thread_type,
             'auto_onboarding_debug_mode': cls.auto_onboarding_debug_mode,
-            'version': cls.version        }
+            'version': cls.version,
+            'multi_bt_mode': cls.multi_bt_mode        }
         try:
             with open(Utils.get_config_path(), 'w') as f:
                 json.dump(config_data, f, indent=4)

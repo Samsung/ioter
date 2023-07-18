@@ -32,6 +32,7 @@
 
 from common.log import Log
 from common.utils import Utils
+from common.config import Config
 
 import signal
 from psutil import *
@@ -40,6 +41,12 @@ from subprocess import *
 ## Process controller class ##
 class ProcessController():
     RUN_PARAM_CHIP_ALL_CLUSTERS_FORMAT = \
+    "--device-id %s --discriminator %s --thread "\
+    "--thread-version %s --com-port %s "\
+    "--thread-debug %s --device-num %s "\
+    "--vendor-id %s --product-id %s"
+
+    RUN_PARAM_CHIP_ALL_CLUSTERS_FORMAT_WITH_MULTI_BLE = \
     "--device-id %s --discriminator %s --thread "\
     "--thread-version %s --com-port %s "\
     "--thread-debug %s --device-num %s "\
@@ -61,11 +68,19 @@ class ProcessController():
 
     ## Launch chip all clusters process ##
     def launch_chip_all_clusters(self, device_info):
-        run_param = ProcessController.RUN_PARAM_CHIP_ALL_CLUSTERS_FORMAT % (
-            device_info.device_id, device_info.discriminator,
-            device_info.thread_type, device_info.com_port,
-            device_info.debug_level, device_info.device_num,
-            device_info.vid, device_info.pid, device_info.device_num)
+        mConfig = Config()
+        if not mConfig.multi_bt_mode:
+            run_param = ProcessController.RUN_PARAM_CHIP_ALL_CLUSTERS_FORMAT % (
+                device_info.device_id, device_info.discriminator,
+                device_info.thread_type, device_info.com_port,
+                device_info.debug_level, device_info.device_num,
+                device_info.vid, device_info.pid)
+        else:
+            run_param = ProcessController.RUN_PARAM_CHIP_ALL_CLUSTERS_FORMAT_WITH_MULTI_BLE % (
+                device_info.device_id, device_info.discriminator,
+                device_info.thread_type, device_info.com_port,
+                device_info.debug_level, device_info.device_num,
+                device_info.vid, device_info.pid, device_info.device_num)
 
         if device_info.get_ioter_name() is not None:
             device_type = device_info.get_ioter_name()
