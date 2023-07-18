@@ -93,6 +93,7 @@ class MainWindow(QMainWindow,
             self.start_auto_onboarding)
         self.actionAuto_onboarding.setShortcut("Ctrl+Z")
         self.actionAbout.triggered.connect(self.start_help)
+        self.actionMulti_BT_mode.triggered.connect(self.check_multi_bt_mode)
         self.deviceManager = DeviceManager()
         self.display_comport()
         self.display_threadType()
@@ -134,6 +135,13 @@ class MainWindow(QMainWindow,
         self.default_set_thread_debug_level(self.comboBoxDebug)
         self.default_thread_type = conf.default_thread_type if conf.default_thread_type in ['fed','med','sed'] else 'fed'
         self.default_set_thread_type(self.comboBoxThread)
+        self.multi_bt_mode = conf.multi_bt_mode if conf.multi_bt_mode else False
+        if self.multi_bt_mode:
+            if not self.actionMulti_BT_mode.isChecked():
+                self.actionMulti_BT_mode.toggle()
+        else:
+            if self.actionMulti_BT_mode.isChecked():
+                self.actionMulti_BT_mode.toggle()
 
     ## Set default thread debug level ##
     def default_set_thread_debug_level(self, comboBoxObj):
@@ -235,6 +243,14 @@ class MainWindow(QMainWindow,
             Utils.get_icon_path('ioter_logo.png'), 100, 15))
         self.labelDeviceIcon.setPixmap(Utils.get_icon_img(
             Utils.get_icon_path('devices.png'), 50, 50))
+
+    ## Check multi bt mode ##
+    def check_multi_bt_mode(self):
+        if self.actionMulti_BT_mode.isChecked():
+            self.default_config.multi_bt_mode = True
+        else:
+            self.default_config.multi_bt_mode = False
+        self.default_config.save()
 
     ## Check start button ##
     def check_start_button(self):
