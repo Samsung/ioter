@@ -1,4 +1,4 @@
-[!ioter-banner](res/doc/ioter-banner.png)
+[!ioter-banner](/res/doc/ioter-banner.png)
 
 ## Get started with ioter
 
@@ -14,7 +14,7 @@ Benefits include:
 
 ioter emulates all Matter supported devices with a Linux PC and Thread RCP dongle. ioter runs the `All Cluster App` of Matter on a Linux PC to emulate multiple instances of various Matter supported IoT nodes. Each of these IoT nodes uses the underlying Thread RCP-based USB dongle (radio) for data transmission. By using the [SmartThings Station](https://www.smartthings.com/smartthings-station) as a border router and the SmartThings Application along with emulated IoT nodes, we can configure a smart home. This concept is demonstrated in the diagram below:
 
-![ioter_overview](res/doc/ioter_overview.png)
+![ioter_overview](/res/doc/ioter_overview.png)
 
 ### Supported IoT devices (2023-04-27)
 
@@ -87,7 +87,7 @@ Use Automations to validate the connectivity and stability of various IoT device
 
 Automation scrips are saved in XML format and can be loaded on demand. Once executed, the progress bar shows the current completion percentage.
 
-[!references](res/doc/references.png)
+[!reference](/res/doc/references.png)
 
 1. Starts/ends the loop.
 2. Add a command for the the onboarded device.
