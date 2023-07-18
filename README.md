@@ -1,20 +1,24 @@
-# Ioter
-## What is Ioter
-Ioter is a tool that allows you to emulate all Matter supported IoT devices with Linux PC and Thread RCP dongle. This tool runs All-cluster-app of Matter on Linux PC to emulate multiple instances of Matter supported various IoT nodes. Each of these IoT nodes uses underlying Thread RCP based USB Dongle(Radio) for data transmission. By using Samsungs SmartThings Station(that acts as Border Router) and SmartThings Application along with emulated IoT nodes, we can configure a Smart Home.
+[!ioter-banner](res/doc/ioter-banner.png)
 
-Ioter acts as Mate/Helper to developers, testers and device manufacturers involved in smart home devices that are compliant with Matter and Thread specifications and it is very beneficial in terms of its below offerings: 
+## Get started with ioter
 
-- **Flexibility:** Multiple types of IoT devices can be implemented using single RCP Dongle.
-- **Multiple devices:** Devices can be implemented as many as the number of RCP dongles(up to 10).
-- **Low Cost:** Do not need to pay for testing various IoT device types.
-- **Time-Saving:** Time involved in searching and procuring various IoT device types is saved.
-- **Easy to use:** Intuitive UI supports in controlling the status of various device types from the program window.
-- **Automation:** Repeated testing through scripts can validate device stability and connection.
+Ioter acts as a device emulator for developers, testers, and manufacturers of connected devices that are compliant with Matter and Thread.
 
-## Overview
-![ioter_overview](https://github.com/Samsung/ioter/blob/main/res/doc/ioter_overview.png)
+Benefits include:
+- Flexibility: Multiple types of IoT devices can be implemented using a single RCP dongle.
+- Multi-Device support: Each RCP dongle supports a single device. ioter supports up to 10 RCP dongles at a time.
+- Low cost: Limited expenses for testing various IoT device types.
+- Time savings: Virtual devices on demand - no need to search for and procure multiple IoT device types.
+- Easy to use: Quickly control the status of devices from within ioter.
+- Automated testing: Repeated testing through scripts can validate device stability and connection.
 
-## Supporting Things (2023-04-27)
+ioter emulates all Matter supported devices with a Linux PC and Thread RCP dongle. ioter runs the `All Cluster App` of Matter on a Linux PC to emulate multiple instances of various Matter supported IoT nodes. Each of these IoT nodes uses the underlying Thread RCP-based USB dongle (radio) for data transmission. By using the [SmartThings Station](https://www.smartthings.com/smartthings-station) as a border router and the SmartThings Application along with emulated IoT nodes, we can configure a smart home. This concept is demonstrated in the diagram below:
+
+![ioter_overview](res/doc/ioter_overview.png)
+
+### Supported IoT devices (2023-04-27)
+
+ioter supports a wide range of IoT devices including:
 
 - Light Bulb
 - Door Lock
@@ -25,13 +29,13 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
 - Window Covering
 - Occupancy Sensor
 - OnOff Plugin
-![Supporting Things (2023-04-27).png](https://github.com/Samsung/ioter/blob/main/res/doc/Supporting%20Things%20(2023-04-27).png)
 
-## Prepare tools
-- Bluetooth enabled desktop or laptop
-- Ubuntu 22.04 (Previous version has Bluetooth version problem)
-- USB hub with power input (USB3.0 recommended)
-- Thread RCP usb dongle. We verified with this:
+### Required tools
+- Bluetooth-enabled Windows desktop or laptop.
+- Ubuntu 22.04 (prior versions have Bluetooth conflicts). *All installation instructions have been validated on Ubunti 22.04 LTS.*
+- USB hub with power input (USB 3.0 recommended).
+- An onboarded SmartThings hub or SmartThings Station. An Apple HomePod (second gen) or HomePod Mini may also be used.
+- A Thread RCP USB dongle. Below you can find a list of compatible dongles and setup guides for each dongle:
     1. **Nordic nrf52840** [OT RCP dongle guide](./docs/guides/README.md)   
     ![nordic_nrf52840_dongle](https://github.com/Samsung/ioter/blob/main/res/doc/nordic_nrf52840_dongle.png)
     2. **Nordic nrf52840-DK board** [OT RCP board guide](https://openthread.io/codelabs/openthread-hardware#3)   
@@ -43,41 +47,70 @@ Ioter acts as Mate/Helper to developers, testers and device manufacturers involv
     5. **ESP32-H2-DevkitM-1** [OT RCP ESP build&run guide](https://docs.espressif.com/projects/esp-thread-br/en/latest/esp32/dev-guide/build_and_run.html)   
     ![ESP_esp32-h2-devkitm-1](https://github.com/Samsung/ioter/blob/main/res/doc/esp32-h2-devkitm-1.png)
 
-- Samsung SmartThings with SmartThings hub or SmartThings Station / Apple Home app with Homepod2 or Homepod mini
-![sam_app](https://github.com/Samsung/ioter/blob/main/res/doc/sam_app.png)
 
-## How to install and excute
-1. install
+## Install and run ioter
+
+1. Install
 ```
 cd ioter
 ./script/setup
 ```
-2. excute
+2. Run
 ```
 cd ioter
 ./script/run
 ```
-Or you can use [**Docker image**](https://github.com/Samsung/ioter/blob/main/docs/guides/DOCKER.md)
 
-## How to onboarding
-![guide1](https://github.com/Samsung/ioter/blob/main/res/doc/guide1.png)
-1. If you run the ioter with run script, the main window will appear, and if you press the start button, the device control window will appear.
-2. The power on button is the same as the power operation of the actual device.
-3. In the App, click the add device button in the upper right corner.
+> Alternatively, you can use a [**Docker image**](docs/guides/DOCKER.md).
 
-![guide2](https://github.com/Samsung/ioter/blob/main/res/doc/guide2.png)
+## Onboard Matter supported devices
+<!-- ![guide1](https://github.com/Samsung/ioter/blob/main/res/doc/guide1.png) -->
+> Before using ioter, ensure your SmartThings Stations has been onboarded in the SmartThings app.
 
-4. And with scan qr code, device onboarding can be started. (It can also be started with other options like pairing code or scanning for nearby device.)
-5. When you click Power on (step 2), a QR code and a paring code are created. Use this to proceed with the onboarding procedure.
+After initiating ioter with the run script, the main window will appear with a list of devices.
 
-![guide3](https://github.com/Samsung/ioter/blob/main/res/doc/guide3.png)
+1. Press the start button in the ioter window. The device control window will appear.
+2. In the device control window that appears, click the power on button. This is the same as the power operation of an actual device. A QR code will be generated that can be used to onboard the device.
+3. In the SmartThings app, click the add device button.
 
-6. When onboarding is completed, device control is possible.
+<!-- ![guide2](https://github.com/Samsung/ioter/blob/main/res/doc/guide2.png) -->
+
+4. Using the scan QR code option in the SmartThings app, scan the QR code shown in ioter. You may also pair using other options, including using a pairing code or scanning for nearby devices.
+
+After onboarding your virtual device, your device is now controllable from within the SmartThings app.
+
+## Automated testing
+
+Use Automations to validate the connectivity and stability of various IoT device types. Some examples of how you can do this include:
+- Test multiple devices in a loop.
+- Use the + or - button to add/remove onboarded device or sleep commands.
+
+Automation scrips are saved in XML format and can be loaded on demand. Once executed, the progress bar shows the current completion percentage.
+
+[!references](res/doc/references.png)
+
+1. Starts/ends the loop.
+2. Add a command for the the onboarded device.
+3. Add sleep for a given interval as specified below.
+4. Device type (light bulb, contact sensor, etc.).
+5. Supported commands for the onboarded device.
+6. Device command’s value (for example, light bulb is On or Off).
+7. Sleep interval, in seconds.
+8. Loop count and loop interval, in seconds.
+9. Clear all loops and commands.
+10. Run the automation script.
+11. Clear the log window.
+12. Script completion progress bar.
+13. The log window, showing activities including script loads, executions, saves, and number of successful/unsuccessful commands.
+
+> Device/sleep commands can be reordered by using the ↑ and ↓ buttons.
 
 ## Known issues
-### 1. Problem with specific linux kernel version (higher than 5.16 and lower than 6.1.2)
-The message below appears in the syslog
+### 1. Problem with specific linux kernel versions (higher than 5.16 and lower than 6.1.2)
+The message below appears in the syslog:
+```
 kernel: wpan0 (unregistered): mctp_unregister: BUG mctp_ptr set for unknown type 65535
+```
 
 https://github.com/openthread/openthread/issues/8523
 
@@ -94,15 +127,14 @@ $ sudo grub-mkconfig | grep -iE "menuentry 'Ubuntu, with Linux" | awk '{print i+
     2 : menuentry 'Ubuntu, with Linux 5.15.0-60-generic' --class ubuntu
     3 : menuentry 'Ubuntu, with Linux 5.15.0-60-generic (recovery mode)'
 $ sudo nano /etc/default/grub
-   Find line GRUB_DEFAULT=...(by default GRUB_DEFAULT=0) and sets in quotes menu path to concrete Kernel. 
+   Find line GRUB_DEFAULT=...(by default GRUB_DEFAULT=0) and sets in quotes menu path to concrete Kernel.
    In my system first index was 1 and second was 2. I set in to GRUB_DEFAULT
    GRUB_DEFAULT="1>2"
 $ sudo update-grub
 ```
-### 2. With Ubuntu 20.04.2 LTS(Focal Fossa) , there is a BLE connection issue while onboarding End Node. To use ioter please upgrade Ubuntu 22.04 LTS or later.
-https://github.com/project-chip/connectedhomeip/issues/6347 
+### 2. With Ubuntu 20.04.2 LTS(Focal Fossa), there is a BLE connection issue while onboarding End Node. To use ioter please upgrade to Ubuntu 22.04 LTS or later.
+https://github.com/project-chip/connectedhomeip/issues/6347
 
 ## Contributing
 
-For Ioter contribution, see our [Contributing Guidelines](https://github.com/Samsung/ioter/blob/main/CONTRIBUTING.md) for more information.
-We welcome your contribution at any time.
+Interested in contributing to ioter? We welcome your contribution at any time. Visit our [Contribution Guidelines](https://github.com/Samsung/ioter/blob/main/CONTRIBUTING.md) for more information.
