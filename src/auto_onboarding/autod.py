@@ -81,6 +81,14 @@ class STOnboardingResult():
     REMOVING_SUCCESS = 3
     REMOVED_PHONE = 4
 
+    result_message = {
+        ONBOARDING_FAILURE : "Onboarding failed",
+        ONBOARDING_SUCCESS : "Onboarding success",
+        REMOVING_FAILURE : "Removing failed",
+        REMOVING_SUCCESS : "Removing success",
+        REMOVED_PHONE : "Removed phone"
+    }
+
     @classmethod
     def is_onboarding_result(cls, r):
         if r == cls.ONBOARDING_FAILURE or r == cls.ONBOARDING_SUCCESS:
@@ -92,6 +100,10 @@ class STOnboardingResult():
         if r == cls.REMOVING_FAILURE or r == cls.REMOVING_SUCCESS:
             return True
         return False
+
+    @classmethod
+    def get_result_msg(cls, result):
+        return cls.result_message.get(result, "")
 
 class AutoDeviceState():
     IDLE = 0
@@ -110,6 +122,22 @@ class simpleDlg(QDialog):
         self.app.setWindowModality(Qt.WindowModal)
         self.app.setWindowTitle(title)
         self.app.exec()
+
+    def no_device_dialog():
+        simpleDlg("No device is selected",
+                                "Check the device for onboarding")
+        Log.print("Error: No device is selected for onboarding.")
+
+    def one_device_dialog():
+        simpleDlg("Wrong input",
+                "Only one device can use Auto onboarding repeat test!!")
+        Log.print("only one device can use Auto onboarding repeat test!!")
+
+    def no_phone_dialog():
+        err = simpleDlg("Error",
+                "Can't work auto-onboarding because the phone is not connected")
+        err.setWindowModality(Qt.NonModal)
+        Log.print("Can't work auto-onboarding because the phone is not connected")
 
 ## Automation of devices ##
 class autoDevice(QThread):
@@ -154,10 +182,7 @@ class autoDevice(QThread):
         if Utils.check_connectable():
             return True
         else:
-            err = simpleDlg(
-                "Error", "Can't work auto-onboarding because the phone is not connected")
-            err.setWindowModality(Qt.NonModal)
-            Log.print("Can't work auto-onboarding because the phone is not connected")
+            simpleDlg.no_phone_dialog()
             return False
 
     ## Check device running state ##

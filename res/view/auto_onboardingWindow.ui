@@ -20,6 +20,12 @@
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QCheckBox" name="chkbox_all">
+         <property name="maximumSize">
+          <size>
+           <width>15</width>
+           <height>15</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <weight>50</weight>
@@ -33,6 +39,18 @@
        </item>
        <item>
         <widget class="QLabel" name="lbl_comport">
+         <property name="minimumSize">
+          <size>
+           <width>125</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>125</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -48,6 +66,18 @@
        </item>
        <item>
         <widget class="QComboBox" name="default_device_type">
+         <property name="minimumSize">
+          <size>
+           <width>128</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>128</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -62,6 +92,18 @@
        </item>
        <item>
         <widget class="QComboBox" name="default_thread_type">
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>120</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -73,6 +115,18 @@
        </item>
        <item>
         <widget class="QComboBox" name="default_debug_level">
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>70</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -84,6 +138,18 @@
        </item>
        <item>
         <widget class="QSpinBox" name="default_discriminator">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -110,6 +176,12 @@
        </item>
        <item>
         <widget class="QLabel" name="lbl_status">
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
