@@ -64,17 +64,14 @@ cd ioter
 > Alternatively, you can use a [**Docker image**](docs/guides/DOCKER.md).
 
 ## Onboard Matter supported devices
-<!-- ![guide1](https://github.com/Samsung/ioter/blob/main/res/doc/guide1.png) -->
-> Before using ioter, ensure your SmartThings Stations has been onboarded in the SmartThings app.
 
-After initiating ioter with the run script, the main window will appear with a list of devices.
+> Before using ioter, ensure your SmartThings Station has been onboarded in the SmartThings app.
 
-1. Press the start button in the ioter window. The device control window will appear.
+After initiating ioter with the run script, the main window will appear and allow you to select a device type.
+
+1. After selecting a device type in the ioter window, press the start button. The device control window will appear.
 2. In the device control window that appears, click the power on button. This is the same as the power operation of an actual device. A QR code will be generated that can be used to onboard the device.
 3. In the SmartThings app, click the add device button.
-
-<!-- ![guide2](https://github.com/Samsung/ioter/blob/main/res/doc/guide2.png) -->
-
 4. Using the scan QR code option in the SmartThings app, scan the QR code shown in ioter. You may also pair using other options, including using a pairing code or scanning for nearby devices.
 
 After onboarding your virtual device, your device is now controllable from within the SmartThings app.
