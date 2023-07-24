@@ -159,6 +159,12 @@ font-weight: bold;
         </item>
         <item>
          <widget class="QPushButton" name="Clearlog_btn">
+          <property name="styleSheet">
+            <string notr="true">background-color: rgb(98, 160, 234);
+font: 16pt ;
+font-weight: bold;
+</string>
+          </property>
           <property name="text">
            <string>Clear Log</string>
           </property>
