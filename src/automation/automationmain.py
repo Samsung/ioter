@@ -78,8 +78,6 @@ class automationWindow(QtWidgets.QMainWindow):
         uic.loadUi(Utils.get_view_path('automationwindow.ui'), self)
         self.resize(600, 700)
         self.setWindowTitle('Automation')
-        self.Clearlog_btn.setStyleSheet(
-            'background-color: rgb(98, 160, 234);font-weight: bold;font: 16pt;font-weight: bold;')
         self.logwindow_output.setVerticalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOn)
         self.logwindow_output.setHorizontalScrollBarPolicy(
@@ -533,7 +531,7 @@ class automationWindow(QtWidgets.QMainWindow):
         self.testprogressBar.setMaximum(self.totalcmd)
         self.logwindow('Automation Test Started')
         self.btn_Run.setStyleSheet(
-            'background-color: red;font-weight: bold;font: 16pt;font-weight: bold;')
+            'background-color: red;font: 16pt;font-weight: bold;')
         self.btn_Run.setText('Stop')
         self.logtrack.launch_log_track_script()
         while (not self.use_test_window and not self.logtrack.checksuccessfile()):
