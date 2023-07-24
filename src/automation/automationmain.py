@@ -69,15 +69,17 @@ class automationWindow(QtWidgets.QMainWindow):
         self.force_quit = False
         self.currentOpenFile = None
         self.devMgrObj = parent.deviceManager
+        self.init_ui_setting()
+        self.configure_ui_event()
+        self.show()
+
+    ## Initialize ui setting ##
+    def init_ui_setting(self):
         uic.loadUi(Utils.get_view_path('automationwindow.ui'), self)
         self.resize(600, 700)
         self.setWindowTitle('Automation')
-        self.btn_LoopStartEnd.clicked.connect(self.addLoopStartEnd)
-        self.btn_Devicecommand.clicked.connect(lambda: self.addDev(-1))
-        self.btn_Sleep.clicked.connect(lambda: self.addSleep(-1))
         self.Clearlog_btn.setStyleSheet(
             'background-color: rgb(98, 160, 234);font-weight: bold;font: 16pt;font-weight: bold;')
-        self.Clearlog_btn.clicked.connect(self.clear_log_window)
         self.logwindow_output.setVerticalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOn)
         self.logwindow_output.setHorizontalScrollBarPolicy(
@@ -92,24 +94,30 @@ class automationWindow(QtWidgets.QMainWindow):
         self.scrollArea.resize(482, 537)
         self.scrollAreaWidgetContents.setMinimumSize(QtCore.QSize(1, 1))
         self.btn_Run.setCheckable(True)
-        self.btn_Run.toggled.connect(self.run)
-        self.btn_Clearall.clicked.connect(
-            lambda: self.clear(0, len(self.objs)-1))
         self.actionOpen.setShortcut("Ctrl+O")
         self.actionSave.setShortcut("Ctrl+S")
         self.actionExit.setShortcut("Ctrl+X")
+        self.testprogressBar.setMinimum(0)
+
+    ## Configure ui event ##
+    def configure_ui_event(self):
+        self.btn_LoopStartEnd.clicked.connect(self.addLoopStartEnd)
+        self.btn_Devicecommand.clicked.connect(lambda: self.addDev(-1))
+        self.btn_Sleep.clicked.connect(lambda: self.addSleep(-1))
+        self.Clearlog_btn.clicked.connect(self.clear_log_window)
+        self.btn_Run.toggled.connect(self.run)
+        self.btn_Clearall.clicked.connect(
+            lambda: self.clear(0, len(self.objs)-1))
         self.actionOpen.triggered.connect(self.openfile)
         self.actionSave.triggered.connect(lambda: self.savefile(0))
         self.actionExit.triggered.connect(self.close)
-        self.testprogressBar.setMinimum(0)
-        self.show()
 
     ## Load Commands ##
     def loadCommandList(self):
         cmdLst = dict()
         for device in self.devMgrObj.get_used_devices():
             if device.get_commissioning_state():
-                cmdLst[device.device_num] = self.parent.dialog[device.com_port]._return_command()
+                cmdLst[device.device_num] = self.parent.dialogs[device.com_port]._return_command()
         return cmdLst
 
     ## Handle scroll bar to bootom##
@@ -299,49 +307,28 @@ class automationWindow(QtWidgets.QMainWindow):
             try:
                 if self.objs[x]:
                     if self.objs[x].objectName == 'loopStart':
-                        m1 = Etree.Element("loop")
-                        count = self.objs[x].spinbox_count.value()
-                        interval = self.objs[x].spinbox_interval.value()
-                        if count:
-                            m1.set("count", str(count))
-                        else:
-                            m1.set("count", '0')
-                        if interval:
-                            m1.set("interval", str(interval))
-                        else:
-                            m1.set("interval", '0')
-                        current = m1
+                        current = m1 = self.save_loop(x)
                     elif self.objs[x].objectName == 'loopEnd':
                         root.append(current)
                         current = root
                     elif self.objs[x].objectName == 'sleep':
                         s = Etree.Element("sleep")
                         interval = self.objs[x].spinbox_interval.value()
-                        if interval:
-                            s.set("interval", str(interval))
-                        else:
-                            s.set("interval", '0')
+                        s.set("interval", str(interval) if interval else '0')
                         current.append(s)
                     elif self.objs[x].objectName == 'cmd':
-                        c = Etree.Element("cmd")
-                        c.set(
-                            "devType", self.objs[x].comboBox_devicetype.currentText())
-                        c.set(
-                            "cmdName", self.objs[x].comboBox_cmd.currentText())
-                        if self.objs[x].comboBox_value.isVisible():
-                            v = self.objs[x].comboBox_value.currentText()
-                        elif self.objs[x].spinBox_value.isVisible():
-                            v = str(self.objs[x].spinBox_value.value())
-                        else:
-                            print("CMD value error")
-                        c.set("val", v)
-                        current.append(c)
+                        cmd = self.save_cmd(x)
+                        current.append(cmd)
             except Exception as e:
                 print(f'save error {e}')
         if current == m1:
             self.btn_LoopStartEnd.setChecked(False)
             self.addLoopStartEnd()
             root.append(current)
+        self.save_xml(filename, root)
+        self.currentOpenFile = filename
+
+    def save_xml(self, filename, root):
         tree = Etree.ElementTree(root)
         Etree.indent(tree, ' ')
         # Checking if Old and New file are same
@@ -349,12 +336,33 @@ class automationWindow(QtWidgets.QMainWindow):
             oldtree = Etree.parse(filename)
             if Etree.tostring(oldtree.getroot(), encoding="utf-8") == Etree.tostring(tree.getroot(), encoding="utf-8"):
                 print('No change in file')
-                self.currentOpenFile = filename
                 return
         with open(filename, "wb",) as files:
             tree.write(files, xml_declaration=True)
             print('Saved File Successfully')
-        self.currentOpenFile = filename
+
+    def save_loop(self, x):
+        m1 = Etree.Element("loop")
+        count = self.objs[x].spinbox_count.value()
+        interval = self.objs[x].spinbox_interval.value()
+        m1.set("count", str(count) if count else '0')
+        m1.set("interval", str(interval) if interval else '0')
+        return m1
+
+    def save_cmd(self, x):
+        cmd = Etree.Element("cmd")
+        cmd.set(
+            "devType", self.objs[x].comboBox_devicetype.currentText())
+        cmd.set(
+            "cmdName", self.objs[x].comboBox_cmd.currentText())
+        if self.objs[x].comboBox_value.isVisible():
+            value = self.objs[x].comboBox_value.currentText()
+        elif self.objs[x].spinBox_value.isVisible():
+            value = str(self.objs[x].spinBox_value.value())
+        else:
+            print("CMD value error")
+        cmd.set("val", value)
+        return cmd
 
     ## Load script into Automation UI ##
     def load(self, filename):
@@ -363,7 +371,7 @@ class automationWindow(QtWidgets.QMainWindow):
         print(filename)
         tree = Etree.parse(filename)
         root = tree.getroot()
-        unavaildevice = []
+        self.unavaildevice = []
         for child in root:
             if child.tag == 'loop':
                 self.btn_LoopStartEnd.setChecked(True)
@@ -374,56 +382,40 @@ class automationWindow(QtWidgets.QMainWindow):
                 self.objs[index].spinbox_interval.setValue(
                     int(child.attrib['interval']))
                 for cmd in child:
-                    if cmd.tag == 'sleep':
-                        self.addSleep(-1)
-                        index = len(self.objs) - 1
-                        self.objs[index].spinbox_interval.setValue(
-                            int(cmd.attrib['interval']))
-                    else:
-                        self.addDev(-1)
-                        index = len(self.objs) - 1
-                        dt = cmd.attrib['devType']
-                        if self.objs[index].comboBox_devicetype.findText(dt) > -1:
-                            self.objs[index].comboBox_devicetype.setCurrentText(dt)
-                            self.objs[index].comboBox_cmd.setCurrentText(
-                                cmd.attrib['cmdName'])
-                            if self.objs[index].spinBox_value.isVisible():
-                                self.objs[index].spinBox_value.setValue(int(
-                                    cmd.attrib['val']))
-                            else:
-                                self.objs[index].comboBox_value.setCurrentText(
-                                    cmd.attrib['val'])
-                        else:
-                            if dt not in unavaildevice:
-                                unavaildevice.append(dt)
-                                print('---------', unavaildevice)
-                                self.errorbox(dt + " is not onboarded!")
+                    self.load_sleep_and_cmd(cmd)
 
                 self.btn_LoopStartEnd.setChecked(False)
                 self.addLoopStartEnd()
-            elif child.tag == 'sleep':
-                self.addSleep(-1)
-                index = len(self.objs) - 1
-                self.objs[index].spinbox_interval.setValue(
-                    int(child.attrib['interval']))
             else:
-                self.addDev(-1)
-                index = len(self.objs) - 1
-                if self.objs[index].comboBox_devicetype.findText(child.attrib['devType']) > -1:
-                    self.objs[index].comboBox_devicetype.setCurrentText(
-                        child.attrib['devType'])
-                    self.objs[index].comboBox_cmd.setCurrentText(
-                        child.attrib['cmdName'])
-                    self.objs[index].comboBox_value.setCurrentText(
-                        child.attrib['val'])
-                else:
-                    if child.attrib['devType'] not in unavaildevice:
-                        unavaildevice.append(child.attrib['devType'])
-                        print('---------', unavaildevice)
-                        self.errorbox(
-                            child.attrib['devType']+" is not onboarded!")
+                self.load_sleep_and_cmd(child)
 
         self.currentOpenFile = filename
+
+    def load_sleep_and_cmd(self, cmd):
+        if cmd.tag == 'sleep':
+            self.addSleep(-1)
+            index = len(self.objs) - 1
+            self.objs[index].spinbox_interval.setValue(
+                int(cmd.attrib['interval']))
+        else:
+            self.load_cmd(cmd)
+
+    def load_cmd(self, cmd):
+        self.addDev(-1)
+        index = len(self.objs) - 1
+        devType = cmd.attrib['devType']
+        if self.objs[index].comboBox_devicetype.findText(devType) > -1:
+            self.objs[index].comboBox_devicetype.setCurrentText(devType)
+            self.objs[index].comboBox_cmd.setCurrentText(cmd.attrib['cmdName'])
+            if self.objs[index].spinBox_value.isVisible():
+                self.objs[index].spinBox_value.setValue(int(cmd.attrib['val']))
+            else:
+                self.objs[index].comboBox_value.setCurrentText(cmd.attrib['val'])
+        else:
+            if devType not in self.unavaildevice:
+                self.unavaildevice.append(devType)
+                print('---------', self.unavaildevice)
+                self.errorbox(devType + " is not onboarded!")
 
     ## Displays the normal/abnormal status of cmd ##
     def cmd_contition(self, x, normal):
@@ -434,55 +426,51 @@ class automationWindow(QtWidgets.QMainWindow):
 
     ## Validate All Fields ##
     def validatefield(self):
-        valid = True
+        total_valid = True
         if len(self.objs) == 0:
             self.errorbox('No Data')
-            valid = False
-            return valid
+            return False
         for x in range(len(self.objs)):
             try:
+                valid = True
                 if self.objs[x]:
                     if self.objs[x].objectName == 'loopStart':
                         if self.objs[x].spinbox_count.value() <= 0:
-                            self.cmd_contition(x, False)
                             valid = False
-                        else:
-                            self.cmd_contition(x, True)
                     elif self.objs[x].objectName == 'sleep':
                         if self.objs[x].spinbox_interval.value() <= 0:
-                            self.cmd_contition(x, False)
                             valid = False
-                        else:
-                            self.cmd_contition(x, True)
                     elif self.objs[x].objectName == 'cmd':
-                        devtype = self.objs[x].comboBox_devicetype.currentText()
-                        cmdtype = self.objs[x].comboBox_cmd.currentText()
-                        if devtype == 'Device Type':
-                            self.cmd_contition(x, False)
-                            valid = False
-                        elif (LIGHTSENSOR_DEVICE_TYPE in devtype) and ("Level Control lux" in cmdtype):
-                            try:
-                                input = self.objs[x].spinBox_value.value()
-                            except ValueError:
-                                self.cmd_contition(x, False)
-                                valid = False
-                            else:
-                                if input < LIGHTSENSOR_MIN_VAL or input > LIGHTSENSOR_MAX_VAL:
-                                    self.cmd_contition(x, False)
-                                    self.errorbox(
-                                        f'{LIGHTSENSOR_MIN_VAL} &lt; Light Sensor &gt; {LIGHTSENSOR_MAX_VAL}')
-                                    valid = False
-                                else:
-                                    measured_value = Utils.findMeasuredValue(input)
-                                    convert_illum = Utils.toIlluminance(measured_value)
-                                    self.objs[x].spinBox_value.setValue(convert_illum)
-                                    self.cmd_contition(x, True)
-                        else:
-                            self.cmd_contition(x, True)
+                        valid = self.validate_cmd(x)
+
+                    self.cmd_contition(x, valid)
+                    if not valid:
+                        total_valid = False
             except Exception as e:
                 print(f'validatefield error {e}')
-        if valid == False:
+        if total_valid == False:
             self.errorbox('Please fill required fields')
+        return total_valid
+
+    def validate_cmd(self, x, valid = True):
+        devtype = self.objs[x].comboBox_devicetype.currentText()
+        cmdtype = self.objs[x].comboBox_cmd.currentText()
+        if devtype == 'Device Type':
+            valid = False
+        elif (LIGHTSENSOR_DEVICE_TYPE in devtype) and ("Level Control lux" in cmdtype):
+            try:
+                input = self.objs[x].spinBox_value.value()
+            except ValueError:
+                valid = False
+            else:
+                if input < LIGHTSENSOR_MIN_VAL or input > LIGHTSENSOR_MAX_VAL:
+                    self.errorbox(
+                        f'{LIGHTSENSOR_MIN_VAL} &lt; Light Sensor &gt; {LIGHTSENSOR_MAX_VAL}')
+                    valid = False
+                else:
+                    measured_value = Utils.findMeasuredValue(input)
+                    convert_illum = Utils.toIlluminance(measured_value)
+                    self.objs[x].spinBox_value.setValue(convert_illum)
         return valid
 
     ## Common ErrorBox ##
@@ -520,74 +508,75 @@ class automationWindow(QtWidgets.QMainWindow):
             self.testprogressBar.setValue(0)
             self.logwindow('Clean all')
 
-    def silentToggleBtnRun(self):
+    def start_execution(self):
+        if not self.validatefield():
+            print('Validation Failed')
+            self.btn_Run.toggle()
+            return
+        else:
+            if not self.currentOpenFile:
+                if self.savefile(1) == False:
+                    self.btn_Run.toggle()
+                    self.errorbox('Please Save a file before Run')
+                    return
+            else:
+                self.save(self.currentOpenFile)
+        self.curcmd = 0
+        self.send_device_number(self.currentOpenFile)
+        self.testprogressBar.setValue(0)
+        self.logtrack = LogTrackScriptCntl()
+        self.autotestThread = ProcessCmd(self, self.currentOpenFile)
+        self.autotestThread.update_highlight.connect(self.highlight)
+        self.autotestThread.complete_autotest.connect(
+            self.complete_autotest)
+        self.autotestThread.totalCmd(self)
+        self.testprogressBar.setMaximum(self.totalcmd)
+        self.logwindow('Automation Test Started')
+        self.btn_Run.setStyleSheet(
+            'background-color: red;font-weight: bold;font: 16pt;font-weight: bold;')
+        self.btn_Run.setText('Stop')
+        self.logtrack.launch_log_track_script()
+        while (not self.use_test_window and not self.logtrack.checksuccessfile()):
+            QTest.qWait(100)
+        self.autotestThread.start()
+        self.autotestComplete = False
+
+    def stop_execution(self):
         self.btn_Run.setCheckable(False)
-        self.btn_Run.toggle()
+        if not self.autotestThread.exec_stop:
+            self.autotestThread.update_highlight.disconnect(self.highlight)
+            self.autotestThread.complete_autotest.disconnect(
+                self.complete_autotest)
+            self.autotestThread.stop()
+            self.autotestThread = 0
+
+        if self.autotestComplete:
+            self.logwindow('Automation Test completed')
+        else:
+            self.logwindow('Automation Test stoped')
+        self.logtrack.terminate_log_track_script()
+        self.logwindow("Successful commands: " +
+                        str(self.logtrack.successcount(self.currentOpenFile)))
+        if self.logtrack.filename != None:
+            self.logwindow("Test report stored at " +
+                            self.logtrack.filename)
+        self.logtrack = 0
+        self.btn_Run.setText('Run')
+        self.btn_Run.setStyleSheet(
+            'background-color: rgb(98, 160, 234);font: 16pt;font-weight:bold;')
+        if self.old_highlight != -1:
+            self.objs[self.old_highlight].layoutWidget.setStyleSheet('')
+            self.old_highlight = -1
         self.btn_Run.setCheckable(True)
+        self.send_device_number()
 
     ## Run Test Script ##
     @QtCore.pyqtSlot(bool)
     def run(self, state):
         if state:
-            if not self.validatefield():
-                print('Validation Failed')
-                self.silentToggleBtnRun()
-                return
-            else:
-                if self.currentOpenFile == None:
-                    if self.savefile(1) == False:
-                        self.silentToggleBtnRun()
-                        self.errorbox('Please Save a file before Run')
-                        return
-                else:
-                    self.save(self.currentOpenFile)
-            self.curcmd = 0
-            self.send_device_number(self.currentOpenFile)
-            self.testprogressBar.setValue(0)
-            self.logtrack = LogTrackScriptCntl()
-            self.autotestThread = ProcessCmd(self, self.currentOpenFile)
-            self.autotestThread.update_highlight.connect(self.highlight)
-            self.autotestThread.complete_autotest.connect(
-                self.complete_autotest)
-            self.autotestThread.totalCmd(self)
-            self.testprogressBar.setMaximum(self.totalcmd)
-            self.logwindow('Automation Test Started')
-            self.btn_Run.setStyleSheet(
-                'background-color: red;font-weight: bold;font: 16pt;font-weight: bold;')
-            self.btn_Run.setText('Stop')
-            self.logtrack.launch_log_track_script()
-            while (not self.use_test_window and not self.logtrack.checksuccessfile()):
-                QTest.qWait(100)
-            self.autotestThread.start()
-            self.autotestComplete = False
-        else:
-            self.btn_Run.setCheckable(False)
-            if self.autotestThread and not self.autotestThread.exec_stop:
-                self.autotestThread.update_highlight.disconnect(self.highlight)
-                self.autotestThread.complete_autotest.disconnect(
-                    self.complete_autotest)
-                self.autotestThread.stop()
-                self.autotestThread = 0
-
-            if self.autotestComplete:
-                self.logwindow('Automation Test completed')
-            else:
-                self.logwindow('Automation Test stoped')
-            self.logtrack.terminate_log_track_script()
-            self.logwindow("Successful commands: " +
-                           str(self.logtrack.successcount(self.currentOpenFile)))
-            if self.logtrack.filename != None:
-                self.logwindow("Test report stored at " +
-                               self.logtrack.filename)
-            self.logtrack = 0
-            self.btn_Run.setText('Run')
-            self.btn_Run.setStyleSheet(
-                'background-color: rgb(98, 160, 234);font: 16pt;font-weight:bold;')
-            if self.old_highlight != -1:
-                self.objs[self.old_highlight].layoutWidget.setStyleSheet('')
-                self.old_highlight = -1
-            self.btn_Run.setCheckable(True)
-            self.send_device_number()
+            self.start_execution()
+        elif self.autotestThread:
+            self.stop_execution()
 
     ## Highlight Executing command ##
     def highlight(self, index):
@@ -644,7 +633,6 @@ class automationWindow(QtWidgets.QMainWindow):
                         error = True
                     obj.comboBox_devicetype.setCurrentIndex(0)
                 obj.comboBox_devicetype.removeItem(id)
-
 
     ## Complete Automation test ##
     @QtCore.pyqtSlot()
