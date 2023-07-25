@@ -34,7 +34,7 @@ from common.log import Log
 from common.utils import Utils
 from common.config import Config
 
-import signal
+import signal, os, time
 from psutil import *
 from subprocess import *
 
@@ -75,6 +75,8 @@ class ProcessController():
                 device_info.thread_type, device_info.com_port,
                 device_info.debug_level, device_info.device_num,
                 device_info.vid, device_info.pid)
+            os.system('sudo service bluetooth restart')
+            time.sleep(1)
         else:
             run_param = ProcessController.RUN_PARAM_CHIP_ALL_CLUSTERS_FORMAT_WITH_MULTI_BLE % (
                 device_info.device_id, device_info.discriminator,
@@ -94,6 +96,7 @@ class ProcessController():
             device_type = "fed"
 
         path = Utils.get_script_path() + 'start'
+
         self.subProcess = Popen([path, run_param, device_type])
         self.set_pid(self.subProcess.pid)
         return self.pid
