@@ -12,7 +12,7 @@ Benefits include:
 - Easy to use: Quickly control the status of devices from within ioter.
 - Automated testing: Repeated testing through scripts can validate device stability and connection.
 
-ioter emulates all Matter supported devices with a Linux PC and Thread RCP dongle. ioter runs the `All Cluster App` of Matter on a Linux PC to emulate multiple instances of various Matter supported IoT nodes. Each of these IoT nodes uses the underlying Thread RCP-based USB dongle (radio) for data transmission. By using the [SmartThings Station](https://www.smartthings.com/smartthings-station) as a border router and the SmartThings Application along with emulated IoT nodes, we can configure a smart home. This concept is demonstrated in the diagram below:
+ioter emulates all Matter supported devices with a Linux PC and Thread RCP dongle. ioter runs the [`all-clusters-app`]( https://github.com/project-chip/connectedhomeip/blob/master/docs/examples/index.md) of Matter on a Linux PC to emulate multiple instances of various Matter supported IoT nodes. Each of these IoT nodes uses the underlying Thread RCP-based USB dongle (radio) for data transmission. By using the [SmartThings Station](https://www.smartthings.com/smartthings-station) as a border router and the SmartThings Application along with emulated IoT nodes, we can configure a smart home. This concept is demonstrated in the diagram below:
 
 ![ioter_overview](/res/doc/ioter_overview.png)
 
@@ -31,8 +31,8 @@ ioter supports a wide range of IoT devices including:
 - OnOff Plugin
 
 ### Required tools
-- Bluetooth-enabled Windows desktop or laptop.
-- Ubuntu 22.04 (prior versions have Bluetooth conflicts). *All installation instructions have been validated on Ubunti 22.04 LTS.*
+- Bluetooth-enabled desktop or laptop.
+- Ubuntu 22.04 (prior versions have Bluetooth conflicts). *All installation instructions have been validated on Ubuntu 22.04 LTS.*
 - USB hub with power input (USB 3.0 recommended).
 - An onboarded SmartThings hub or SmartThings Station. An Apple HomePod (second gen) or HomePod Mini may also be used.
 - A Thread RCP USB dongle. Below you can find a list of compatible dongles and setup guides for each dongle:
@@ -82,12 +82,12 @@ Use Automations to validate the connectivity and stability of various IoT device
 - Test multiple devices in a loop.
 - Use the + or - button to add/remove onboarded device or sleep commands.
 
-Automation scrips are saved in XML format and can be loaded on demand. Once executed, the progress bar shows the current completion percentage.
+Automation scripts are saved in XML format and can be loaded on demand. Once executed, the progress bar shows the current completion percentage.
 
 ![reference](/res/doc/reference.png)
 
 1. Starts/ends the loop.
-2. Add a command for the the onboarded device.
+2. Add a command for the onboarded device.
 3. Add sleep for a given interval as specified below.
 4. Device type (light bulb, contact sensor, etc.).
 5. Supported commands for the onboarded device.
