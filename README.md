@@ -2,7 +2,7 @@
 
 ## Get started with ioter
 
-Ioter acts as a device emulator for developers, testers, and manufacturers of connected devices that are compliant with Matter and Thread.
+ioter acts as a device emulator for developers, testers, and manufacturers of connected devices that are compliant with Matter and Thread.
 
 Benefits include:
 - Flexibility: Multiple types of IoT devices can be implemented using a single RCP dongle.
