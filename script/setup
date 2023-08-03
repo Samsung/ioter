@@ -17,6 +17,7 @@ python3_install()
     sudo pip install pyudev
     sudo pip install androidviewclient
     sudo apt install libxcb-xinerama0
+    sudo apt install python3-pyqt5.qtmultimedia
 }
 
 main()
