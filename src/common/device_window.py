@@ -45,6 +45,7 @@ from things.lightsensor import LightsensorWindow
 from things.occupancy import OccupancyWindow
 from things.windowcovering import WindowcoveringWindow
 from things.plugin_onoff import OnoffPlugin
+from things.speaker import SpeakerWindow
 
 ## Get device window by device type ##
 def get_device_window_by_device_type(device_type, device_info, use_test_window, window_manager):
@@ -60,6 +61,7 @@ def get_device_window_by_device_type(device_type, device_info, use_test_window, 
         WINDOWCOVERING_DEVICE_TYPE: lambda device_info: WindowcoveringWindow(
             device_info, window_class, window_manager),
         ONOFFPLUGIN_DEVICE_TYPE: lambda device_info: OnoffPlugin(
-            device_info, window_class, window_manager)
+            device_info, window_class, window_manager),
+        SPEAKER_DEVICE_TYPE: lambda device_info: SpeakerWindow(device_info, window_class, window_manager)
     }
     return window.get(device_type, None)(device_info)

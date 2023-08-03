@@ -47,7 +47,15 @@ import os
 # Occupancy           | 263           | 'occupied', 'unoccupied'
 # Windowcovering      | 514           | 'set_target_position', 'set_current_postion'
 # On Off Plugin       | 266(0x10A)    | 'on', 'off'
+# Speaker             | 34(0x0022)    | 'on', 'off', 'set_volume'
 # -----------------------------------------------------------------------------------
+
+SPEAKER_DEVICE_TYPE = 'Speaker'
+SPEAKER_DEVICE_ID = '34'
+SPEAKER_VOL_MIN_VAL = 0
+SPEAKER_VOL_MAX_VAL = 100
+SPEAKER_VOL_DEFAULT = 100
+SPEAKER_VOL_ST_CONVERT = 254
 
 LIGHTBULB_DEVICE_TYPE = 'Dimmable Light'
 LIGHTBULB_DEVICE_ID = '257'
@@ -117,7 +125,8 @@ class CommandUtil():
         LIGHTSENSOR_DEVICE_TYPE: LIGHTSENSOR_DEVICE_ID,
         OCCUPANCY_DEVICE_TYPE: OCCUPANCY_DEVICE_ID,
         WINDOWCOVERING_DEVICE_TYPE: WINDOWCOVERING_DEVICE_ID,
-        ONOFFPLUGIN_DEVICE_TYPE: ONOFFPLUGIN_DEVICE_ID
+        ONOFFPLUGIN_DEVICE_TYPE: ONOFFPLUGIN_DEVICE_ID,
+        SPEAKER_DEVICE_TYPE: SPEAKER_DEVICE_ID
     }
 
     ## Get supported device types list ##
@@ -280,4 +289,24 @@ class OnOffPluginCommand():
 
         plug_on_command = "echo '{\"Name\":\"Onoff\",\"onoff\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
         command = plug_on_command % (value, device_num)
+        os.popen(command)
+
+class SpeakerCommand():
+    ## Set on/off ##
+    def onOff(device_num, state):
+        if state:
+            value = 1  # On
+        else:
+            value = 0  # Off
+
+        speaker_mute_unmute_command = "echo '{\"Name\":\"Onoff\",\"onoff\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
+        command = speaker_mute_unmute_command % (value, device_num)
+        os.popen(command)
+
+    ## Set volume ##
+    def set_volume(device_num, level):
+        value = int(int(level)*SPEAKER_VOL_ST_CONVERT / 100)    # 0 < value < 254
+
+        speaker_volume_command = "echo '{\"Name\":\"Level\",\"level\":%s}' > /tmp/chip_all_clusters_fifo_device%s"
+        command = speaker_volume_command % (value, device_num)
         os.popen(command)

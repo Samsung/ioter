@@ -101,7 +101,7 @@ class CommonWindow(QMainWindow):
         
     ## Check if a thing use battery or not
     def is_battery_use(self, view_name):
-        if not(view_name == "light.ui" or view_name == "onoffplugin.ui"):
+        if not(view_name == "light.ui" or view_name == "onoffplugin.ui" or view_name == "speaker.ui"):
             return True
         return False
 
