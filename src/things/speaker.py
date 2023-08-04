@@ -97,35 +97,17 @@ class SpeakerWindow(QDialog):
         self.common_window.add_initial_value_handler(self.send_command)
         self.common_window.add_autotest_event_handler(
             self.autotest_event_handler)
-        self.init_fileopen_button()
         self.init_volume_slider()
         self.update_ui()
 
     ## Get UI component from Common window ##
     def get_ui_component_from_common_window(self, common_window):
         # device specific ui component
-        self.labelSelectedMusic = common_window.labelSelectedMusic
-        self.pushButtonOpenFile = common_window.pushButtonOpenFile
         self.pushButtonDeviceMuteStatus = common_window.pushButtonStatus
         self.horizontalSliderVolumeControl = common_window.horizontalSliderVolumeControl
         self.textBrowserLog = common_window.textBrowserLog
         self.labelStatePicture = common_window.labelDevicePicture
         self.stackedWidget = common_window.stackedWidget
-        
-    def init_fileopen_button(self):
-        self.pushButtonOpenFile.clicked.connect(self.fileopen_click_handler)
-        self.player = QMediaPlayer()
-
-    def fileopen_click_handler(self, _):
-        full_file_path = self.select_music_file()
-        url = QUrl.fromLocalFile(full_file_path)
-        content = QMediaContent(url)
-        self.player.setMedia(content)
-        self.player.play()
-
-    def select_music_file(self):
-        full_file_path = os.path.join(os.getcwd(), 'test.mp3')
-        return full_file_path
     
     ## Initialise UI Slider for volume functionality##
     def init_volume_slider(self):
