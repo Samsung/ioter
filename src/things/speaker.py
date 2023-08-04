@@ -38,8 +38,6 @@ from common.device_command import *
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-
 
 EVENT_TOGGLE = 1
 EVENT_VOLUME_CONTROL = 2
