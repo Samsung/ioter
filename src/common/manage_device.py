@@ -149,7 +149,7 @@ class DeviceInfo():
         OCCUPANCY_DEVICE_ID: 4114,
         WINDOWCOVERING_DEVICE_ID: 4101,
         ONOFFPLUGIN_DEVICE_ID: 4106,
-        SPEAKER_DEVICE_ID: 4000 # have to modify
+        SPEAKER_DEVICE_ID: 4123
     }
 
     ## Init class ##
