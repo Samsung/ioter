@@ -166,7 +166,7 @@
              <number>0</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="5,0,2,2">
+             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="5,2,2">
               <property name="spacing">
                <number>12</number>
               </property>
@@ -200,47 +200,6 @@
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0,0">
-                <property name="spacing">
-                 <number>8</number>
-                </property>
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="labelMusicSelection">
-                  <property name="text">
-                   <string>Music</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="labelSelectedMusic">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>No file selected</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButtonOpenFile">
-                  <property name="text">
-                   <string>Open</string>
                   </property>
                  </widget>
                 </item>
